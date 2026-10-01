@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    border-radius: 0px !important;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    color: #1c1917;
+    background-color: #faf9f6;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.015em;
+  }
+}
+
+/* Custom modern sharp scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f0ea;
+}
+::-webkit-scrollbar-thumb {
+  background: #991b1b;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #7f1d1d;
+}
+
+/* Subtle modern background grids & architectural elements */
+.bg-edu-grid {
+  background-image: 
+    linear-gradient(to right, rgba(185, 28, 28, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(185, 28, 28, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.bg-blueprint-lines {
+  background-image: 
+    repeating-linear-gradient(0deg, transparent, transparent 47px, rgba(153, 27, 27, 0.035) 48px, transparent 49px),
+    repeating-linear-gradient(90deg, transparent, transparent 47px, rgba(153, 27, 27, 0.035) 48px, transparent 49px);
+}
+
+.bg-dot-matrix {
+  background-image: radial-gradient(rgba(185, 28, 28, 0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Sharp hairline accent borders */
+.border-edu-red {
+  border-color: #b91c1c;
+}
+.border-edu-subtle {
+  border-color: #e5e5e5;
+}
+
+/* Subtle gentle floating animation for background elements */
+@keyframes slowDrift {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+@keyframes pulseLaser {
+  0%, 100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes marqueeSlide {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-slow-drift {
+  animation: slowDrift 14s ease-in-out infinite;
+}
+
+.animate-slow-drift-reverse {
+  animation: slowDrift 18s ease-in-out infinite reverse;
+}
+
+.animate-pulse-laser {
+  animation: pulseLaser 4s ease-in-out infinite;
+}
+
+.animate-marquee {
+  display: flex;
+  width: 200%;
+  animation: marqueeSlide 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}

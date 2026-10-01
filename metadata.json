@@ -1,0 +1,6 @@
+{
+  "name": "Cổng Thông Tin Điện Tử Trường THPT",
+  "description": "Cổng thông tin giáo dục điện tử trường THPT hiện đại với tông màu đỏ truyền thống, đường nét dứt khoát, thanh lướt tương tác và quản lý tin tức, tuyển sinh, góc thất lạc.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
