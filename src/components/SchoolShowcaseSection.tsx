@@ -17,7 +17,6 @@ export const SchoolShowcaseSection: React.FC<SchoolShowcaseSectionProps> = ({
   const [touchCurrentX, setTouchCurrentX] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
-  const [activeTabMobile, setActiveTabMobile] = useState<'main' | 'history' | 'facilities'>('main');
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -41,18 +40,16 @@ export const SchoolShowcaseSection: React.FC<SchoolShowcaseSectionProps> = ({
     setTouchCurrentX(currentX);
     const diff = currentX - touchStartX;
     // Dampen drag effect
-    setDragOffset(Math.max(-100, Math.min(100, diff * 0.75)));
+    setDragOffset(Math.max(-150, Math.min(150, diff * 0.8)));
   };
 
   const handleTouchEnd = () => {
     if (touchStartX !== null && touchCurrentX !== null) {
       const diff = touchCurrentX - touchStartX;
-      const swipeThreshold = 45; // pixels
+      const swipeThreshold = 50; // pixels
       if (diff < -swipeThreshold) {
-        // Swiped left -> next slide
         nextSlide();
       } else if (diff > swipeThreshold) {
-        // Swiped right -> prev slide
         prevSlide();
       }
     }
@@ -72,13 +69,13 @@ export const SchoolShowcaseSection: React.FC<SchoolShowcaseSectionProps> = ({
     if (!isDragging || touchStartX === null) return;
     setTouchCurrentX(e.clientX);
     const diff = e.clientX - touchStartX;
-    setDragOffset(Math.max(-100, Math.min(100, diff * 0.75)));
+    setDragOffset(Math.max(-150, Math.min(150, diff * 0.8)));
   };
 
   const handleMouseUp = () => {
     if (isDragging && touchStartX !== null && touchCurrentX !== null) {
       const diff = touchCurrentX - touchStartX;
-      const swipeThreshold = 45;
+      const swipeThreshold = 50;
       if (diff < -swipeThreshold) {
         nextSlide();
       } else if (diff > swipeThreshold) {
@@ -91,8 +88,6 @@ export const SchoolShowcaseSection: React.FC<SchoolShowcaseSectionProps> = ({
     setDragOffset(0);
   };
 
-  const current = SCHOOL_SHOWCASE[activeSlide];
-
   return (
     <section className="relative w-full py-10 sm:py-16 bg-[#F6F4EF] border-b border-[#E6E1D6] overflow-hidden">
       {/* Background Subtle Modern Dots and Schematics */}
@@ -101,263 +96,165 @@ export const SchoolShowcaseSection: React.FC<SchoolShowcaseSectionProps> = ({
       <div className="relative max-w-7xl mx-auto px-4 z-10">
         
         {/* Centered Headline from Wireframe: "Nhà trường" with accent underlines */}
-        <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-10">
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
           <span className="text-[11px] font-mono tracking-widest uppercase text-[#991B1B] font-bold">
             BẢN SẮC & TRUYỀN THỐNG
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#1C1917] tracking-tight uppercase mt-1">
-            Nhà trường
+            Tin Nhà Trường
           </h2>
           <div className="flex items-center justify-center gap-2 mt-2 sm:mt-3">
             <div className="w-8 sm:w-12 h-[2px] bg-[#991B1B]" />
             <div className="w-2.5 sm:w-3 h-2.5 sm:h-3 border border-[#991B1B] rotate-45 bg-[#FEF2F2]" />
             <div className="w-8 sm:w-12 h-[2px] bg-[#991B1B]" />
           </div>
-
-          {/* Mobile Tab Switcher: Quick access on phones */}
-          <div className="flex sm:hidden items-center justify-center gap-1 mt-4 p-1 bg-[#EAE6DE] border border-stone-300">
-            <button
-              onClick={() => setActiveTabMobile('main')}
-              className={`flex-1 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
-                activeTabMobile === 'main' ? 'bg-[#991B1B] text-white shadow-xs' : 'text-stone-700'
-              }`}
-            >
-              Tiêu điểm
-            </button>
-            <button
-              onClick={() => setActiveTabMobile('history')}
-              className={`flex-1 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
-                activeTabMobile === 'history' ? 'bg-[#991B1B] text-white shadow-xs' : 'text-stone-700'
-              }`}
-            >
-              Truyền thống
-            </button>
-            <button
-              onClick={() => setActiveTabMobile('facilities')}
-              className={`flex-1 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
-                activeTabMobile === 'facilities' ? 'bg-[#991B1B] text-white shadow-xs' : 'text-stone-700'
-              }`}
-            >
-              Cơ sở vật chất
-            </button>
-          </div>
         </div>
 
-        {/* 3-Column Layout from Wireframe:
-            Left Column Box | Center Main Highlight (Swipeable) | Right Column Box */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 lg:gap-8 items-stretch">
-          
-          {/* ========================================================
-              LEFT COLUMN: TRUYỀN THỐNG & ĐỘI NGŨ
-             ======================================================== */}
-          <div
-            className={`lg:col-span-3 flex-col justify-between border border-[#E2DDD3] bg-white p-4 sm:p-5 shadow-xs ${
-              activeTabMobile === 'history' ? 'flex' : 'hidden sm:flex'
-            }`}
-          >
-            <div>
-              <div className="w-8 sm:w-9 h-8 sm:h-9 bg-[#FEF2F2] border border-[#B91C1C] flex items-center justify-center text-[#991B1B] mb-3 sm:mb-4">
-                <Landmark className="w-4 sm:w-5 h-4 sm:h-5" />
-              </div>
+        {/* 3D Coverflow Carousel Container */}
+        <div 
+          ref={containerRef}
+          className="relative w-full h-[520px] sm:h-[580px] md:h-[620px] flex justify-center items-center perspective-[1200px]"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+        >
+          {SCHOOL_SHOWCASE.map((item, idx) => {
+            // Calculate distance from active slide
+            const diff = (idx - activeSlide + SCHOOL_SHOWCASE.length) % SCHOOL_SHOWCASE.length;
+            let offset = diff;
+            // E.g., if total is 3, diff=2 -> offset=-1 (left)
+            if (diff > Math.floor(SCHOOL_SHOWCASE.length / 2)) {
+              offset = diff - SCHOOL_SHOWCASE.length;
+            }
 
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase text-[#991B1B] tracking-wider">
-                LỊCH SỬ HƠN 115 NĂM
-              </span>
-              <h3 className="text-sm sm:text-base lg:text-lg font-bold text-[#1C1917] uppercase mt-1 leading-snug">
-                Nơi Hội Tụ Tinh Hoa & Khát Vọng Tri Thức
-              </h3>
+            // Carousel calculations
+            const baseTranslate = offset === 0 ? 0 : offset > 0 ? 75 : -75; // percentage of card width
+            const scale = offset === 0 ? 1 : 0.85;
+            const zIndex = offset === 0 ? 30 : 20 - Math.abs(offset);
+            const opacity = offset === 0 ? 1 : 0.6;
+            const blur = offset === 0 ? 'blur(0px)' : 'blur(1.5px)';
+            
+            // Drag effect is stronger on the active card
+            const currentDragOffset = offset === 0 ? dragOffset : dragOffset * 0.5;
+            
+            const transform = `translateX(calc(${baseTranslate}% + ${currentDragOffset}px)) scale(${scale})`;
 
-              <p className="mt-2.5 sm:mt-3 text-xs sm:text-sm text-stone-600 leading-relaxed">
-                Tự hào là chiếc nôi đào tạo nhiều thế hệ lãnh đạo, nhà khoa học và nhân tài ưu tú của đất nước. Tinh thần hiếu học và kỷ cương luôn được gìn giữ qua từng thế hệ.
-              </p>
-
-              {/* Key Metric Blocks */}
-              <div className="mt-4 sm:mt-6 border-t border-stone-200 pt-3 sm:pt-4 space-y-2.5 sm:space-y-3">
-                <div className="bg-[#FAF9F6] p-2 sm:p-2.5 border-l-2 border-[#991B1B]">
-                  <div className="text-[11px] sm:text-xs font-semibold text-stone-500">Năm thành lập</div>
-                  <div className="text-base sm:text-lg font-bold text-[#991B1B] font-mono">1908</div>
-                </div>
-                <div className="bg-[#FAF9F6] p-2 sm:p-2.5 border-l-2 border-[#991B1B]">
-                  <div className="text-[11px] sm:text-xs font-semibold text-stone-500">Huân chương độc lập</div>
-                  <div className="text-xs sm:text-sm font-bold text-stone-800">Hạng Nhất & Anh Hùng Lao Động</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 sm:mt-6 pt-3 border-t border-stone-200">
-              <span className="text-[10px] sm:text-[11px] font-mono text-stone-500 block">
-                Chu Văn An · Bưởi · Thăng Long
-              </span>
-            </div>
-          </div>
-
-          {/* ========================================================
-              CENTER COLUMN: MAIN HIGHLIGHT (SWIPEABLE / VUỐT ĐỂ ĐỔI TIN)
-             ======================================================== */}
-          <div
-            className={`lg:col-span-6 flex-col justify-between border-2 border-[#991B1B] bg-white p-4 sm:p-6 shadow-md relative select-none touch-pan-y ${
-              activeTabMobile === 'main' ? 'flex' : 'hidden sm:flex'
-            }`}
-          >
-            {/* Interactive Swipe Area with Touch and Mouse events */}
-            <div
-              ref={containerRef}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-              className="cursor-grab active:cursor-grabbing transition-transform duration-100 ease-out"
-              style={{
-                transform: `translateX(${dragOffset}px)`,
-              }}
-            >
-              {/* Slide Meta Top Bar */}
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <span className="text-[10px] font-bold font-mono tracking-widest text-white bg-[#991B1B] px-2 py-0.5 uppercase">
-                  {current.tag}
-                </span>
-                <span className="text-[11px] sm:text-xs font-mono text-stone-500 font-semibold">
-                  Tiêu điểm 0{activeSlide + 1} / 0{SCHOOL_SHOWCASE.length}
-                </span>
-              </div>
-
-              {/* Title (On top as drawn in wireframe) */}
-              <h3
-                onClick={() => onSelectHighlight(current)}
-                className="text-sm sm:text-lg md:text-xl font-bold text-[#1C1917] hover:text-[#991B1B] transition-colors uppercase leading-snug cursor-pointer"
-              >
-                {current.title}
-              </h3>
-
-              {/* Center Image Slot with Wireframe "ẢNH TIN" */}
+            return (
               <div
-                onClick={() => onSelectHighlight(current)}
-                className="relative mt-3 sm:mt-4 cursor-pointer group pointer-events-auto"
+                key={item.id}
+                onClick={() => {
+                  if (offset === 1) nextSlide();
+                  else if (offset === -1) prevSlide();
+                  else if (offset === 0) onSelectHighlight(item);
+                }}
+                className={`absolute w-[88%] sm:w-[65%] md:w-[50%] lg:w-[42%] flex flex-col transition-all duration-500 ease-out cursor-pointer ${
+                  offset === 0 
+                    ? 'border-2 border-[#991B1B] bg-white shadow-xl' 
+                    : 'border border-[#E2DDD3] bg-stone-50 shadow-md'
+                }`}
+                style={{
+                  transform,
+                  zIndex,
+                  opacity,
+                  filter: blur,
+                }}
               >
-                <EduImageFrame
-                  label="ẢNH TIN"
-                  subLabel="Tiêu Điểm Nhà Trường"
-                  theme={activeSlide === 0 ? 'campus' : activeSlide === 1 ? 'lab' : 'ceremony'}
-                  aspectRatio="16:9"
-                />
+                <div className={`p-4 sm:p-5 md:p-6 flex flex-col h-full ${offset !== 0 && 'pointer-events-none'}`}>
+                  {/* Meta Top Bar */}
+                  <div className="flex items-center justify-between gap-2 mb-3 sm:mb-4">
+                    <span className={`text-[10px] sm:text-[11px] font-bold font-mono tracking-widest px-2.5 py-1 uppercase transition-colors ${
+                      offset === 0 ? 'bg-[#991B1B] text-white' : 'bg-stone-200 text-stone-600'
+                    }`}>
+                      {item.tag}
+                    </span>
+                    <span className="text-[11px] font-mono font-bold text-[#991B1B] border border-stone-300 px-2 py-0.5 bg-white/95">
+                      {item.date}
+                    </span>
+                  </div>
 
-                {/* Date Tag dd/mm/yy matching wireframe bottom-right */}
-                <div className="absolute bottom-2 right-2 bg-white/95 px-2 py-0.5 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-mono font-bold text-[#991B1B] border border-stone-300 shadow-xs">
-                  {current.date}
+                  {/* Title */}
+                  <h3 className={`text-base sm:text-lg md:text-xl font-bold uppercase leading-snug line-clamp-3 transition-colors ${
+                    offset === 0 ? 'text-[#1C1917]' : 'text-stone-700'
+                  }`}>
+                    {item.title}
+                  </h3>
+
+                  {/* Image Slot */}
+                  <div className="relative mt-4 mb-4 flex-shrink-0">
+                    <EduImageFrame
+                      label="ẢNH TIN"
+                      subLabel="Tiêu Điểm Nhà Trường"
+                      theme={idx === 0 ? 'campus' : idx === 1 ? 'lab' : 'ceremony'}
+                      aspectRatio="16:9"
+                    />
+                  </div>
+
+                  {/* Excerpt */}
+                  <p className="mt-1 text-xs sm:text-sm text-stone-600 leading-relaxed font-normal line-clamp-3">
+                    {item.summary}
+                  </p>
+
+                  {/* Action Button for Active Slide */}
+                  <div className={`mt-5 pt-4 border-t border-stone-200 transition-opacity duration-300 ${
+                    offset === 0 ? 'opacity-100' : 'opacity-0'
+                  }`}>
+                    <span className="inline-flex items-center gap-1.5 text-[#991B1B] text-xs font-bold uppercase tracking-wider group-hover:gap-2 transition-all">
+                      Xem Chi Tiết <ChevronRight className="w-4 h-4" />
+                    </span>
+                  </div>
                 </div>
               </div>
+            );
+          })}
+        </div>
 
-              {/* Excerpt Paragraph from Wireframe */}
-              <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
-                {current.summary}
-              </p>
-            </div>
-
-            {/* Mobile Swipe Hint Badge */}
-            <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-[#991B1B] bg-[#FEF2F2] py-1.5 px-3 border border-[#FCA5A5]/40 mt-3 sm:hidden">
-              <span className="animate-pulse">👈 Vuốt sang trái / phải để đổi tin 👉</span>
-            </div>
-
-            {/* Bottom Modern Pagination Dash Indicators matching wireframe (`---`) */}
-            <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-stone-200 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
-              
-              {/* Dash Indicators (Clickable on desktop & mobile) */}
-              <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
-                {SCHOOL_SHOWCASE.map((item, idx) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveSlide(idx)}
-                    aria-label={`Tin nhà trường số ${idx + 1}`}
-                    className={`h-2.5 sm:h-2 transition-all cursor-pointer ${
-                      activeSlide === idx
-                        ? 'w-10 sm:w-12 bg-[#991B1B]'
-                        : 'w-4 sm:w-5 bg-stone-300 hover:bg-stone-400'
-                    }`}
-                  />
-                ))}
-              </div>
-
-              {/* Directional Slide Navigation Buttons (Touch Friendly: min 40px) */}
-              <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={prevSlide}
-                    aria-label="Xem tin trước"
-                    className="w-10 h-10 sm:w-8 sm:h-8 border border-stone-300 hover:border-[#991B1B] hover:bg-[#FEF2F2] flex items-center justify-center text-stone-700 hover:text-[#991B1B] active:bg-[#991B1B] active:text-white transition-colors cursor-pointer"
-                  >
-                    <ChevronLeft className="w-5 h-5 sm:w-4 sm:h-4" />
-                  </button>
-                  <button
-                    onClick={nextSlide}
-                    aria-label="Xem tin kế tiếp"
-                    className="w-10 h-10 sm:w-8 sm:h-8 border border-stone-300 hover:border-[#991B1B] hover:bg-[#FEF2F2] flex items-center justify-center text-stone-700 hover:text-[#991B1B] active:bg-[#991B1B] active:text-white transition-colors cursor-pointer"
-                  >
-                    <ChevronRight className="w-5 h-5 sm:w-4 sm:h-4" />
-                  </button>
-                </div>
-
-                <button
-                  onClick={() => onSelectHighlight(current)}
-                  className="px-4 py-2 sm:px-3 sm:py-1.5 bg-[#991B1B] hover:bg-[#7F1D1D] active:bg-[#7F1D1D] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
-                >
-                  Xem Chi Tiết
-                </button>
-              </div>
-
-            </div>
-
+        {/* Bottom Controls / Pagination */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 sm:mt-12 max-w-3xl mx-auto pt-4 border-t border-stone-200">
+          
+          {/* Dash Indicators */}
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
+            {SCHOOL_SHOWCASE.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveSlide(idx)}
+                aria-label={`Tin nhà trường số ${idx + 1}`}
+                className={`h-2 transition-all cursor-pointer ${
+                  activeSlide === idx
+                    ? 'w-12 bg-[#991B1B]'
+                    : 'w-4 bg-stone-300 hover:bg-stone-400'
+                }`}
+              />
+            ))}
           </div>
 
-          {/* ========================================================
-              RIGHT COLUMN: CƠ SỞ VẬT CHẤT & THÀNH TÍCH
-             ======================================================== */}
-          <div
-            className={`lg:col-span-3 flex-col justify-between border border-[#E2DDD3] bg-white p-4 sm:p-5 shadow-xs ${
-              activeTabMobile === 'facilities' ? 'flex' : 'hidden sm:flex'
-            }`}
-          >
-            <div>
-              <div className="w-8 sm:w-9 h-8 sm:h-9 bg-[#FEF2F2] border border-[#B91C1C] flex items-center justify-center text-[#991B1B] mb-3 sm:mb-4">
-                <Award className="w-4 sm:w-5 h-4 sm:h-5" />
-              </div>
-
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase text-[#991B1B] tracking-wider">
-                CHẤT LƯỢNG HÀNG ĐẦU
-              </span>
-              <h3 className="text-sm sm:text-base lg:text-lg font-bold text-[#1C1917] uppercase mt-1 leading-snug">
-                Môi Trường Giáo Dục Đẳng Cấp Quốc Tế
-              </h3>
-
-              <p className="mt-2.5 sm:mt-3 text-xs sm:text-sm text-stone-600 leading-relaxed">
-                Khuôn viên xanh rợp bóng cây cổ thụ bên bờ Hồ Tây lịch sử kết hợp hệ thống phòng thí nghiệm STEM đạt chuẩn khảo thí quốc tế Cambridge.
-              </p>
-
-              {/* Key Statistics */}
-              <div className="mt-4 sm:mt-6 border-t border-stone-200 pt-3 sm:pt-4 space-y-2.5 sm:space-y-3">
-                <div className="bg-[#FAF9F6] p-2 sm:p-2.5 border-l-2 border-[#991B1B]">
-                  <div className="text-[11px] sm:text-xs font-semibold text-stone-500">Tỷ lệ tốt nghiệp THPT</div>
-                  <div className="text-base sm:text-lg font-bold text-[#991B1B] font-mono">100%</div>
-                </div>
-                <div className="bg-[#FAF9F6] p-2 sm:p-2.5 border-l-2 border-[#991B1B]">
-                  <div className="text-[11px] sm:text-xs font-semibold text-stone-500">Giải HSG Quốc Gia mỗi năm</div>
-                  <div className="text-xs sm:text-sm font-bold text-stone-800">50 – 70 Giải thưởng lớn</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 sm:mt-6 pt-3 border-t border-stone-200">
-              <span className="text-[10px] sm:text-[11px] font-mono text-stone-500 block">
-                Chuẩn Quốc Gia Mức Độ 2
-              </span>
+          {/* Directional Slide Navigation Buttons */}
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={prevSlide}
+                aria-label="Xem tin trước"
+                className="w-12 h-12 sm:w-10 sm:h-10 border border-stone-300 hover:border-[#991B1B] hover:bg-[#FEF2F2] flex items-center justify-center text-stone-700 hover:text-[#991B1B] active:bg-[#991B1B] active:text-white transition-colors cursor-pointer"
+              >
+                <ChevronLeft className="w-5 h-5 sm:w-4 sm:h-4" />
+              </button>
+              <button
+                onClick={nextSlide}
+                aria-label="Xem tin kế tiếp"
+                className="w-12 h-12 sm:w-10 sm:h-10 border border-stone-300 hover:border-[#991B1B] hover:bg-[#FEF2F2] flex items-center justify-center text-stone-700 hover:text-[#991B1B] active:bg-[#991B1B] active:text-white transition-colors cursor-pointer"
+              >
+                <ChevronRight className="w-5 h-5 sm:w-4 sm:h-4" />
+              </button>
             </div>
           </div>
-
+          
         </div>
 
       </div>
     </section>
   );
 };
+

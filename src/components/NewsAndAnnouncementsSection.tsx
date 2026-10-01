@@ -43,13 +43,13 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
     const currentX = e.touches[0].clientX;
     setTouchCurrentX(currentX);
     const diff = currentX - touchStartX;
-    setDragOffset(Math.max(-100, Math.min(100, diff * 0.75)));
+    setDragOffset(Math.max(-150, Math.min(150, diff * 0.8)));
   };
 
   const handleTouchEnd = () => {
     if (touchStartX !== null && touchCurrentX !== null) {
       const diff = touchCurrentX - touchStartX;
-      const swipeThreshold = 45;
+      const swipeThreshold = 50;
       if (diff < -swipeThreshold) {
         nextNews();
       } else if (diff > swipeThreshold) {
@@ -72,13 +72,13 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
     if (!isDragging || touchStartX === null) return;
     setTouchCurrentX(e.clientX);
     const diff = e.clientX - touchStartX;
-    setDragOffset(Math.max(-100, Math.min(100, diff * 0.75)));
+    setDragOffset(Math.max(-150, Math.min(150, diff * 0.8)));
   };
 
   const handleMouseUp = () => {
     if (isDragging && touchStartX !== null && touchCurrentX !== null) {
       const diff = touchCurrentX - touchStartX;
-      const swipeThreshold = 45;
+      const swipeThreshold = 50;
       if (diff < -swipeThreshold) {
         nextNews();
       } else if (diff > swipeThreshold) {
@@ -90,8 +90,6 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
     setTouchCurrentX(null);
     setDragOffset(0);
   };
-
-  const currentMobileNews = allNewsList[activeNewsIndex];
 
   const categories = [
     { id: 'all', label: 'TẤT CẢ' },
@@ -141,13 +139,13 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
             </div>
 
             {/* ====================================================
-                1. RESPONSIVE / MOBILE CARD SWIPE CAROUSEL (Y hệt Nhà trường)
+                1. RESPONSIVE / MOBILE 3D COVERFLOW CAROUSEL
                 Active on mobile/tablet (md:hidden)
                ==================================================== */}
-            <div className="md:hidden flex flex-col justify-between border-2 border-[#991B1B] bg-white p-4 shadow-md relative select-none touch-pan-y mb-6">
-              
-              {/* Swipeable card container */}
+            <div className="md:hidden flex flex-col mb-8">
+              {/* 3D Carousel Container */}
               <div
+                className="relative w-full h-[470px] sm:h-[520px] flex justify-center items-center perspective-[1200px]"
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
@@ -155,60 +153,95 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
-                className="cursor-grab active:cursor-grabbing transition-transform duration-100 ease-out"
-                style={{
-                  transform: `translateX(${dragOffset}px)`,
-                }}
               >
-                {/* Meta Top Bar */}
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="text-[10px] font-bold font-mono tracking-widest text-white bg-[#991B1B] px-2 py-0.5 uppercase">
-                    {currentMobileNews.category}
-                  </span>
-                  <span className="text-[11px] font-mono text-stone-500 font-semibold">
-                    Tin tức 0{activeNewsIndex + 1} / 0{allNewsList.length}
-                  </span>
-                </div>
+                {allNewsList.map((item, idx) => {
+                  const diff = (idx - activeNewsIndex + allNewsList.length) % allNewsList.length;
+                  let offset = diff;
+                  if (diff > Math.floor(allNewsList.length / 2)) {
+                    offset = diff - allNewsList.length;
+                  }
 
-                {/* Title */}
-                <h3
-                  onClick={() => onSelectNews(currentMobileNews)}
-                  className="text-base font-bold text-[#1C1917] hover:text-[#991B1B] transition-colors uppercase leading-snug cursor-pointer line-clamp-3"
-                >
-                  {currentMobileNews.title}
-                </h3>
+                  // Make the carousel calculations
+                  const baseTranslate = offset === 0 ? 0 : offset > 0 ? 75 : -75;
+                  const scale = offset === 0 ? 1 : 0.85;
+                  const zIndex = offset === 0 ? 30 : 20 - Math.abs(offset);
+                  // Since we have 4 items, diff=2 -> offset=2. We want it hidden to not ruin the coverflow.
+                  const isHidden = Math.abs(offset) > 1;
+                  const opacity = offset === 0 ? 1 : isHidden ? 0 : 0.6;
+                  const blur = offset === 0 ? 'blur(0px)' : 'blur(1.5px)';
+                  
+                  const currentDragOffset = offset === 0 ? dragOffset : dragOffset * 0.5;
+                  
+                  const transform = `translateX(calc(${baseTranslate}% + ${currentDragOffset}px)) scale(${scale})`;
 
-                {/* Image slot with wireframe "ẢNH TIN" */}
-                <div
-                  onClick={() => onSelectNews(currentMobileNews)}
-                  className="relative mt-3 cursor-pointer group"
-                >
-                  <EduImageFrame
-                    label="ẢNH TIN"
-                    subLabel={currentMobileNews.imageFallbackTitle}
-                    theme={activeNewsIndex % 2 === 0 ? 'exam' : 'lab'}
-                    aspectRatio="16:9"
-                  />
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => {
+                        if (offset === 1) nextNews();
+                        else if (offset === -1) prevNews();
+                        else if (offset === 0) onSelectNews(item);
+                      }}
+                      className={`absolute w-[88%] sm:w-[70%] flex flex-col transition-all duration-500 ease-out cursor-pointer ${
+                        offset === 0 
+                          ? 'border-2 border-[#991B1B] bg-white shadow-xl' 
+                          : 'border border-[#E2DDD3] bg-stone-50 shadow-md'
+                      }`}
+                      style={{
+                        transform,
+                        zIndex,
+                        opacity,
+                        filter: blur,
+                        pointerEvents: isHidden ? 'none' : 'auto'
+                      }}
+                    >
+                      <div className={`p-4 sm:p-5 flex flex-col h-full ${offset !== 0 && 'pointer-events-none'}`}>
+                        {/* Meta Top Bar */}
+                        <div className="flex items-center justify-between gap-2 mb-3">
+                          <span className={`text-[10px] sm:text-[11px] font-bold font-mono tracking-widest px-2 py-0.5 uppercase transition-colors ${
+                            offset === 0 ? 'bg-[#991B1B] text-white' : 'bg-stone-200 text-stone-600'
+                          }`}>
+                            {item.category}
+                          </span>
+                          <span className="text-[11px] font-mono font-bold text-[#991B1B] border border-stone-300 px-2 py-0.5 bg-white/95">
+                            {item.date}
+                          </span>
+                        </div>
 
-                  {/* Date Tag dd/mm/yy matching wireframe bottom-right */}
-                  <div className="absolute bottom-2 right-2 bg-white/95 px-2 py-0.5 text-[11px] font-mono font-bold text-[#991B1B] border border-stone-300 shadow-xs">
-                    {currentMobileNews.date}
-                  </div>
-                </div>
+                        {/* Title */}
+                        <h3 className={`text-base sm:text-lg font-bold uppercase leading-snug line-clamp-3 transition-colors ${
+                          offset === 0 ? 'text-[#1C1917]' : 'text-stone-700'
+                        }`}>
+                          {item.title}
+                        </h3>
 
-                {/* Excerpt */}
-                <p className="mt-3 text-xs text-stone-600 leading-relaxed font-normal line-clamp-3">
-                  {currentMobileNews.summary}
-                </p>
+                        {/* Image Slot */}
+                        <div className="relative mt-4 mb-4 flex-shrink-0">
+                          <EduImageFrame
+                            label="ẢNH TIN"
+                            subLabel={item.imageFallbackTitle || 'TIN TỨC'}
+                            theme={idx % 2 === 0 ? 'exam' : 'lab'}
+                            aspectRatio="16:9"
+                          />
+                        </div>
+
+                        {/* Excerpt */}
+                        <p className="mt-1 text-xs sm:text-sm text-stone-600 leading-relaxed font-normal line-clamp-3">
+                          {item.summary}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
               {/* Mobile Swipe Hint Badge */}
-              <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-[#991B1B] bg-[#FEF2F2] py-1.5 px-3 border border-[#FCA5A5]/40 mt-3">
+              <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-[#991B1B] bg-[#FEF2F2] py-1.5 px-3 border border-[#FCA5A5]/40 mt-2 w-fit mx-auto">
                 <span className="animate-pulse">👈 Vuốt sang trái / phải để đổi tin tức 👉</span>
               </div>
 
               {/* Bottom Modern Pagination Dash Indicators matching wireframe (`---`) */}
-              <div className="mt-4 pt-3 border-t border-stone-200 flex items-center justify-between gap-3">
+              <div className="mt-4 pt-4 border-t border-stone-200 flex items-center justify-between gap-3">
                 
                 {/* Dash Indicators */}
                 <div className="flex items-center gap-1.5">
@@ -219,8 +252,8 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
                       aria-label={`Tin số ${idx + 1}`}
                       className={`h-2 transition-all cursor-pointer ${
                         activeNewsIndex === idx
-                          ? 'w-8 bg-[#991B1B]'
-                          : 'w-3 bg-stone-300 hover:bg-stone-400'
+                          ? 'w-10 bg-[#991B1B]'
+                          : 'w-4 bg-stone-300 hover:bg-stone-400'
                       }`}
                     />
                   ))}
@@ -231,27 +264,19 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
                   <button
                     onClick={prevNews}
                     aria-label="Tin trước"
-                    className="w-9 h-9 border border-stone-300 hover:border-[#991B1B] hover:bg-[#FEF2F2] flex items-center justify-center text-stone-700 hover:text-[#991B1B] active:bg-[#991B1B] active:text-white transition-colors cursor-pointer"
+                    className="w-10 h-10 border border-stone-300 hover:border-[#991B1B] hover:bg-[#FEF2F2] flex items-center justify-center text-stone-700 hover:text-[#991B1B] active:bg-[#991B1B] active:text-white transition-colors cursor-pointer"
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="w-5 h-5" />
                   </button>
                   <button
                     onClick={nextNews}
                     aria-label="Tin kế tiếp"
-                    className="w-9 h-9 border border-stone-300 hover:border-[#991B1B] hover:bg-[#FEF2F2] flex items-center justify-center text-stone-700 hover:text-[#991B1B] active:bg-[#991B1B] active:text-white transition-colors cursor-pointer"
+                    className="w-10 h-10 border border-stone-300 hover:border-[#991B1B] hover:bg-[#FEF2F2] flex items-center justify-center text-stone-700 hover:text-[#991B1B] active:bg-[#991B1B] active:text-white transition-colors cursor-pointer"
                   >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => onSelectNews(currentMobileNews)}
-                    className="px-3 py-1.5 bg-[#991B1B] hover:bg-[#7F1D1D] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
-                  >
-                    Chi Tiết
+                    <ChevronRight className="w-5 h-5" />
                   </button>
                 </div>
-
               </div>
-
             </div>
 
             {/* ====================================================
