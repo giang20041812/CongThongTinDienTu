@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Plus, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ALL_LOST_ITEMS } from '../data/mockData';
 import { LostItem } from '../types';
@@ -14,9 +14,10 @@ export const LostFoundBanner: React.FC<LostFoundBannerProps> = ({
   onOpenReportLostModal,
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeftState] = useState(0);
+  const isDraggingRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const dragScrollLeftRef = useRef(0);
+  const didDragRef = useRef(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
@@ -30,40 +31,45 @@ export const LostFoundBanner: React.FC<LostFoundBannerProps> = ({
 
   const scroll = (dir: 'left' | 'right') => {
     if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: dir === 'left' ? -300 : 300, behavior: 'smooth' });
-      setTimeout(checkScroll, 350);
+      scrollRef.current.scrollBy({ left: dir === 'left' ? -280 : 280, behavior: 'smooth' });
     }
   };
 
-  // Mouse drag to scroll
-  const onMouseDown = (e: React.MouseEvent) => {
-    if (!scrollRef.current) return;
-    setIsDragging(true);
-    setStartX(e.pageX - scrollRef.current.offsetLeft);
-    setScrollLeftState(scrollRef.current.scrollLeft);
+  // Pointer drag for desktop. Touch devices keep native momentum scrolling.
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== 'mouse' || !scrollRef.current) return;
+    isDraggingRef.current = true;
+    didDragRef.current = false;
+    dragStartXRef.current = e.clientX;
+    dragScrollLeftRef.current = scrollRef.current.scrollLeft;
+    e.currentTarget.setPointerCapture(e.pointerId);
   };
-  const onMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !scrollRef.current) return;
-    e.preventDefault();
-    const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 1.4;
-    scrollRef.current.scrollLeft = scrollLeft - walk;
-    checkScroll();
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current || !scrollRef.current) return;
+    const distance = e.clientX - dragStartXRef.current;
+    if (Math.abs(distance) > 4) didDragRef.current = true;
+    scrollRef.current.scrollLeft = dragScrollLeftRef.current - distance;
   };
-  const onMouseUp = () => setIsDragging(false);
+  const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    isDraggingRef.current = false;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+  };
+  useEffect(() => {
+    const track = scrollRef.current;
+    if (!track) return;
 
-  // Touch scroll
-  const [touchStart, setTouchStart] = useState(0);
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.touches[0].clientX);
-  };
-  const onTouchEnd = (e: React.TouchEvent) => {
-    const diff = e.changedTouches[0].clientX - touchStart;
-    if (Math.abs(diff) > 30 && scrollRef.current) {
-      scrollRef.current.scrollBy({ left: diff > 0 ? -200 : 200, behavior: 'smooth' });
-      setTimeout(checkScroll, 350);
-    }
-  };
+    const handleWheel = (e: WheelEvent) => {
+      const maxScroll = track.scrollWidth - track.clientWidth;
+      if (maxScroll <= 0) return;
+      const wheelDistance = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+      e.preventDefault();
+      e.stopPropagation();
+      track.scrollLeft = Math.max(0, Math.min(maxScroll, track.scrollLeft + wheelDistance));
+    };
+
+    track.addEventListener('wheel', handleWheel, { passive: false });
+    return () => track.removeEventListener('wheel', handleWheel);
+  }, []);
 
   return (
     <section className="w-full bg-white border-b border-[#B8D3E2] py-5 sm:py-6 overflow-hidden">
@@ -80,7 +86,7 @@ export const LostFoundBanner: React.FC<LostFoundBannerProps> = ({
               Lướt ngang để xem tất cả đồ thất lạc
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="lost-found-header-actions flex items-center gap-2">
             {/* Prev/Next buttons */}
             <button
               onClick={() => scroll('left')}
@@ -118,24 +124,23 @@ export const LostFoundBanner: React.FC<LostFoundBannerProps> = ({
         </div>
 
         {/* Horizontal scroll track */}
-        <div className="relative">
+        <div className="relative px-0 sm:px-8">
           <div
             ref={scrollRef}
             onScroll={checkScroll}
-            onMouseDown={onMouseDown}
-            onMouseMove={onMouseMove}
-            onMouseUp={onMouseUp}
-            onMouseLeave={onMouseUp}
-            onTouchStart={onTouchStart}
-            onTouchEnd={onTouchEnd}
-            className="flex gap-4 overflow-x-auto scrollbar-none cursor-grab active:cursor-grabbing select-none"
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerCancel={onPointerUp}
+            onClick={(e) => { if (didDragRef.current) { e.preventDefault(); e.stopPropagation(); didDragRef.current = false; } }}
+            className="lost-found-track flex gap-4 overflow-x-auto scrollbar-none cursor-grab active:cursor-grabbing select-none touch-pan-x scroll-smooth overscroll-contain"
             style={{ WebkitOverflowScrolling: 'touch' }}
           >
             {ALL_LOST_ITEMS.map((item) => (
               <div
                 key={item.id}
                 onClick={() => onSelectLostItem(item)}
-                className="flex-shrink-0 w-56 sm:w-64 bg-white border-t-2 border-[#55B9E8] p-3 cursor-pointer group hover:shadow-lg transition-shadow"
+                className="lost-found-card flex-shrink-0 w-56 sm:w-64 bg-white border-t-2 border-[#55B9E8] p-3 cursor-pointer group hover:shadow-lg transition-shadow"
               >
                 {/* Status badge + type */}
                 <div className="flex items-center justify-between mb-2">
@@ -204,6 +209,18 @@ export const LostFoundBanner: React.FC<LostFoundBannerProps> = ({
               </span>
             </div>
           </div>
+          <button
+            onClick={() => scroll('left')}
+            disabled={!canScrollLeft}
+            aria-label="Xem đồ thất lạc trước"
+            className={`absolute left-0 top-1/2 -translate-y-1/2 z-[60] pointer-events-auto w-8 h-12 sm:w-9 flex items-center justify-center bg-white border-2 border-[#55B9E8] shadow-md transition-all ${canScrollLeft ? 'text-[#0B78B5] hover:bg-[#55B9E8] hover:text-white' : 'text-[#9bb8c9] cursor-not-allowed'}`}
+          ><ChevronLeft className="w-5 h-5" /></button>
+          <button
+            onClick={() => scroll('right')}
+            disabled={!canScrollRight}
+            aria-label="Xem đồ thất lạc tiếp theo"
+            className={`absolute right-0 top-1/2 -translate-y-1/2 z-[60] pointer-events-auto w-8 h-12 sm:w-9 flex items-center justify-center bg-white border-2 border-[#55B9E8] shadow-md transition-all ${canScrollRight ? 'text-[#0B78B5] hover:bg-[#55B9E8] hover:text-white' : 'text-[#9bb8c9] cursor-not-allowed'}`}
+          ><ChevronRight className="w-5 h-5" /></button>
         </div>
 
         {/* Mobile hint */}

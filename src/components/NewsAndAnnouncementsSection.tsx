@@ -164,6 +164,8 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
               >
+                <button onClick={prevNews} aria-label="Tin trước" className="absolute left-0 top-1/2 -translate-y-1/2 z-[60] w-9 h-12 bg-white border-2 border-[#55B9E8] text-[#003087] shadow-md hover:bg-[#55B9E8] hover:text-white transition-colors"><ChevronLeft className="w-5 h-5 mx-auto" /></button>
+                <button onClick={nextNews} aria-label="Tin tiếp theo" className="absolute right-0 top-1/2 -translate-y-1/2 z-[60] w-9 h-12 bg-white border-2 border-[#55B9E8] text-[#003087] shadow-md hover:bg-[#55B9E8] hover:text-white transition-colors"><ChevronRight className="w-5 h-5 mx-auto" /></button>
                 {allNewsList.map((item, idx) => {
                   const diff = (idx - activeNewsIndex + allNewsList.length) % allNewsList.length;
                   let offset = diff;
@@ -267,7 +269,7 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
                 </div>
 
                 {/* Slide Navigation Buttons */}
-                <div className="flex items-center gap-2">
+                <div className="hidden flex items-center gap-2">
                   <button
                     onClick={prevNews}
                     aria-label="Tin trước"
@@ -289,7 +291,7 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
             {/* ====================================================
                 2. DESKTOP GRID LAYOUT
                ==================================================== */}
-              <div className="hidden md:grid grid-cols-1 md:grid-cols-12 gap-2">
+              <div className="hidden md:grid grid-cols-1 md:grid-cols-12 gap-2 relative">
               
               {/* Featured News Item (md:col-span-7) */}
               <div

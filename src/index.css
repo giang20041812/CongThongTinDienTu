@@ -178,6 +178,18 @@ header > .header-nav-accent {
 .admin-secondary { display: inline-flex; align-items: center; gap: .4rem; padding: .7rem 1rem; font-size: .75rem; font-weight: 800; color: #536b80; background: #eef3f7; }
 .filter-chip { border: 1px solid #e0e8ef; color: #71849b; padding: .45rem .7rem; font-size: .7rem; font-weight: 700; background: #fff; }
 .filter-chip:hover, .filter-chip.active { color: #0b78b5; border-color: #8fc7e4; background: #eaf5fb; }
+.lost-found-header-actions > button:nth-child(1),
+.lost-found-header-actions > button:nth-child(2) { display: none; }
+@media (max-width: 767px) {
+  .lost-found-track {
+    padding-inline: calc(50% - 112px);
+    scroll-snap-type: x mandatory;
+  }
+  .lost-found-card { scroll-snap-align: center; }
+}
+@media (min-width: 640px) and (max-width: 767px) {
+  .lost-found-track { padding-inline: calc(50% - 128px); }
+}
 .header-brand-lockup {
   display: none;
 }
