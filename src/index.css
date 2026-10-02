@@ -23,6 +23,14 @@
 
   h1, h2, h3, h4, h5, h6 {
     letter-spacing: -0.015em;
+    transition: color 150ms ease, text-decoration-color 150ms ease;
+  }
+
+  h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+    color: #001a52 !important;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
   }
 }
 
@@ -149,6 +157,27 @@ header > .header-nav-accent {
 .header-branding > div {
   justify-content: flex-end;
 }
+
+/* Admin workspace */
+.admin-input,
+.admin-select {
+  width: 100%;
+  border: 1px solid #d8e3ec;
+  background: #fff;
+  color: #17324d;
+  padding: 0.68rem 0.8rem;
+  outline: none;
+  font-size: 0.82rem;
+}
+.admin-input:focus,
+.admin-select:focus { border-color: #0b78b5; box-shadow: 0 0 0 3px rgba(11,120,181,.1); }
+.admin-input-icon { position: absolute; left: .75rem; top: .72rem; color: #8da0b3; }
+.label-admin { display: block; color: #536b80; font-weight: 700; font-size: .7rem; margin-bottom: .4rem; }
+.admin-primary { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; background: #0b78b5; color: #fff; padding: .7rem 1rem; font-size: .75rem; font-weight: 800; transition: background .15s ease; }
+.admin-primary:hover { background: #075f91; }
+.admin-secondary { display: inline-flex; align-items: center; gap: .4rem; padding: .7rem 1rem; font-size: .75rem; font-weight: 800; color: #536b80; background: #eef3f7; }
+.filter-chip { border: 1px solid #e0e8ef; color: #71849b; padding: .45rem .7rem; font-size: .7rem; font-weight: 700; background: #fff; }
+.filter-chip:hover, .filter-chip.active { color: #0b78b5; border-color: #8fc7e4; background: #eaf5fb; }
 .header-brand-lockup {
   display: none;
 }
@@ -199,6 +228,30 @@ header > .header-nav-accent {
 [class*="text-[#FFD700]"], [class*="text-[#F0A500]"] { color: #BFE8F7 !important; }
 [class*="bg-[#FFD700]"], [class*="bg-[#F0A500]"] { background-color: #0B78B5 !important; }
 [class*="border-[#FFD700]"] { border-color: #55B9E8 !important; }
+
+/* Footer contrast overrides. Legacy footer utilities are intentionally kept in
+   the component, so scope the readable portal palette to this region only. */
+footer {
+  background-color: #075F91 !important;
+  color: #EAF3F8 !important;
+  border-top-color: #BFE8F7 !important;
+}
+footer [class*="text-[#c5d3ec]"],
+footer [class*="text-[#9aabd4]"],
+footer [class*="text-[#6b82b8]"] {
+  color: #EAF3F8 !important;
+}
+footer [class*="text-[#FFD700]"] {
+  color: #BFE8F7 !important;
+}
+footer [class*="border-[#002060]"],
+footer [class*="border-[#003087]"] {
+  border-color: #0B78B5 !important;
+}
+footer [class*="bg-[#002060]"],
+footer [class*="bg-[#003087]"] {
+  background-color: #0B78B5 !important;
+}
 
 /* Recolor the inline educational graphics used by the image placeholders. */
 svg [stroke="#003087"] { stroke: #0B78B5; }

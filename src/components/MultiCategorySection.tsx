@@ -56,7 +56,7 @@ const CategoryColumn: React.FC<CategoryColumnProps> = ({
           aspectRatio="16:9"
         />
       </div>
-      <h3 className="mt-2 text-xs sm:text-[13px] font-bold text-[#1a2744] group-hover:text-[#003087] transition-colors leading-snug line-clamp-3 uppercase">
+      <h3 className="mt-2 text-xs sm:text-[13px] font-bold text-[#1a2744] group-hover:text-[#003087] group-hover:underline transition-colors leading-snug line-clamp-3 uppercase">
         {featuredTitle}
       </h3>
     </div>
@@ -67,14 +67,14 @@ const CategoryColumn: React.FC<CategoryColumnProps> = ({
         <button
           key={idx}
           onClick={onClickMore}
-          className="group text-left py-1.5 flex items-start gap-1.5 hover:bg-[#f5f7fc] transition-colors px-1"
+          className="group text-left py-1.5 flex items-start gap-1.5 transition-colors px-1"
         >
           <span className="mt-1 shrink-0 text-[#003087]">
             <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="3">
               <path d="M4 2 L12 8 L4 14" strokeLinecap="square" strokeLinejoin="miter" />
             </svg>
           </span>
-          <span className="text-[11px] sm:text-xs font-semibold text-[#1a2744] group-hover:text-[#003087] transition-colors leading-snug line-clamp-2">
+          <span className="text-[11px] sm:text-xs font-semibold text-[#1a2744] group-hover:text-[#003087] group-hover:underline transition-colors leading-snug line-clamp-2">
             {item.title}
           </span>
         </button>
@@ -85,7 +85,7 @@ const CategoryColumn: React.FC<CategoryColumnProps> = ({
     <div className="mt-3 pt-2 border-t border-[#d1ddf5]">
       <button
         onClick={onClickMore}
-        className="text-[11px] font-bold text-[#003087] hover:text-[#001a52] flex items-center gap-1 cursor-pointer transition-colors"
+        className="text-[11px] font-bold text-[#003087] hover:text-[#001a52] hover:underline flex items-center gap-1 cursor-pointer transition-colors"
       >
         <span className="italic">» {moreLabel}</span>
       </button>
@@ -176,7 +176,7 @@ export const MultiCategorySection: React.FC<MultiCategorySectionProps> = ({
       </section>
 
       {/* ──────────────── ROW 2: TUYỂN SINH | CÁC KỲ THI HSG | NGHIÊN CỨU KHOA HỌC | DU HỌC ─── */}
-      <section className="w-full bg-[#f5f7fc] border-b border-[#d1ddf5] py-6 sm:py-8">
+      <section className="w-full bg-white border-b border-[#d1ddf5] py-6 sm:py-8">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
 

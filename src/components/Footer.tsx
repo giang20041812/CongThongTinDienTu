@@ -195,7 +195,7 @@ export const Footer: React.FC = () => {
               href={directionsUrl}
               target="_blank"
               rel="noreferrer"
-              className="mt-5 inline-flex w-fit items-center gap-2 bg-[#FFD700] px-4 py-2.5 text-xs font-bold uppercase tracking-wide text-[#001a52] hover:bg-white transition-colors"
+              className="mt-5 inline-flex w-fit items-center gap-2 bg-[#BFE8F7] px-4 py-2.5 text-xs font-bold uppercase tracking-wide text-[#075F91] hover:bg-white transition-colors"
             >
               <MapPin className="w-4 h-4" />
               Chỉ đường tới trường

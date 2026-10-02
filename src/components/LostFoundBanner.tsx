@@ -66,7 +66,7 @@ export const LostFoundBanner: React.FC<LostFoundBannerProps> = ({
   };
 
   return (
-    <section className="w-full bg-[#EAF3F8] border-b border-[#B8D3E2] py-5 sm:py-6 overflow-hidden">
+    <section className="w-full bg-white border-b border-[#B8D3E2] py-5 sm:py-6 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4">
 
         {/* Section header */}
@@ -76,7 +76,7 @@ export const LostFoundBanner: React.FC<LostFoundBannerProps> = ({
               <span className="text-[11px] font-mono tracking-widest uppercase text-[#0B78B5] font-bold block">HỖ TRỢ HỌC ĐƯỜNG</span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-[#17324D] tracking-tight uppercase">Góc thất lạc</h2>
             </div>
-            <span className="text-blue-200 text-[11px] font-mono hidden sm:inline">
+            <span className="hidden">
               Lướt ngang để xem tất cả đồ thất lạc
             </span>
           </div>
@@ -155,7 +155,7 @@ export const LostFoundBanner: React.FC<LostFoundBannerProps> = ({
 
                 {/* Two image slots side by side */}
                 <div className="relative z-0 isolate grid grid-cols-2 gap-1.5 mb-3">
-                  <div className="h-16">
+                  <div className="h-16 sm:h-20">
                     <EduImageFrame
                       label="ẢNH"
                       subLabel={item.images[0]}
@@ -165,7 +165,7 @@ export const LostFoundBanner: React.FC<LostFoundBannerProps> = ({
                       className="h-full w-full"
                     />
                   </div>
-                  <div className="h-16">
+                  <div className="h-16 sm:h-20">
                     <EduImageFrame
                       label="ẢNH"
                       subLabel={item.images[1]}
@@ -178,7 +178,7 @@ export const LostFoundBanner: React.FC<LostFoundBannerProps> = ({
                 </div>
 
                 {/* Title */}
-                <h4 className="relative z-10 block bg-white text-xs font-bold text-[#1a2744] group-hover:text-[#003087] transition-colors leading-snug line-clamp-2 uppercase">
+                <h4 className="relative z-10 block text-xs font-bold text-[#1a2744] group-hover:text-[#003087] group-hover:underline transition-colors leading-snug line-clamp-2 uppercase">
                   {item.title}
                 </h4>
 

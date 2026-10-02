@@ -139,7 +139,7 @@ export const LostFoundListPage: React.FC<LostFoundListPageProps> = ({
                   </span>
                 </div>
 
-                <h3 className="relative z-10 block bg-white text-sm font-bold text-[#1a2744] group-hover:text-[#003087] transition-colors uppercase leading-snug">
+                <h3 className="relative z-10 block text-sm font-bold text-[#1a2744] group-hover:text-[#003087] group-hover:underline transition-colors uppercase leading-snug">
                   {item.title}
                 </h3>
 

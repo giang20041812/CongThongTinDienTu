@@ -9,9 +9,9 @@ import {
 } from '../types';
 
 export const SCHOOL_INFO = {
-  name: 'TRƯỜNG THPT ĐẶNG TRẦN ĐỨC',
+  name: 'THPT ĐẶNG TRẦN ĐỨC',
   secondaryName: 'SỞ GIÁO DỤC VÀ ĐÀO TẠO HÀ NỘI',
-  slogan: 'TRÍ TUỆ - NHÂN VĂN - KỶ CƯƠNG - SÁNG TẠO',
+  slogan: 'TRÍ TUỆ - NHÂN VĂN - KỶ CƯƠNG',
   address: 'Hà Nội, Việt Nam',
   email: 'thptdangtranduc@gmail.com',
   officialEmail: 'c3dangtranduc@hanoiedu.vn',

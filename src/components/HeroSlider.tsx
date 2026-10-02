@@ -58,7 +58,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = () => {
             <img src={schoolLogo} alt="Logo trường" className="w-14 h-14 sm:w-20 sm:h-20 object-contain" />
             <div>
               <div className="text-[10px] sm:text-xs font-semibold text-[#0875B1] uppercase tracking-wider">{SCHOOL_INFO.secondaryName}</div>
-              <h1 className="text-base sm:text-2xl md:text-3xl font-extrabold tracking-tight text-[#0875B1] leading-tight uppercase">{SCHOOL_INFO.name}</h1>
+              <h1 className="text-sm sm:text-lg md:text-2xl font-extrabold tracking-tight text-[#0875B1] leading-tight uppercase">{SCHOOL_INFO.name}</h1>
               <p className="text-[10px] sm:text-xs font-medium text-[#C82020] tracking-wide italic">{SCHOOL_INFO.slogan}</p>
             </div>
           </div>

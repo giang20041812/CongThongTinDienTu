@@ -25,8 +25,13 @@ import { SchedulePage } from './pages/SchedulePage';
 import { WorkCalendarPage } from './pages/WorkCalendarPage';
 import { LostFoundListPage, LostItemDetailPage } from './pages/LostFoundPages';
 import { ClubsListPage, ClubDetailPage } from './pages/ClubsPages';
+import { AdminApp } from './pages/AdminPages';
 
 export default function App() {
+  if (window.location.pathname === '/admin' || window.location.pathname === '/admin/login') {
+    return <AdminApp />;
+  }
+
   const [currentRoute, setCurrentRoute] = useState<PageRoute>({ view: 'home' });
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -120,7 +125,7 @@ export default function App() {
     : [];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f5f7fc] text-[#1a2744] selection:bg-[#003087] selection:text-white">
+    <div className="min-h-screen flex flex-col bg-white text-[#1a2744] selection:bg-[#003087] selection:text-white">
       
       {/* 1. TOP HEADER & NAVIGATION */}
       <Header

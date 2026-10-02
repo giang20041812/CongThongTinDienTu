@@ -386,7 +386,7 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
               RIGHT COLUMN: THÔNG BÁO
              ======================================================== */}
           <div className="lg:col-span-4 flex flex-col justify-between border-t-2 lg:border-t-0 lg:border-l border-[#003087] pt-4 lg:pt-0 lg:pl-5">
-            <div className="flex items-center gap-2 mb-3">
+            <div className="hidden flex items-center gap-2 mb-3">
               <form onSubmit={submitSearch} className="relative flex-1">
                 <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Tìm kiếm..." className="w-full h-9 pl-3 pr-9 text-xs bg-white border border-[#B8D3E2] text-[#17324D] placeholder:text-[#7895AD] focus:border-[#0B78B5] focus:ring-1 focus:ring-[#0B78B5] focus:outline-none" />
                 <button type="submit" aria-label="Tìm kiếm" className="absolute right-0 top-0 bottom-0 px-2.5 text-[#0875B1] hover:bg-[#EAF3F8] cursor-pointer"><Search className="w-4 h-4" /></button>
@@ -411,10 +411,10 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
                 <div
                   key={ann.id}
                   onClick={() => onSelectAnnouncement(ann)}
-                  className="group cursor-pointer py-3.5 hover:bg-[#f5f7fc] transition-colors px-2 flex flex-col justify-between"
+                  className="group cursor-pointer py-3.5 transition-colors px-2 flex flex-col justify-between"
                 >
                   {/* Announcement Title */}
-                  <h4 className="text-xs sm:text-sm font-semibold text-[#1a2744] group-hover:text-[#003087] transition-colors line-clamp-2 leading-snug">
+                  <h4 className="text-xs sm:text-sm font-semibold text-[#1a2744] group-hover:text-[#003087] group-hover:underline transition-colors line-clamp-2 leading-snug">
                     {ann.title}
                   </h4>
 
