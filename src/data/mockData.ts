@@ -9,20 +9,20 @@ import {
 } from '../types';
 
 export const SCHOOL_INFO = {
-  name: 'TRƯỜNG THPT CHUYÊN CHU VĂN AN',
-  secondaryName: 'CỤM TRƯỜNG THPT GIA LÂM - LONG BIÊN',
-  slogan: 'KỶ CƯƠNG - TRÍ TUỆ - SÁNG TẠO - TRÁCH NHIỆM',
-  address: '59 đường Thanh Niên, Phường Tây Hồ, Hà Nội',
-  email: 'tentruong@gmail.com',
-  officialEmail: 'c3chuvanan@hanoiedu.vn',
-  hotline: '0937 842 37x',
-  phone: '024 3823 3123',
-  establishedYear: '1908',
+  name: 'TRƯỜNG THPT ĐẶNG TRẦN ĐỨC',
+  secondaryName: 'SỞ GIÁO DỤC VÀ ĐÀO TẠO HÀ NỘI',
+  slogan: 'TRÍ TUỆ - NHÂN VĂN - KỶ CƯƠNG - SÁNG TẠO',
+  address: 'Hà Nội, Việt Nam',
+  email: 'thptdangtranduc@gmail.com',
+  officialEmail: 'c3dangtranduc@hanoiedu.vn',
+  hotline: '024 3xxx xxxx',
+  phone: '024 3xxx xxxx',
+  establishedYear: '1968',
   stats: [
-    { label: 'Học sinh đạt giải Quốc gia & Quốc tế', value: '186+' },
-    { label: 'Tỷ lệ đỗ Đại học nguyện vọng 1', value: '99.8%' },
-    { label: 'Thầy cô giáo viên dạy giỏi', value: '120+' },
-    { label: 'Câu lạc bộ tài năng & ngoại khóa', value: '28' },
+    { label: 'Học sinh đạt giải Quốc gia & Quốc tế', value: '120+' },
+    { label: 'Tỷ lệ đỗ Đại học nguyện vọng 1', value: '98.5%' },
+    { label: 'Thầy cô giáo viên dạy giỏi', value: '80+' },
+    { label: 'Câu lạc bộ tài năng & ngoại khóa', value: '20' },
   ],
 };
 

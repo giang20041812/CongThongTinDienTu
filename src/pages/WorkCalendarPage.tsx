@@ -104,23 +104,23 @@ export const WorkCalendarPage: React.FC<WorkCalendarPageProps> = ({ onGoHome }) 
   ];
 
   return (
-    <div className="w-full bg-[#FAF9F6] min-h-screen py-8 sm:py-12 relative">
+    <div className="w-full bg-[#F3F3F3] min-h-screen py-8 sm:py-12 relative">
       <BackgroundGeometricMesh variant="grid" className="opacity-60" />
 
       <div className="max-w-7xl mx-auto px-4 relative z-10">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-xs font-mono text-stone-500 mb-6">
-          <button onClick={onGoHome} className="hover:text-[#991B1B] transition-colors cursor-pointer">
+          <button onClick={onGoHome} className="hover:text-[#0875B1] transition-colors cursor-pointer">
             Trang chủ
           </button>
           <span>/</span>
-          <span className="text-[#991B1B] font-bold">Lịch Làm Việc</span>
+          <span className="text-[#0875B1] font-bold">Lịch Làm Việc</span>
         </nav>
 
         {/* Page Header */}
-        <div className="border-b-2 border-[#991B1B] pb-4 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="border-b-2 border-[#0B78B5] pb-4 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <span className="text-[11px] font-mono tracking-widest uppercase text-[#991B1B] font-bold flex items-center gap-1.5">
+            <span className="text-[11px] font-mono tracking-widest uppercase text-[#0875B1] font-bold flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5" />
               LỊCH CÔNG TÁC TUẦN CỦA BAN GIÁM HIỆU & CÁC TỔ CHUYÊN MÔN
             </span>
@@ -139,7 +139,7 @@ export const WorkCalendarPage: React.FC<WorkCalendarPageProps> = ({ onGoHome }) 
             </button>
             <button
               onClick={() => alert('Đang tải tệp PDF Lịch Công Tác Tuần')}
-              className="px-4 py-2 bg-[#991B1B] hover:bg-[#7F1D1D] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="px-4 py-2 bg-[#0B78B5] hover:bg-[#075F91] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Tải PDF</span>
@@ -148,20 +148,20 @@ export const WorkCalendarPage: React.FC<WorkCalendarPageProps> = ({ onGoHome }) 
         </div>
 
         {/* Week Selector Bar */}
-        <div className="bg-white border-2 border-[#991B1B] p-4 mb-8 flex items-center justify-between shadow-xs">
+        <div className="bg-white border-2 border-[#0B78B5] p-4 mb-8 flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSelectedWeek(Math.max(1, selectedWeek - 1))}
-              className="w-8 h-8 border border-stone-300 hover:border-[#991B1B] hover:bg-[#FEF2F2] flex items-center justify-center cursor-pointer"
+              className="w-8 h-8 border border-stone-300 hover:border-[#0B78B5] hover:bg-[#EAF3F8] flex items-center justify-center cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="text-xs sm:text-sm font-bold uppercase font-mono text-[#991B1B]">
+            <span className="text-xs sm:text-sm font-bold uppercase font-mono text-[#0875B1]">
               Tuần 0{selectedWeek} (Năm học 2026–2027)
             </span>
             <button
               onClick={() => setSelectedWeek(Math.min(36, selectedWeek + 1))}
-              className="w-8 h-8 border border-stone-300 hover:border-[#991B1B] hover:bg-[#FEF2F2] flex items-center justify-center cursor-pointer"
+              className="w-8 h-8 border border-stone-300 hover:border-[#0B78B5] hover:bg-[#EAF3F8] flex items-center justify-center cursor-pointer"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -177,12 +177,12 @@ export const WorkCalendarPage: React.FC<WorkCalendarPageProps> = ({ onGoHome }) 
           {workEvents.map((item) => (
             <div
               key={item.day}
-              className="border-2 border-[#E2DDD3] bg-white shadow-xs hover:border-[#991B1B] transition-colors overflow-hidden"
+              className="border-2 border-[#B8D3E2] bg-white shadow-xs hover:border-[#0B78B5] transition-colors overflow-hidden"
             >
               {/* Day Header */}
-              <div className="bg-[#FAF8F5] border-b border-stone-200 px-5 py-3 flex items-center justify-between">
+              <div className="bg-[#EAF3F8] border-b border-[#B8D3E2] px-5 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="text-sm sm:text-base font-extrabold text-[#991B1B] uppercase font-mono">
+                  <span className="text-sm sm:text-base font-extrabold text-[#0875B1] uppercase font-mono">
                     {item.day}
                   </span>
                   <span className="text-xs font-mono text-stone-500 bg-white px-2 py-0.5 border border-stone-300">
@@ -197,7 +197,7 @@ export const WorkCalendarPage: React.FC<WorkCalendarPageProps> = ({ onGoHome }) 
                 {/* Morning Session */}
                 <div className="p-5 space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="bg-[#FEF2F2] text-[#991B1B] font-bold font-mono px-2 py-0.5 border border-[#FCA5A5]/40 text-[11px] uppercase">
+                    <span className="bg-[#EAF3F8] text-[#0875B1] font-bold font-mono px-2 py-0.5 border border-[#9DC5D8] text-[11px] uppercase">
                       BUỔI SÁNG ({item.morning.time})
                     </span>
                   </div>
@@ -208,11 +208,11 @@ export const WorkCalendarPage: React.FC<WorkCalendarPageProps> = ({ onGoHome }) 
 
                   <div className="space-y-1 text-stone-600 text-xs pt-1 font-mono">
                     <div className="flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-[#991B1B] shrink-0" />
+                      <User className="w-3.5 h-3.5 text-[#0B78B5] shrink-0" />
                       <span>Chủ trì: <strong className="text-stone-800">{item.morning.chair}</strong></span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-[#991B1B] shrink-0" />
+                      <MapPin className="w-3.5 h-3.5 text-[#0B78B5] shrink-0" />
                       <span>Địa điểm: <strong className="text-stone-800">{item.morning.location}</strong></span>
                     </div>
                     <div className="text-stone-500 pt-0.5 font-sans">
@@ -224,7 +224,7 @@ export const WorkCalendarPage: React.FC<WorkCalendarPageProps> = ({ onGoHome }) 
                 {/* Afternoon Session */}
                 <div className="p-5 space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="bg-stone-100 text-stone-800 font-bold font-mono px-2 py-0.5 border border-stone-300 text-[11px] uppercase">
+                    <span className="bg-[#EAF3F8] text-[#0875B1] font-bold font-mono px-2 py-0.5 border border-[#9DC5D8] text-[11px] uppercase">
                       BUỔI CHIỀU ({item.afternoon.time})
                     </span>
                   </div>
@@ -235,11 +235,11 @@ export const WorkCalendarPage: React.FC<WorkCalendarPageProps> = ({ onGoHome }) 
 
                   <div className="space-y-1 text-stone-600 text-xs pt-1 font-mono">
                     <div className="flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-[#991B1B] shrink-0" />
+                      <User className="w-3.5 h-3.5 text-[#0B78B5] shrink-0" />
                       <span>Chủ trì: <strong className="text-stone-800">{item.afternoon.chair}</strong></span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-[#991B1B] shrink-0" />
+                      <MapPin className="w-3.5 h-3.5 text-[#0B78B5] shrink-0" />
                       <span>Địa điểm: <strong className="text-stone-800">{item.afternoon.location}</strong></span>
                     </div>
                     <div className="text-stone-500 pt-0.5 font-sans">

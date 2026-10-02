@@ -29,7 +29,7 @@ export const BackgroundGeometricMesh: React.FC<BackgroundGeometricMeshProps> = (
 
       {/* Floating subtle modern geometric elements to fill empty negative space */}
       <svg
-        className="animate-slow-drift absolute top-12 right-12 w-64 h-64 text-[#B91C1C] opacity-[0.045]"
+        className="animate-slow-drift absolute top-12 right-12 w-64 h-64 text-[#0B78B5] opacity-[0.045]"
         viewBox="0 0 200 200"
         fill="none"
         stroke="currentColor"
@@ -57,21 +57,21 @@ export const BackgroundGeometricMesh: React.FC<BackgroundGeometricMeshProps> = (
       </svg>
 
       {/* Subtle modern cross markers at corners for architectural rigor */}
-      <div className="absolute top-4 left-4 text-[#B91C1C] opacity-20 font-mono text-[10px]">
+      <div className="absolute top-4 left-4 text-[#0B78B5] opacity-20 font-mono text-[10px]">
         +
       </div>
-      <div className="absolute top-4 right-4 text-[#B91C1C] opacity-20 font-mono text-[10px]">
+      <div className="absolute top-4 right-4 text-[#0B78B5] opacity-20 font-mono text-[10px]">
         +
       </div>
-      <div className="absolute bottom-4 left-4 text-[#B91C1C] opacity-20 font-mono text-[10px]">
+      <div className="absolute bottom-4 left-4 text-[#0B78B5] opacity-20 font-mono text-[10px]">
         +
       </div>
-      <div className="absolute bottom-4 right-4 text-[#B91C1C] opacity-20 font-mono text-[10px]">
+      <div className="absolute bottom-4 right-4 text-[#0B78B5] opacity-20 font-mono text-[10px]">
         +
       </div>
 
       {/* Hairline horizontal laser accent */}
-      <div className="animate-pulse-laser absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#B91C1C]/10 to-transparent" />
+      <div className="animate-pulse-laser absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#0B78B5]/10 to-transparent" />
     </div>
   );
 };

@@ -5,11 +5,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
+import { NavigationBar } from './components/NavigationBar';
 import { HeroSlider } from './components/HeroSlider';
 import { NewsAndAnnouncementsSection } from './components/NewsAndAnnouncementsSection';
-import { SchoolShowcaseSection } from './components/SchoolShowcaseSection';
-import { AdmissionsAndStudyAbroadSection } from './components/AdmissionsAndStudyAbroadSection';
-import { ClubsAndLostFoundSection } from './components/ClubsAndLostFoundSection';
+import { MultiCategorySection } from './components/MultiCategorySection';
+import { LostFoundBanner } from './components/LostFoundBanner';
 import { Footer } from './components/Footer';
 import { Modals } from './components/Modals';
 import { ActiveModal, PageRoute, NewsItem, AnnouncementItem, LostItem } from './types';
@@ -31,6 +31,7 @@ export default function App() {
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Sync scroll on route change
   useEffect(() => {
@@ -119,13 +120,15 @@ export default function App() {
     : [];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF9F6] text-[#1C1917] selection:bg-[#B91C1C] selection:text-white">
+    <div className="min-h-screen flex flex-col bg-[#f5f7fc] text-[#1a2744] selection:bg-[#003087] selection:text-white">
       
       {/* 1. TOP HEADER & NAVIGATION */}
       <Header
         activeTab={getActiveTabId()}
         onTabChange={handleTabChange}
         onSearch={handleSearch}
+        isMobileMenuOpen={isMobileMenuOpen}
+        onToggleMobileMenu={() => setIsMobileMenuOpen((open) => !open)}
         onOpenQuickModal={(type) => {
           if (type === 'tkb') setCurrentRoute({ view: 'tkb' });
           if (type === 'calendar') setCurrentRoute({ view: 'calendar' });
@@ -135,6 +138,11 @@ export default function App() {
 
       {/* 2. DYNAMIC ROUTE RENDERER */}
       <main className="flex-1">
+        {currentRoute.view !== 'home' && (
+          <NavigationBar activeTab={getActiveTabId()} onTabChange={handleTabChange} isMobileMenuOpen={isMobileMenuOpen} onToggleMobileMenu={() => setIsMobileMenuOpen(false)} onSearch={handleSearch} onOpenQuickModal={(type) => {
+            if (type === 'reportLost') setActiveModal({ type: 'reportLost' });
+          }} />
+        )}
         {/* VIEW: HOME DASHBOARD (Direct match with Wireframe) */}
         {currentRoute.view === 'home' && (
           <>
@@ -145,25 +153,34 @@ export default function App() {
               }}
             />
 
+            <NavigationBar activeTab={getActiveTabId()} onTabChange={handleTabChange} isMobileMenuOpen={isMobileMenuOpen} onToggleMobileMenu={() => setIsMobileMenuOpen(false)} onSearch={handleSearch} onOpenQuickModal={(type) => {
+              if (type === 'reportLost') setActiveModal({ type: 'reportLost' });
+            }} />
+
+            {/* Điều hướng và điểm tin nằm ngay dưới banner */}
             {/* Section 1: Tin tức - Sự kiện & Thông báo */}
             <NewsAndAnnouncementsSection
               onSelectNews={(item) => setCurrentRoute({ view: 'news-detail', id: item.id })}
               onSelectAnnouncement={(item) => setCurrentRoute({ view: 'announcement-detail', id: item.id })}
+              onSearch={handleSearch}
+              onOpenQuickModal={() => setActiveModal({ type: 'reportLost' })}
             />
 
-            {/* Section 2: Nhà trường (Swipeable) */}
-            <SchoolShowcaseSection
-              onSelectHighlight={(item) => setCurrentRoute({ view: 'news-detail', id: 'news-1' })}
+            {/* Section 2 + 3: Multi-category grid (Tin NhàTrường, Thanh Niên, CLB, Thông Báo, Tuyển Sinh, HSG, STEM, Du Học) */}
+            <MultiCategorySection
+              onSelectNews={(id) => setCurrentRoute({ view: 'news-detail', id })}
+              onNavigate={(view) => {
+                if (view === 'news-list') setCurrentRoute({ view: 'news-list' });
+                else if (view === 'announcement-list') setCurrentRoute({ view: 'announcement-list' });
+                else if (view === 'admissions-list') setCurrentRoute({ view: 'admissions-list' });
+                else if (view === 'study-abroad-list') setCurrentRoute({ view: 'study-abroad-list' });
+                else if (view === 'clubs-list') setCurrentRoute({ view: 'clubs-list' });
+                else if (view === 'lost-found-list') setCurrentRoute({ view: 'lost-found-list' });
+              }}
             />
 
-            {/* Section 3: Tuyển sinh & Du học */}
-            <AdmissionsAndStudyAbroadSection
-              onOpenAdmissionModal={() => setCurrentRoute({ view: 'admissions-list' })}
-              onOpenStudyAbroadModal={() => setCurrentRoute({ view: 'study-abroad-list' })}
-            />
-
-            {/* Section 4: CLB & Góc thất lạc */}
-            <ClubsAndLostFoundSection
+            {/* Section 4: Góc thất lạc - full width horizontal scroll */}
+            <LostFoundBanner
               onSelectLostItem={(item) => setCurrentRoute({ view: 'lost-found-detail', id: item.id })}
               onOpenReportLostModal={() => setActiveModal({ type: 'reportLost' })}
             />
@@ -291,17 +308,17 @@ export default function App() {
       {/* 5. QUICK SEARCH MODAL */}
       {isSearchOpen && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 p-4 bg-black/50 backdrop-blur-xs">
-          <div className="w-full max-w-xl bg-white border-2 border-[#991B1B] shadow-2xl p-5">
+          <div className="w-full max-w-xl bg-white border-2 border-[#003087] shadow-2xl p-5">
             <div className="flex items-center justify-between pb-3 border-b border-stone-200">
               <div className="flex items-center gap-2">
-                <Search className="w-4 h-4 text-[#991B1B]" />
-                <span className="font-bold text-xs uppercase tracking-wider text-stone-800">
+                <Search className="w-4 h-4 text-[#003087]" />
+                <span className="font-bold text-xs uppercase tracking-wider text-[#1a2744]">
                   Kết quả tìm kiếm cho: "{searchQuery}"
                 </span>
               </div>
               <button
                 onClick={() => setIsSearchOpen(false)}
-                className="w-6 h-6 flex items-center justify-center hover:bg-stone-100 text-stone-600 cursor-pointer"
+                className="w-6 h-6 flex items-center justify-center hover:bg-[#e8eef8] text-[#6b82b8] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -320,15 +337,15 @@ export default function App() {
                         setCurrentRoute({ view: 'news-detail', id: item.id });
                       }
                     }}
-                    className="py-3 hover:bg-[#FAF9F6] px-2 cursor-pointer transition-colors"
+                    className="py-3 hover:bg-[#f5f7fc] px-2 cursor-pointer transition-colors"
                   >
-                    <div className="text-[11px] font-mono text-[#991B1B] font-bold">
+                    <div className="text-[11px] font-mono text-[#003087] font-bold">
                       {item.typeLabel} · {item.category} · {item.date}
                     </div>
-                    <div className="text-xs sm:text-sm font-bold text-stone-900 mt-0.5 line-clamp-2">
+                    <div className="text-xs sm:text-sm font-bold text-[#1a2744] mt-0.5 line-clamp-2">
                       {item.title}
                     </div>
-                    <div className="text-xs text-stone-600 line-clamp-1 mt-1">
+                    <div className="text-xs text-[#4a5f8a] line-clamp-1 mt-1">
                       {item.summary}
                     </div>
                   </div>

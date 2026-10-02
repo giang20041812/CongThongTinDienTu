@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, MapPin, Mail, Phone, Calendar, Clock, AlertCircle, Menu, X, ChevronRight, ChevronLeft } from 'lucide-react';
 import { SCHOOL_INFO } from '../data/mockData';
+import schoolLogo from '../assets/logo.jpg';
 
 interface HeaderProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   onSearch: (query: string) => void;
   onOpenQuickModal: (type: 'tkb' | 'calendar' | 'reportLost') => void;
+  isMobileMenuOpen: boolean;
+  onToggleMobileMenu: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -14,10 +17,11 @@ export const Header: React.FC<HeaderProps> = ({
   onTabChange,
   onSearch,
   onOpenQuickModal,
+  isMobileMenuOpen,
+  onToggleMobileMenu,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Horizontal Navigation Scroll & Drag State
   const navContainerRef = useRef<HTMLDivElement>(null);
@@ -78,7 +82,7 @@ export const Header: React.FC<HeaderProps> = ({
     if (!isDragging.current || !navContainerRef.current) return;
     e.preventDefault();
     const x = e.pageX - navContainerRef.current.offsetLeft;
-    const walk = (x - startX.current) * 1.5; // Drag sensitivity
+    const walk = (x - startX.current) * 1.5;
     if (Math.abs(walk) > 4) {
       hasDragged.current = true;
     }
@@ -95,7 +99,7 @@ export const Header: React.FC<HeaderProps> = ({
     e.preventDefault();
     if (searchQuery.trim()) {
       onSearch(searchQuery.trim());
-      setIsMobileMenuOpen(false);
+      if (isMobileMenuOpen) onToggleMobileMenu();
     }
   };
 
@@ -116,88 +120,98 @@ export const Header: React.FC<HeaderProps> = ({
       return;
     }
     onTabChange(item.id);
-    setIsMobileMenuOpen(false);
+    if (isMobileMenuOpen) onToggleMobileMenu();
   };
 
   return (
-    <header className="w-full bg-[#FFFFFF] border-b border-[#E5E0D8] relative z-40">
-      {/* Top Utility Meta Strip */}
-      <div className="bg-[#FAF9F6] border-b border-[#EAE6DE] px-3 sm:px-4 py-1.5 text-xs text-[#57534E]">
+    <header className="w-full bg-[#FFFFFF] border-b border-[#d1ddf5] relative z-40">
+      {/* Top Utility Meta Strip - Deep Navy Blue */}
+      <div className="bg-[#003087] border-b border-[#001a52] px-3 sm:px-4 py-1.5 text-xs text-white">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 sm:gap-3">
           {/* Slogan & Authority */}
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <span className="font-semibold text-[#991B1B] uppercase tracking-wider text-[10px] sm:text-[11px]">
+            <span className="font-semibold text-[#FFD700] uppercase tracking-wider text-[10px] sm:text-[11px]">
               SỞ GD&ĐT HÀ NỘI
             </span>
-            <span className="text-[#D6D3D1]">/</span>
-            <span className="hidden sm:inline font-medium text-[#78716C] text-[11px]">
+            <span className="text-white/40">/</span>
+            <span className="hidden sm:inline font-medium text-white/80 text-[11px]">
               Cổng thông tin điện tử tích hợp 2026–2027
             </span>
-            <span className="sm:hidden font-medium text-[#78716C] text-[10px]">
+            <span className="sm:hidden font-medium text-white/80 text-[10px]">
               Cổng thông tin 2026
             </span>
           </div>
 
-          {/* Contact Details from Wireframe */}
+          {/* Contact Details */}
           <div className="flex items-center gap-3 sm:gap-4 text-[10px] sm:text-[11px] font-sans">
-            <span className="hidden md:flex items-center gap-1.5 hover:text-[#991B1B] transition-colors">
-              <MapPin className="w-3.5 h-3.5 text-[#B91C1C]" />
+            <span className="hidden md:flex items-center gap-1.5 hover:text-[#FFD700] transition-colors">
+              <MapPin className="w-3.5 h-3.5 text-[#FFD700]" />
               {SCHOOL_INFO.address}
             </span>
-            <span className="hidden sm:flex items-center gap-1.5 hover:text-[#991B1B] transition-colors">
-              <Mail className="w-3.5 h-3.5 text-[#B91C1C]" />
+            <span className="hidden sm:flex items-center gap-1.5 hover:text-[#FFD700] transition-colors">
+              <Mail className="w-3.5 h-3.5 text-[#FFD700]" />
               {SCHOOL_INFO.email}
             </span>
             <a
               href={`tel:${SCHOOL_INFO.hotline}`}
-              className="flex items-center gap-1.5 font-bold text-[#991B1B]"
+              className="flex items-center gap-1.5 font-bold text-[#FFD700]"
             >
-              <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#B91C1C]" />
+              <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#FFD700]" />
               <span>{SCHOOL_INFO.hotline}</span>
             </a>
           </div>
         </div>
       </div>
 
-      {/* Main Branding & Search Header (Direct Match with Wireframe Top Row) */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-5">
+      {/* Gold Accent Bar */}
+      <div className="h-[3px] gold-accent-bar" />
+
+      {/* Main Branding & Search Header */}
+      <div className="header-branding max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4 bg-white">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
           
           {/* Top Row on Mobile: Brand Lockup + Mobile Menu Button */}
-          <div className="flex items-center justify-between gap-3">
+          <div className="header-brand-lockup flex items-center justify-between gap-3">
+            <button
+              onClick={onToggleMobileMenu}
+              aria-label={isMobileMenuOpen ? 'Đóng menu' : 'Mở menu'}
+              className="lg:hidden w-10 h-10 shrink-0 border border-[#003087] bg-[#f5f7fc] text-[#003087] flex items-center justify-center hover:bg-[#e8eef8] active:bg-[#003087] active:text-white transition-colors cursor-pointer"
+            >
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
             <div
               onClick={() => onTabChange('trang-chu')}
-              className="flex items-center gap-3 sm:gap-5 cursor-pointer group"
+              className="flex items-center gap-3 sm:gap-4 cursor-pointer group"
             >
-              {/* Logo Circle as requested in wireframe */}
-              <div className="w-13 h-13 sm:w-18 sm:h-18 lg:w-20 lg:h-20 shrink-0 border-2 border-[#991B1B] bg-[#FAF8F5] flex flex-col items-center justify-center p-1 text-center relative group-hover:border-[#7F1D1D] shadow-xs">
-                <div className="w-full h-full border border-[#B91C1C]/40 flex flex-col items-center justify-center">
-                  <span className="text-[9px] sm:text-[10px] font-bold text-[#991B1B] tracking-wider leading-none">CVA</span>
-                  <span className="text-xs sm:text-sm font-black tracking-widest text-[#7F1D1D] mt-0.5">Logo</span>
-                  <div className="w-3 sm:w-4 h-[1.5px] bg-[#991B1B] mt-1" />
-                </div>
+              {/* School Logo Image */}
+              <div className="w-14 h-14 sm:w-18 sm:h-18 lg:w-20 lg:h-20 shrink-0">
+                <img
+                  src={schoolLogo}
+                  alt="Logo THPT Đặng Trần Đức"
+                  className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-200"
+                />
               </div>
 
               {/* School Name & Slogan */}
               <div>
-                <div className="text-[10px] sm:text-xs font-semibold text-[#B91C1C] uppercase tracking-wider">
+                <div className="text-[10px] sm:text-xs font-semibold text-[#003087] uppercase tracking-wider">
                   {SCHOOL_INFO.secondaryName}
                 </div>
-                <h1 className="text-base sm:text-2xl md:text-3xl font-extrabold tracking-tight text-[#1C1917] leading-tight mt-0.5 uppercase">
+                <h1 className="text-base sm:text-xl md:text-2xl font-extrabold tracking-tight text-[#003087] leading-tight mt-0.5 uppercase">
                   {SCHOOL_INFO.name}
                 </h1>
-                <p className="text-[11px] sm:text-sm font-medium text-[#78716C] tracking-wide mt-0.5 italic line-clamp-1">
+                <p className="text-[11px] sm:text-sm font-medium text-[#F0A500] tracking-wide mt-0.5 italic line-clamp-1">
                   {SCHOOL_INFO.slogan}
                 </p>
               </div>
             </div>
 
-            {/* Mobile Menu Toggle Button */}
-            <div className="flex items-center gap-2 lg:hidden">
+            {/* Mobile menu button moved to the left of the logo */}
+            <div className="hidden">
               <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                onClick={onToggleMobileMenu}
                 aria-label="Mở menu"
-                className="w-10 h-10 border border-stone-300 bg-[#FAF9F6] text-[#991B1B] flex items-center justify-center hover:bg-[#FEF2F2] active:bg-[#991B1B] active:text-white transition-colors cursor-pointer"
+                className="w-10 h-10 border border-[#003087] bg-[#f5f7fc] text-[#003087] flex items-center justify-center hover:bg-[#e8eef8] active:bg-[#003087] active:text-white transition-colors cursor-pointer"
               >
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -216,22 +230,22 @@ export const Header: React.FC<HeaderProps> = ({
                 onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
                 placeholder="Tìm kiếm bài viết, đề thi, quy chế..."
                 className={`w-full h-9 sm:h-10 pl-3 pr-10 text-xs sm:text-sm bg-[#FFFFFF] border ${
-                  isSearchFocused ? 'border-[#991B1B] ring-1 ring-[#991B1B]' : 'border-[#D6D3D1]'
-                } placeholder:text-[#A8A29E] focus:outline-none transition-all`}
+                  isSearchFocused ? 'border-[#003087] ring-1 ring-[#003087]' : 'border-[#c5d3ec]'
+                } placeholder:text-[#9aabd4] focus:outline-none transition-all text-[#1a2744]`}
               />
               <button
                 type="submit"
                 aria-label="Tìm kiếm"
-                className="absolute right-0 top-0 bottom-0 px-3 flex items-center justify-center text-[#78716C] hover:text-[#991B1B] hover:bg-[#FAF8F5] transition-colors"
+                className="absolute right-0 top-0 bottom-0 px-3 flex items-center justify-center text-[#78716C] hover:text-[#003087] hover:bg-[#e8eef8] transition-colors"
               >
-                <Search className="w-4 h-4 text-[#991B1B]" />
+                <Search className="w-4 h-4 text-[#003087]" />
               </button>
             </form>
 
             {/* Quick Action Button: Báo Mất Đồ */}
             <button
               onClick={() => onOpenQuickModal('reportLost')}
-              className="flex items-center gap-1.5 h-9 sm:h-10 px-3 sm:px-3.5 bg-[#991B1B] hover:bg-[#7F1D1D] text-white text-xs font-semibold tracking-wide whitespace-nowrap transition-colors border border-[#7F1D1D] shadow-xs cursor-pointer shrink-0"
+              className="flex items-center gap-1.5 h-9 sm:h-10 px-3 sm:px-3.5 bg-[#003087] hover:bg-[#001a52] text-white text-xs font-semibold tracking-wide whitespace-nowrap transition-colors border border-[#001a52] shadow-xs cursor-pointer shrink-0"
             >
               <AlertCircle className="w-3.5 h-3.5" />
               <span className="hidden xs:inline">Báo Mất Đồ</span>
@@ -242,8 +256,11 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Main Horizontal Navigation Bar with HORIZONTAL SWIPE & DRAG SUPPORT */}
-      <nav className="bg-[#991B1B] text-white relative select-none">
+      {/* Gold Accent Bar before Nav */}
+      <div className="header-nav-accent h-[2px] gold-accent-bar" />
+
+      {/* Main Horizontal Navigation Bar - Navy Blue */}
+      <nav className="header-navigation bg-[#003087] text-white relative select-none">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 relative flex items-center">
           
           {/* Left Arrow Button for Horizontal Scrolling */}
@@ -251,7 +268,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={() => scrollNav('left')}
               aria-label="Cuộn sang trái"
-              className="absolute left-0 top-0 bottom-0 z-20 w-8 bg-gradient-to-r from-[#7F1D1D] via-[#7F1D1D]/90 to-transparent flex items-center justify-start pl-1 text-white hover:text-white transition-opacity cursor-pointer"
+              className="absolute left-0 top-0 bottom-0 z-20 w-8 bg-gradient-to-r from-[#001a52] via-[#001a52]/90 to-transparent flex items-center justify-start pl-1 text-white hover:text-[#FFD700] transition-opacity cursor-pointer"
             >
               <ChevronLeft className="w-5 h-5 drop-shadow-sm" />
             </button>
@@ -265,7 +282,7 @@ export const Header: React.FC<HeaderProps> = ({
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
-            className="flex items-center overflow-x-auto scrollbar-none w-full border-t border-[#7F1D1D] touch-pan-x cursor-grab active:cursor-grabbing scroll-smooth"
+            className="flex items-center overflow-x-auto scrollbar-none w-full border-t border-[#001a52]/60 touch-pan-x cursor-grab active:cursor-grabbing scroll-smooth"
             style={{
               WebkitOverflowScrolling: 'touch',
             }}
@@ -279,16 +296,16 @@ export const Header: React.FC<HeaderProps> = ({
                   onClick={() => handleNavItemClick(item)}
                   className={`relative px-3.5 sm:px-5 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold tracking-wide whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
                     isActive
-                      ? 'bg-[#7F1D1D] text-white'
-                      : 'text-white/90 hover:bg-[#8B1A1A] hover:text-white'
+                      ? 'bg-[#001a52] text-[#FFD700]'
+                      : 'text-white/90 hover:bg-[#002060] hover:text-white'
                   }`}
                 >
                   {item.id === 'tkb' && <Clock className="w-3.5 h-3.5 opacity-80" />}
                   {item.id === 'lich-lam-viec' && <Calendar className="w-3.5 h-3.5 opacity-80" />}
                   {item.label}
-                  {/* Distinct Wireframe Underline Indicator Bar */}
+                  {/* Gold Underline Indicator Bar for Active Tab */}
                   {isActive && (
-                    <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#FFFFFF] shadow-sm" />
+                    <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#55B9E8] shadow-sm" />
                   )}
                 </button>
               );
@@ -300,7 +317,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={() => scrollNav('right')}
               aria-label="Cuộn sang phải"
-              className="absolute right-0 top-0 bottom-0 z-20 w-8 bg-gradient-to-l from-[#7F1D1D] via-[#7F1D1D]/90 to-transparent flex items-center justify-end pr-1 text-white hover:text-white transition-opacity cursor-pointer"
+              className="absolute right-0 top-0 bottom-0 z-20 w-8 bg-gradient-to-l from-[#001a52] via-[#001a52]/90 to-transparent flex items-center justify-end pr-1 text-white hover:text-[#FFD700] transition-opacity cursor-pointer"
             >
               <ChevronRight className="w-5 h-5 drop-shadow-sm" />
             </button>
@@ -309,46 +326,75 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </nav>
 
+      {/* Search and quick action row below the navigation */}
+      <div className="header-search-under-nav bg-white border-b border-[#B8D3E2] px-3 sm:px-4 py-2.5">
+        <div className="max-w-7xl mx-auto flex items-center justify-end gap-2 sm:gap-3">
+          <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-xl">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+              placeholder="Tìm kiếm bài viết, đề thi, quy chế..."
+              className={`w-full h-9 pl-3 pr-10 text-xs sm:text-sm bg-white border ${
+                isSearchFocused ? 'border-[#0B78B5] ring-1 ring-[#0B78B5]' : 'border-[#B8D3E2]'
+              } placeholder:text-[#7895AD] focus:outline-none transition-all text-[#17324D]`}
+            />
+            <button type="submit" aria-label="Tìm kiếm" className="absolute right-0 top-0 bottom-0 px-3 flex items-center justify-center text-[#0875B1] hover:bg-[#EAF3F8] transition-colors cursor-pointer">
+              <Search className="w-4 h-4" />
+            </button>
+          </form>
+          <button
+            onClick={() => onOpenQuickModal('reportLost')}
+            className="flex items-center gap-1.5 h-9 px-3 sm:px-3.5 bg-[#0B78B5] hover:bg-[#075F91] text-white text-xs font-semibold tracking-wide whitespace-nowrap transition-colors cursor-pointer"
+          >
+            <AlertCircle className="w-3.5 h-3.5" />
+            <span>Báo mất đồ</span>
+          </button>
+        </div>
+      </div>
+
       {/* Mobile Drawer Menu (When Hamburger is Clicked on Phones) */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden bg-white border-b-2 border-[#991B1B] shadow-lg animate-in slide-in-from-top-2 duration-200">
-          <div className="p-3 border-b border-stone-200 bg-[#FAF9F6] flex items-center justify-between">
-            <div className="text-[11px] font-mono font-bold text-[#991B1B] uppercase tracking-wider">
+        <div className="header-mobile-menu lg:hidden bg-white border-b-2 border-[#003087] shadow-lg animate-in slide-in-from-top-2 duration-200">
+          <div className="p-3 border-b border-[#d1ddf5] bg-[#f5f7fc] flex items-center justify-between">
+            <div className="text-[11px] font-mono font-bold text-[#003087] uppercase tracking-wider">
               DANH MỤC ĐIỀU HƯỚNG NHANH
             </div>
-            <span className="text-[11px] text-stone-500 font-mono">8 Chuyên mục</span>
+            <span className="text-[11px] text-[#6b82b8] font-mono">8 Chuyên mục</span>
           </div>
-          <div className="divide-y divide-stone-100">
+          <div className="divide-y divide-[#e8eef8]">
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => handleNavItemClick(item)}
                 className={`w-full px-4 py-3 text-left text-xs sm:text-sm font-bold flex items-center justify-between transition-colors cursor-pointer ${
                   activeTab === item.id
-                    ? 'bg-[#FEF2F2] text-[#991B1B] border-l-4 border-[#991B1B]'
-                    : 'text-stone-800 hover:bg-[#FEF2F2] hover:text-[#991B1B]'
+                    ? 'bg-[#e8eef8] text-[#003087] border-l-4 border-[#FFD700]'
+                    : 'text-[#1a2744] hover:bg-[#e8eef8] hover:text-[#003087]'
                 }`}
               >
                 <span>{item.label}</span>
-                <ChevronRight className="w-4 h-4 text-stone-400" />
+                <ChevronRight className="w-4 h-4 text-[#9aabd4]" />
               </button>
             ))}
           </div>
         </div>
       )}
 
-      {/* Modern Breaking News / Date Ticker strip */}
-      <div className="bg-[#FEF2F2] border-b border-[#FECACA] overflow-hidden py-1.5 px-3 sm:px-4 text-xs">
+      {/* Breaking News / Date Ticker strip - Gold accent */}
+      <div className="header-ticker bg-[#fff8e1] border-b border-[#FFD700]/40 overflow-hidden py-1.5 px-3 sm:px-4 text-xs">
         <div className="max-w-7xl mx-auto flex items-center gap-2 sm:gap-3">
-          <div className="flex items-center gap-1.5 bg-[#991B1B] text-white px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase shrink-0">
+          <div className="flex items-center gap-1.5 bg-[#003087] text-white px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase shrink-0">
             <span>ĐIỂM TIN</span>
           </div>
-          <div className="overflow-hidden relative flex-1 text-[#991B1B] font-medium truncate text-[11px] sm:text-xs">
+          <div className="overflow-hidden relative flex-1 text-[#003087] font-medium truncate text-[11px] sm:text-xs">
             <span>
-              Hội đồng khảo thí cụm Gia Lâm - Long Biên công bố ma trận đề thi và khung điểm chuẩn năm học 2026–2027. Lễ Khai giảng toàn quốc diễn ra ngày 5/9/2026.
+              Trường THPT Đặng Trần Đức thông báo kế hoạch tổ chức hoạt động giáo dục trải nghiệm năm học 2026–2027. Lễ Khai giảng toàn quốc diễn ra ngày 5/9/2026.
             </span>
           </div>
-          <div className="hidden lg:flex items-center gap-3 text-[#78716C] text-[11px] font-mono shrink-0">
+          <div className="hidden lg:flex items-center gap-3 text-[#6b82b8] text-[11px] font-mono shrink-0">
             <span>Hà Nội: 28°C</span>
             <span>·</span>
             <span>Năm học: 2026–2027</span>

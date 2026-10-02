@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* ===============================================
+   THPT ĐẶNG TRẦN ĐỨC - Color Palette
+   Primary: Portal Blue  #0B78B5
+   Secondary: Sky Blue #55B9E8
+   Accent: White       #FFFFFF
+   Dark Blue:          #075F91
+   Light Blue:         #EAF3F8
+   =============================================== */
+
 @layer base {
   * {
     border-radius: 0px !important;
@@ -7,8 +16,8 @@
 
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-    color: #1c1917;
-    background-color: #faf9f6;
+    color: #17324D;
+    background-color: #F3F3F3;
     overflow-x: hidden;
   }
 
@@ -17,37 +26,37 @@
   }
 }
 
-/* Custom modern sharp scrollbars */
+/* Custom modern sharp scrollbars - Navy/Gold theme */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f0ea;
+  background: #EAF3F8;
 }
 ::-webkit-scrollbar-thumb {
-  background: #991b1b;
+  background: #0B78B5;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #7f1d1d;
+  background: #075F91;
 }
 
-/* Subtle modern background grids & architectural elements */
+/* Subtle modern background grids - Blue theme */
 .bg-edu-grid {
   background-image: 
-    linear-gradient(to right, rgba(185, 28, 28, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(185, 28, 28, 0.04) 1px, transparent 1px);
+    linear-gradient(to right, rgba(11, 120, 181, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(11, 120, 181, 0.04) 1px, transparent 1px);
   background-size: 32px 32px;
 }
 
 .bg-blueprint-lines {
   background-image: 
-    repeating-linear-gradient(0deg, transparent, transparent 47px, rgba(153, 27, 27, 0.035) 48px, transparent 49px),
-    repeating-linear-gradient(90deg, transparent, transparent 47px, rgba(153, 27, 27, 0.035) 48px, transparent 49px);
+    repeating-linear-gradient(0deg, transparent, transparent 47px, rgba(11, 120, 181, 0.035) 48px, transparent 49px),
+    repeating-linear-gradient(90deg, transparent, transparent 47px, rgba(11, 120, 181, 0.035) 48px, transparent 49px);
 }
 
 .bg-dot-matrix {
-  background-image: radial-gradient(rgba(185, 28, 28, 0.08) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(11, 120, 181, 0.08) 1px, transparent 1px);
   background-size: 20px 20px;
 }
 
@@ -59,12 +68,15 @@
   scrollbar-width: none;
 }
 
-/* Sharp hairline accent borders */
-.border-edu-red {
-  border-color: #b91c1c;
+/* Sharp hairline accent borders - Blue theme */
+.border-edu-blue {
+  border-color: #0B78B5;
+}
+.border-edu-gold {
+  border-color: #55B9E8;
 }
 .border-edu-subtle {
-  border-color: #e5e5e5;
+  border-color: #C9DDE8;
 }
 
 /* Subtle gentle floating animation for background elements */
@@ -95,6 +107,15 @@
   }
 }
 
+@keyframes goldShimmer {
+  0%, 100% {
+    background-position: -200% center;
+  }
+  50% {
+    background-position: 200% center;
+  }
+}
+
 .animate-slow-drift {
   animation: slowDrift 14s ease-in-out infinite;
 }
@@ -113,6 +134,74 @@
   animation: marqueeSlide 30s linear infinite;
 }
 
+/* Header chỉ giữ phần nhận diện; navigation được đặt sau banner trên trang chủ. */
+header > .header-navigation,
+header > .header-mobile-menu,
+header > .header-ticker,
+header > .header-nav-accent {
+  display: none;
+}
+
+/* The logo is rendered inside the homepage hero image. */
+.header-branding {
+  display: none;
+}
+.header-branding > div {
+  justify-content: flex-end;
+}
+.header-brand-lockup {
+  display: none;
+}
+.header-search-under-nav {
+  display: none;
+}
+.navigation-search-row {
+  display: none;
+}
+
 .animate-marquee:hover {
   animation-play-state: paused;
 }
+
+/* Gold shimmer effect for accents */
+.gold-shimmer {
+  background: linear-gradient(90deg, #55B9E8, #BFE8F7, #55B9E8, #0B78B5);
+  background-size: 200% auto;
+  animation: goldShimmer 3s linear infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* School header gradient */
+.school-header-gradient {
+  background: linear-gradient(135deg, #0B78B5 0%, #075F91 50%, #0B78B5 100%);
+}
+
+/* Blue accent bar */
+.gold-accent-bar {
+  background: linear-gradient(90deg, #075F91, #0B78B5, #075F91);
+}
+
+/* Compatibility mapping for legacy utility classes: keeps every existing page
+   on the same portal-blue palette while components are progressively refined. */
+[class*="bg-[#003087]"], [class*="bg-[#001a52]"], [class*="bg-[#002060]"] { background-color: #0B78B5 !important; }
+[class*="bg-[#e8eef8]"], [class*="bg-[#f5f7fc]"] { background-color: #EAF3F8 !important; }
+[class*="bg-[#fff8e1]"] { background-color: #F5F8FA !important; }
+[class*="text-[#003087]"], [class*="text-[#001a52]"], [class*="text-[#002060]"] { color: #0875B1 !important; }
+[class*="text-[#1a2744]"] { color: #17324D !important; }
+[class*="text-[#4a5f8a]"], [class*="text-[#6b82b8]"], [class*="text-[#9aabd4]"] { color: #5C7893 !important; }
+[class*="border-[#003087]"], [class*="border-[#001a52]"], [class*="border-[#002060]"] { border-color: #0B78B5 !important; }
+[class*="border-[#c5d3ec]"], [class*="border-[#d1ddf5]"] { border-color: #B8D3E2 !important; }
+[class*="hover:bg-[#001a52]"]:hover, [class*="hover:bg-[#002060]"]:hover { background-color: #075F91 !important; }
+[class*="hover:bg-[#e8eef8]"]:hover { background-color: #EAF3F8 !important; }
+[class*="hover:text-[#FFD700]"]:hover { color: #BFE8F7 !important; }
+[class*="text-[#FFD700]"], [class*="text-[#F0A500]"] { color: #BFE8F7 !important; }
+[class*="bg-[#FFD700]"], [class*="bg-[#F0A500]"] { background-color: #0B78B5 !important; }
+[class*="border-[#FFD700]"] { border-color: #55B9E8 !important; }
+
+/* Recolor the inline educational graphics used by the image placeholders. */
+svg [stroke="#003087"] { stroke: #0B78B5; }
+svg [stroke="#001a52"] { stroke: #075F91; }
+svg [fill="#003087"] { fill: #0B78B5; }
+svg [fill="#001a52"] { fill: #075F91; }
