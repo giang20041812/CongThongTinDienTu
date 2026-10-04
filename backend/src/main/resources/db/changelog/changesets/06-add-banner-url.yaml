@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 06-add-banner-url
+      author: admin
+      changes:
+        - addColumn:
+            tableName: posts
+            columns:
+              - column:
+                  name: banner_url
+                  type: TEXT

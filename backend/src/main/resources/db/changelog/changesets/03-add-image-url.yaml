@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 03-add-image-url
+      author: admin
+      changes:
+        - addColumn:
+            tableName: lost_found_reports
+            columns:
+              - column:
+                  name: image_url
+                  type: varchar(255)
