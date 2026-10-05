@@ -20,7 +20,7 @@ public class WebConfig implements WebMvcConfigurer {
     private final String[] allowedOrigins;
 
     public WebConfig(AdminAuthInterceptor adminAuthInterceptor,
-                     @Value("${app.cors.allowed-origins:http://localhost:3000}") String allowedOrigins) {
+                     @Value("${app.cors.allowed-origins:http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,https://congthongtindientu.pages.dev}") String allowedOrigins) {
         this.adminAuthInterceptor = adminAuthInterceptor;
         this.allowedOrigins = Arrays.stream(allowedOrigins.split(","))
                 .map(String::trim)
