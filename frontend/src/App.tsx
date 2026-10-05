@@ -143,7 +143,7 @@ export default function App() {
     : [];
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-black selection:bg-[#003087] selection:text-white">
+    <div className="min-h-screen flex flex-col bg-white text-black selection:bg-[#0052cc] selection:text-white">
       
       {/* 1. TOP HEADER & NAVIGATION */}
       <Header
@@ -333,17 +333,17 @@ export default function App() {
       {/* 5. QUICK SEARCH MODAL */}
       {isSearchOpen && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 p-4 bg-black/50 backdrop-blur-xs">
-          <div className="w-full max-w-xl bg-white border-2 border-[#003087] shadow-2xl p-5">
+          <div className="w-full max-w-xl bg-white border-2 border-[#0052cc] shadow-2xl p-5">
             <div className="flex items-center justify-between pb-3 border-b border-stone-200">
               <div className="flex items-center gap-2">
-                <Search className="w-4 h-4 text-[#003087]" />
+                <Search className="w-4 h-4 text-[#0052cc]" />
                 <span className="font-bold text-xs uppercase tracking-wider text-black">
                   Kết quả tìm kiếm cho: "{searchQuery}"
                 </span>
               </div>
               <button
                 onClick={() => setIsSearchOpen(false)}
-                className="w-6 h-6 flex items-center justify-center hover:bg-[#e8eef8] text-black cursor-pointer"
+                className="w-6 h-6 flex items-center justify-center hover:bg-[#eef5ff] text-black cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -364,7 +364,7 @@ export default function App() {
                     }}
                     className="py-3 hover:bg-[#f5f7fc] px-2 cursor-pointer transition-colors"
                   >
-                    <div className="text-[11px] font-mono text-[#003087] font-bold">
+                    <div className="text-[11px] font-mono text-[#0052cc] font-bold">
                       {item.typeLabel} · {item.category} · {item.date}
                     </div>
                     <div className="text-xs sm:text-sm font-bold text-black mt-0.5 line-clamp-2">

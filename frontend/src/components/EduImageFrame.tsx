@@ -36,23 +36,23 @@ export const EduImageFrame: React.FC<EduImageFrameProps> = ({
         return (
           <svg className="w-full h-full opacity-35" viewBox="0 0 400 300" fill="none">
             {/* Campus building linework & flagpole */}
-            <path d="M40 240 L360 240" stroke="#003087" strokeWidth="2" />
-            <rect x="70" y="110" width="260" height="130" stroke="#003087" strokeWidth="1.5" fill="#e8eef8" fillOpacity="0.4" />
-            <polygon points="200,60 340,110 60,110" stroke="#003087" strokeWidth="2" fill="#dce8f8" fillOpacity="0.5" />
+            <path d="M40 240 L360 240" stroke="#0052cc" strokeWidth="2" />
+            <rect x="70" y="110" width="260" height="130" stroke="#0052cc" strokeWidth="1.5" fill="#eef5ff" fillOpacity="0.4" />
+            <polygon points="200,60 340,110 60,110" stroke="#0052cc" strokeWidth="2" fill="#dce8f8" fillOpacity="0.5" />
             {/* Clock tower / pediment */}
-            <circle cx="200" cy="85" r="12" stroke="#003087" strokeWidth="1.5" />
-            <line x1="200" y1="85" x2="200" y2="78" stroke="#003087" strokeWidth="1.5" />
-            <line x1="200" y1="85" x2="206" y2="85" stroke="#003087" strokeWidth="1.5" />
+            <circle cx="200" cy="85" r="12" stroke="#0052cc" strokeWidth="1.5" />
+            <line x1="200" y1="85" x2="200" y2="78" stroke="#0052cc" strokeWidth="1.5" />
+            <line x1="200" y1="85" x2="206" y2="85" stroke="#0052cc" strokeWidth="1.5" />
             {/* Classroom windows */}
             {[100, 140, 180, 220, 260].map((x) => (
               <React.Fragment key={x}>
-                <rect x={x} y="130" width="24" height="30" stroke="#003087" strokeWidth="1" fill="#FFFFFF" />
-                <rect x={x} y="180" width="24" height="30" stroke="#003087" strokeWidth="1" fill="#FFFFFF" />
+                <rect x={x} y="130" width="24" height="30" stroke="#0052cc" strokeWidth="1" fill="#FFFFFF" />
+                <rect x={x} y="180" width="24" height="30" stroke="#0052cc" strokeWidth="1" fill="#FFFFFF" />
               </React.Fragment>
             ))}
             {/* National flagpole motif */}
-            <line x1="50" y1="240" x2="50" y2="60" stroke="#001a52" strokeWidth="2" />
-            <polygon points="50,60 85,75 50,90" fill="#003087" />
+            <line x1="50" y1="240" x2="50" y2="60" stroke="#0026e6" strokeWidth="2" />
+            <polygon points="50,60 85,75 50,90" fill="#0052cc" />
           </svg>
         );
 
@@ -60,16 +60,16 @@ export const EduImageFrame: React.FC<EduImageFrameProps> = ({
         return (
           <svg className="w-full h-full opacity-35" viewBox="0 0 400 300" fill="none">
             {/* Academic papers, math matrices, geometry */}
-            <rect x="60" y="60" width="160" height="200" stroke="#003087" strokeWidth="1.5" fill="#FFFFFF" />
-            <line x1="80" y1="90" x2="190" y2="90" stroke="#003087" strokeWidth="1.5" />
-            <line x1="80" y1="110" x2="180" y2="110" stroke="#003087" strokeWidth="1" strokeDasharray="3 3" />
-            <line x1="80" y1="130" x2="200" y2="130" stroke="#003087" strokeWidth="1" />
-            <line x1="80" y1="150" x2="160" y2="150" stroke="#003087" strokeWidth="1" />
+            <rect x="60" y="60" width="160" height="200" stroke="#0052cc" strokeWidth="1.5" fill="#FFFFFF" />
+            <line x1="80" y1="90" x2="190" y2="90" stroke="#0052cc" strokeWidth="1.5" />
+            <line x1="80" y1="110" x2="180" y2="110" stroke="#0052cc" strokeWidth="1" strokeDasharray="3 3" />
+            <line x1="80" y1="130" x2="200" y2="130" stroke="#0052cc" strokeWidth="1" />
+            <line x1="80" y1="150" x2="160" y2="150" stroke="#0052cc" strokeWidth="1" />
             {/* Matrix & compass */}
-            <rect x="180" y="100" width="160" height="150" stroke="#003087" strokeWidth="1.5" fill="#e8eef8" />
-            <circle cx="260" cy="175" r="45" stroke="#003087" strokeWidth="1" strokeDasharray="4 2" />
-            <polygon points="260,135 300,205 220,205" stroke="#003087" strokeWidth="1.5" />
-            <circle cx="260" cy="175" r="3" fill="#003087" />
+            <rect x="180" y="100" width="160" height="150" stroke="#0052cc" strokeWidth="1.5" fill="#eef5ff" />
+            <circle cx="260" cy="175" r="45" stroke="#0052cc" strokeWidth="1" strokeDasharray="4 2" />
+            <polygon points="260,135 300,205 220,205" stroke="#0052cc" strokeWidth="1.5" />
+            <circle cx="260" cy="175" r="3" fill="#0052cc" />
           </svg>
         );
 
@@ -77,14 +77,14 @@ export const EduImageFrame: React.FC<EduImageFrameProps> = ({
         return (
           <svg className="w-full h-full opacity-35" viewBox="0 0 400 300" fill="none">
             {/* STEM laboratory beaker & circuit board */}
-            <path d="M120 70 L140 130 L100 230 C90 245 100 255 120 255 L200 255 C220 255 230 245 220 230 L180 130 L200 70 Z" stroke="#003087" strokeWidth="2" fill="#e8eef8" />
-            <line x1="125" y1="180" x2="195" y2="180" stroke="#003087" strokeWidth="1.5" />
-            <line x1="130" y1="200" x2="190" y2="200" stroke="#003087" strokeWidth="1" strokeDasharray="2 2" />
-            <circle cx="160" cy="220" r="8" fill="#003087" fillOpacity="0.4" />
+            <path d="M120 70 L140 130 L100 230 C90 245 100 255 120 255 L200 255 C220 255 230 245 220 230 L180 130 L200 70 Z" stroke="#0052cc" strokeWidth="2" fill="#eef5ff" />
+            <line x1="125" y1="180" x2="195" y2="180" stroke="#0052cc" strokeWidth="1.5" />
+            <line x1="130" y1="200" x2="190" y2="200" stroke="#0052cc" strokeWidth="1" strokeDasharray="2 2" />
+            <circle cx="160" cy="220" r="8" fill="#0052cc" fillOpacity="0.4" />
             {/* Atom rings */}
-            <ellipse cx="280" cy="150" rx="60" ry="25" stroke="#003087" strokeWidth="1.5" transform="rotate(-30 280 150)" />
-            <ellipse cx="280" cy="150" rx="60" ry="25" stroke="#003087" strokeWidth="1.5" transform="rotate(30 280 150)" />
-            <circle cx="280" cy="150" r="10" fill="#003087" />
+            <ellipse cx="280" cy="150" rx="60" ry="25" stroke="#0052cc" strokeWidth="1.5" transform="rotate(-30 280 150)" />
+            <ellipse cx="280" cy="150" rx="60" ry="25" stroke="#0052cc" strokeWidth="1.5" transform="rotate(30 280 150)" />
+            <circle cx="280" cy="150" r="10" fill="#0052cc" />
           </svg>
         );
 
@@ -92,12 +92,12 @@ export const EduImageFrame: React.FC<EduImageFrameProps> = ({
         return (
           <svg className="w-full h-full opacity-35" viewBox="0 0 400 300" fill="none">
             {/* Robotics gear, trophy, youth badge */}
-            <circle cx="150" cy="150" r="60" stroke="#003087" strokeWidth="2" strokeDasharray="8 6" />
-            <circle cx="150" cy="150" r="40" stroke="#003087" strokeWidth="1.5" fill="#e8eef8" />
-            <polygon points="150,120 160,140 180,142 165,155 170,175 150,165 130,175 135,155 120,142 140,140" fill="#003087" />
+            <circle cx="150" cy="150" r="60" stroke="#0052cc" strokeWidth="2" strokeDasharray="8 6" />
+            <circle cx="150" cy="150" r="40" stroke="#0052cc" strokeWidth="1.5" fill="#eef5ff" />
+            <polygon points="150,120 160,140 180,142 165,155 170,175 150,165 130,175 135,155 120,142 140,140" fill="#0052cc" />
             {/* Robotic arm lines */}
-            <path d="M230 220 L270 160 L320 180 L340 150" stroke="#003087" strokeWidth="2" />
-            <rect x="330" y="140" width="20" height="20" stroke="#003087" strokeWidth="1.5" fill="#FFFFFF" />
+            <path d="M230 220 L270 160 L320 180 L340 150" stroke="#0052cc" strokeWidth="2" />
+            <rect x="330" y="140" width="20" height="20" stroke="#0052cc" strokeWidth="1.5" fill="#FFFFFF" />
           </svg>
         );
 
@@ -105,23 +105,23 @@ export const EduImageFrame: React.FC<EduImageFrameProps> = ({
         return (
           <svg className="w-full h-full opacity-35" viewBox="0 0 200 200" fill="none">
             {/* Search target & document badge */}
-            <rect x="40" y="30" width="120" height="140" stroke="#003087" strokeWidth="1.5" fill="#FFFFFF" />
-            <circle cx="100" cy="80" r="22" stroke="#003087" strokeWidth="1.5" fill="#e8eef8" />
-            <line x1="60" y1="120" x2="140" y2="120" stroke="#003087" strokeWidth="1.5" />
-            <line x1="60" y1="135" x2="120" y2="135" stroke="#003087" strokeWidth="1" strokeDasharray="2 2" />
+            <rect x="40" y="30" width="120" height="140" stroke="#0052cc" strokeWidth="1.5" fill="#FFFFFF" />
+            <circle cx="100" cy="80" r="22" stroke="#0052cc" strokeWidth="1.5" fill="#eef5ff" />
+            <line x1="60" y1="120" x2="140" y2="120" stroke="#0052cc" strokeWidth="1.5" />
+            <line x1="60" y1="135" x2="120" y2="135" stroke="#0052cc" strokeWidth="1" strokeDasharray="2 2" />
             {/* Magnifying glass */}
-            <circle cx="130" cy="130" r="25" stroke="#003087" strokeWidth="2" fill="#FFFFFF" />
-            <line x1="148" y1="148" x2="175" y2="175" stroke="#003087" strokeWidth="3" />
+            <circle cx="130" cy="130" r="25" stroke="#0052cc" strokeWidth="2" fill="#FFFFFF" />
+            <line x1="148" y1="148" x2="175" y2="175" stroke="#0052cc" strokeWidth="3" />
           </svg>
         );
 
       default:
         return (
           <svg className="w-full h-full opacity-30" viewBox="0 0 400 300" fill="none">
-            <line x1="0" y1="0" x2="400" y2="300" stroke="#003087" strokeWidth="1" strokeDasharray="4 4" />
-            <line x1="400" y1="0" x2="0" y2="300" stroke="#003087" strokeWidth="1" strokeDasharray="4 4" />
-            <circle cx="200" cy="150" r="70" stroke="#003087" strokeWidth="1.5" fill="#e8eef8" />
-            <rect x="130" y="80" width="140" height="140" stroke="#003087" strokeWidth="1" />
+            <line x1="0" y1="0" x2="400" y2="300" stroke="#0052cc" strokeWidth="1" strokeDasharray="4 4" />
+            <line x1="400" y1="0" x2="0" y2="300" stroke="#0052cc" strokeWidth="1" strokeDasharray="4 4" />
+            <circle cx="200" cy="150" r="70" stroke="#0052cc" strokeWidth="1.5" fill="#eef5ff" />
+            <rect x="130" y="80" width="140" height="140" stroke="#0052cc" strokeWidth="1" />
           </svg>
         );
     }
@@ -144,10 +144,10 @@ export const EduImageFrame: React.FC<EduImageFrameProps> = ({
           </div>
 
           {/* Modern Vietnamese Educational Corner Accents */}
-          <div className="absolute top-0 left-0 w-3 h-[2px] bg-[#003087]" />
-          <div className="absolute top-0 left-0 w-[2px] h-3 bg-[#003087]" />
-          <div className="absolute bottom-0 right-0 w-3 h-[2px] bg-[#003087]" />
-          <div className="absolute bottom-0 right-0 w-[2px] h-3 bg-[#003087]" />
+          <div className="absolute top-0 left-0 w-3 h-[2px] bg-[#0052cc]" />
+          <div className="absolute top-0 left-0 w-[2px] h-3 bg-[#0052cc]" />
+          <div className="absolute bottom-0 right-0 w-3 h-[2px] bg-[#0052cc]" />
+          <div className="absolute bottom-0 right-0 w-[2px] h-3 bg-[#0052cc]" />
 
           {/* Central Wireframe Label ("ẢNH TIN" / "ẢNH ĐỒ") */}
           {(label || subLabel) && (
@@ -166,7 +166,7 @@ export const EduImageFrame: React.FC<EduImageFrameProps> = ({
       )}
 
       {/* Subtle bottom red gradient bar */}
-      <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#003087] opacity-80" />
+      <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#0052cc] opacity-80" />
     </div>
   );
 };

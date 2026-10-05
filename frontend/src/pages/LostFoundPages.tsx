@@ -67,17 +67,17 @@ export const LostFoundListPage: React.FC<LostFoundListPageProps> = ({
       <div className="max-w-7xl mx-auto px-4 relative z-10">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-xs font-mono text-black mb-6">
-          <button onClick={onGoHome} className="hover:text-[#003087] transition-colors cursor-pointer">
+          <button onClick={onGoHome} className="hover:text-[#0052cc] transition-colors cursor-pointer">
             Trang chủ
           </button>
           <span>/</span>
-          <span className="text-[#003087] font-bold">Góc Thất Lạc</span>
+          <span className="text-[#0052cc] font-bold">Góc Thất Lạc</span>
         </nav>
 
         {/* Page Header */}
-        <div className="border-b-2 border-[#003087] pb-4 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="border-b-2 border-[#0052cc] pb-4 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <span className="text-[11px] font-mono tracking-widest uppercase text-[#003087] font-bold flex items-center gap-1.5">
+            <span className="text-[11px] font-mono tracking-widest uppercase text-[#0052cc] font-bold flex items-center gap-1.5">
               <Search className="w-3.5 h-3.5" />
               BỘ PHẬN HỖ TRỢ HỌC ĐƯỜNG & QUẢN SINH
             </span>
@@ -89,7 +89,7 @@ export const LostFoundListPage: React.FC<LostFoundListPageProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={onOpenReportModal}
-              className="px-4 py-2 bg-[#003087] hover:bg-[#001a52] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="px-4 py-2 bg-[#0052cc] hover:bg-[#0026e6] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Đăng Báo Mất Đồ</span>
@@ -98,7 +98,7 @@ export const LostFoundListPage: React.FC<LostFoundListPageProps> = ({
         </div>
 
         {/* Search & Filter Bar */}
-        <div className="bg-white border-2 border-[#003087] p-4 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
+        <div className="bg-white border-2 border-[#0052cc] p-4 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <span className="text-xs font-mono font-bold text-black uppercase">Trạng thái:</span>
             <div className="flex gap-1">
@@ -106,8 +106,8 @@ export const LostFoundListPage: React.FC<LostFoundListPageProps> = ({
                 onClick={() => handleFilterChange('all')}
                 className={`px-3 py-1.5 text-xs font-bold transition-colors cursor-pointer border ${
                   filterType === 'all'
-                    ? 'bg-[#003087] text-white border-[#003087]'
-                    : 'bg-white text-black border-[#c5d3ec] hover:border-[#9aabd4]'
+                    ? 'bg-[#0052cc] text-white border-[#0052cc]'
+                    : 'bg-white text-black border-[#bfdbfe] hover:border-[#93c5fd]'
                 }`}
               >
                 Tất cả ({lostItems.length})
@@ -116,8 +116,8 @@ export const LostFoundListPage: React.FC<LostFoundListPageProps> = ({
                 onClick={() => handleFilterChange('pending')}
                 className={`px-3 py-1.5 text-xs font-bold transition-colors cursor-pointer border ${
                   filterType === 'pending'
-                    ? 'bg-[#003087] text-white border-[#003087]'
-                    : 'bg-white text-black border-[#c5d3ec] hover:border-[#9aabd4]'
+                    ? 'bg-[#0052cc] text-white border-[#0052cc]'
+                    : 'bg-white text-black border-[#bfdbfe] hover:border-[#93c5fd]'
                 }`}
               >
                 Chưa nhận
@@ -126,8 +126,8 @@ export const LostFoundListPage: React.FC<LostFoundListPageProps> = ({
                 onClick={() => handleFilterChange('claimed')}
                 className={`px-3 py-1.5 text-xs font-bold transition-colors cursor-pointer border ${
                   filterType === 'claimed'
-                    ? 'bg-[#003087] text-white border-[#003087]'
-                    : 'bg-white text-black border-[#c5d3ec] hover:border-[#9aabd4]'
+                    ? 'bg-[#0052cc] text-white border-[#0052cc]'
+                    : 'bg-white text-black border-[#bfdbfe] hover:border-[#93c5fd]'
                 }`}
               >
                 Đã nhận lại
@@ -141,7 +141,7 @@ export const LostFoundListPage: React.FC<LostFoundListPageProps> = ({
               value={searchQuery}
               onChange={handleSearchChange}
               placeholder="Tìm đồ đánh rơi, địa điểm..."
-              className="w-full h-9 pl-3 pr-9 text-xs bg-white border border-[#c5d3ec] focus:border-[#003087] focus:outline-none"
+              className="w-full h-9 pl-3 pr-9 text-xs bg-white border border-[#bfdbfe] focus:border-[#0052cc] focus:outline-none"
             />
             <Search className="absolute right-2.5 top-2.5 w-4 h-4 text-black" />
           </div>
@@ -153,7 +153,7 @@ export const LostFoundListPage: React.FC<LostFoundListPageProps> = ({
             <div
               key={item.id}
               onClick={() => onSelectLostItem(item.id)}
-              className="group cursor-pointer border border-[#d1ddf5] bg-white hover:border-[#003087] transition-all p-4 shadow-xs flex flex-col justify-between"
+              className="group cursor-pointer border border-[#dbeafe] bg-white hover:border-[#0052cc] transition-all p-4 shadow-xs flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -164,14 +164,14 @@ export const LostFoundListPage: React.FC<LostFoundListPageProps> = ({
                     className={`text-[9px] font-mono font-bold px-1.5 py-0.5 border ${
                       item.status === 'claimed'
                         ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                        : 'bg-[#e8eef8] text-[#003087] border-[#c5d3ec]'
+                        : 'bg-[#eef5ff] text-[#0052cc] border-[#bfdbfe]'
                     }`}
                   >
                     {item.status === 'claimed' ? 'ĐÃ NHẬN LẠI' : 'CHƯA NHẬN'}
                   </span>
                 </div>
 
-                <h3 className="relative z-10 block text-sm font-bold text-black group-hover:text-[#003087] group-hover:underline transition-colors uppercase leading-snug">
+                <h3 className="relative z-10 block text-sm font-bold text-black group-hover:text-[#0052cc] group-hover:underline transition-colors uppercase leading-snug">
                   {item.title}
                 </h3>
 
@@ -206,12 +206,12 @@ export const LostFoundListPage: React.FC<LostFoundListPageProps> = ({
                 </p>
               </div>
 
-              <div className="mt-3 pt-2.5 border-t border-[#e8eef8] flex items-center justify-between text-[11px] font-mono text-black">
+              <div className="mt-3 pt-2.5 border-t border-[#eef5ff] flex items-center justify-between text-[11px] font-mono text-black">
                 <span className="flex items-center gap-1 truncate max-w-[160px]">
-                  <MapPin className="w-3 h-3 text-[#003087] shrink-0" />
+                  <MapPin className="w-3 h-3 text-[#0052cc] shrink-0" />
                   <span className="truncate">{item.locationFound}</span>
                 </span>
-                <span className="text-[#003087] font-bold group-hover:underline">
+                <span className="text-[#0052cc] font-bold group-hover:underline">
                   Chi tiết →
                 </span>
               </div>
@@ -225,17 +225,17 @@ export const LostFoundListPage: React.FC<LostFoundListPageProps> = ({
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1 bg-white border border-[#c5d3ec] hover:border-[#003087] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-black text-xs font-bold uppercase"
+              className="px-3 py-1 bg-white border border-[#bfdbfe] hover:border-[#0052cc] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-black text-xs font-bold uppercase"
             >
               Trang trước
             </button>
-            <span className="text-sm font-bold text-[#003087] px-4">
+            <span className="text-sm font-bold text-[#0052cc] px-4">
               {currentPage} / {totalPages}
             </span>
             <button
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 bg-white border border-[#c5d3ec] hover:border-[#003087] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-black text-xs font-bold uppercase"
+              className="px-3 py-1 bg-white border border-[#bfdbfe] hover:border-[#0052cc] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-black text-xs font-bold uppercase"
             >
               Trang sau
             </button>
@@ -283,21 +283,21 @@ export const LostItemDetailPage: React.FC<LostItemDetailPageProps> = ({
         <div className="mb-6">
           <button
             onClick={onBack}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#c5d3ec] hover:border-[#003087] text-[#003087] text-xs font-bold uppercase transition-colors cursor-pointer shadow-xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#bfdbfe] hover:border-[#0052cc] text-[#0052cc] text-xs font-bold uppercase transition-colors cursor-pointer shadow-xs"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Quay lại danh sách đồ thất lạc</span>
           </button>
         </div>
 
-        <div className="bg-white border-2 border-[#003087] p-6 sm:p-8 shadow-md">
-          <div className="flex items-center justify-between border-b border-[#d1ddf5] pb-3 text-xs font-mono">
+        <div className="bg-white border-2 border-[#0052cc] p-6 sm:p-8 shadow-md">
+          <div className="flex items-center justify-between border-b border-[#dbeafe] pb-3 text-xs font-mono">
             <span className="text-black">Mã vật phẩm: #{item.id}</span>
             <span
               className={`font-bold px-2 py-0.5 border ${
                 item.status === 'claimed'
                   ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                  : 'bg-[#e8eef8] text-[#003087] border-[#c5d3ec]'
+                  : 'bg-[#eef5ff] text-[#0052cc] border-[#bfdbfe]'
               }`}
             >
               {item.status === 'claimed' ? 'ĐÃ NHẬN LẠI' : 'CHƯA NHẬN'}
@@ -331,7 +331,7 @@ export const LostItemDetailPage: React.FC<LostItemDetailPageProps> = ({
           </div>
 
           {/* Description & Verification Info */}
-          <div className="bg-[#f5f7fc] border border-[#d1ddf5] p-4 space-y-2 text-xs sm:text-sm text-black">
+          <div className="bg-[#f5f7fc] border border-[#dbeafe] p-4 space-y-2 text-xs sm:text-sm text-black">
             <div>
               <span className="font-bold text-black">Vị trí phát hiện: </span>
               <span>{item.locationFound}</span>
@@ -342,7 +342,7 @@ export const LostItemDetailPage: React.FC<LostItemDetailPageProps> = ({
             </div>
             <div>
               <span className="font-bold text-black">Đơn vị tiếp nhận & lưu trữ: </span>
-              <span className="text-[#003087] font-semibold">{item.finderDepartment}</span>
+              <span className="text-[#0052cc] font-semibold">{item.finderDepartment}</span>
             </div>
             <div>
               <span className="font-bold text-black">Mô tả chi tiết: </span>
@@ -351,7 +351,7 @@ export const LostItemDetailPage: React.FC<LostItemDetailPageProps> = ({
           </div>
 
           {/* Claim Action Box */}
-          <div className="mt-8 pt-6 border-t border-[#d1ddf5]">
+          <div className="mt-8 pt-6 border-t border-[#dbeafe]">
             {claimSent ? (
               <div className="p-4 bg-emerald-50 border border-emerald-300 text-emerald-800 flex items-center gap-2 font-bold text-xs sm:text-sm">
                 <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
@@ -364,7 +364,7 @@ export const LostItemDetailPage: React.FC<LostItemDetailPageProps> = ({
                 </div>
                 <button
                   onClick={() => setClaimSent(true)}
-                  className="px-5 py-2.5 bg-[#003087] hover:bg-[#001a52] text-white text-xs font-bold uppercase tracking-wider cursor-pointer shadow-xs"
+                  className="px-5 py-2.5 bg-[#0052cc] hover:bg-[#0026e6] text-white text-xs font-bold uppercase tracking-wider cursor-pointer shadow-xs"
                 >
                   Gửi Yêu Cầu Nhận Lại Đồ
                 </button>

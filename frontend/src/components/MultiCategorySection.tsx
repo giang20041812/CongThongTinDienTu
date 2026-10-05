@@ -2,6 +2,7 @@ import React from 'react';
 import { ChevronRight } from 'lucide-react';
 import { EduImageFrame } from './EduImageFrame';
 import { usePosts, useAnnouncements } from '../api';
+import { motion } from 'motion/react';
 
 interface MultiCategorySectionProps {
   onSelectNews?: (id: string) => void;
@@ -17,6 +18,8 @@ interface CategoryColumnProps {
   onClickMore?: () => void;
   moreLabel?: string;
   onSelectItem?: (id: string) => void;
+  accentColorClass?: string;
+  accentBgClass?: string;
 }
 
 const CategoryColumn: React.FC<CategoryColumnProps> = ({
@@ -28,19 +31,30 @@ const CategoryColumn: React.FC<CategoryColumnProps> = ({
   onClickMore,
   moreLabel = 'Xem thêm',
   onSelectItem,
+  accentColorClass = 'text-black',
+  accentBgClass = 'bg-black',
 }) => (
-  <div className="flex flex-col min-w-0 bg-white border border-gray-200 shadow-sm p-4 h-full">
+  <motion.div 
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-50px" }}
+    transition={{ duration: 0.5 }}
+    className="flex flex-col min-w-0 bg-white glass-card hover-lift rounded-xl border border-gray-100 shadow-sm p-5 h-full overflow-hidden relative group/col"
+  >
+    {/* Decorative top accent line */}
+    <div className={`absolute top-0 left-0 right-0 h-1.5 ${accentBgClass} opacity-80 group-hover/col:opacity-100 transition-opacity`}></div>
+
     {/* Header bar without blue backgrounds - using border bottom instead */}
-    <div className="border-b-2 border-black pb-2 mb-3">
-      <span className="text-black font-extrabold uppercase tracking-wider text-sm">{headerLabel}</span>
+    <div className={`border-b-2 ${accentColorClass.replace('text-', 'border-')} pb-2 mb-4 flex items-center justify-between`}>
+      <span className={`${accentColorClass} font-extrabold uppercase tracking-wider text-[13px] md:text-sm`}>{headerLabel}</span>
     </div>
 
     {/* Featured: image + title */}
     <div
       onClick={onClickFeatured}
-      className="group cursor-pointer mb-4"
+      className="group cursor-pointer mb-5 relative rounded-lg overflow-hidden"
     >
-      <div className="w-full overflow-hidden border border-gray-200 group-hover:border-black transition-colors mb-2">
+      <div className={`w-full overflow-hidden border border-gray-100 rounded-lg group-hover:shadow-md transition-all duration-300 mb-3`}>
         <EduImageFrame
           label={featuredImage.label}
           subLabel={featuredImage.subLabel}
@@ -49,23 +63,23 @@ const CategoryColumn: React.FC<CategoryColumnProps> = ({
           imageUrl={featuredImage.imageUrl}
         />
       </div>
-      <h3 className="text-[13px] font-bold text-black group-hover:text-black transition-colors leading-snug line-clamp-3 uppercase">
+      <h3 className={`text-[14px] font-bold text-gray-800 ${accentColorClass.replace('text-', 'group-hover:text-')} transition-colors leading-snug line-clamp-3 uppercase`}>
         {featuredTitle}
       </h3>
     </div>
 
     {/* Sub items list */}
-    <div className="flex flex-col divide-y divide-gray-100 flex-1">
+    <div className="flex flex-col divide-y divide-gray-100/50 flex-1">
       {subItems.map((item, idx) => (
         <button
           key={idx}
           onClick={() => onSelectItem ? onSelectItem(item.id) : onClickMore?.()}
-          className="group text-left py-2 flex items-start gap-2 transition-colors"
+          className="group text-left py-2.5 flex items-start gap-2.5 transition-colors hover:bg-gray-50/50 -mx-2 px-2 rounded-lg"
         >
-          <span className="mt-1 shrink-0 text-black">
-            <ChevronRight className="w-3.5 h-3.5" />
+          <span className={`mt-0.5 shrink-0 ${accentColorClass} opacity-70 group-hover:opacity-100 transition-opacity`}>
+            <ChevronRight className="w-4 h-4" />
           </span>
-          <span className="text-xs font-medium text-black group-hover:text-black transition-colors leading-snug line-clamp-2">
+          <span className={`text-[13px] font-medium text-gray-700 ${accentColorClass.replace('text-', 'group-hover:text-')} transition-colors leading-snug line-clamp-2`}>
             {item.title}
           </span>
         </button>
@@ -73,16 +87,16 @@ const CategoryColumn: React.FC<CategoryColumnProps> = ({
     </div>
 
     {/* Xem thêm */}
-    <div className="mt-4 pt-3 border-t border-gray-100 flex justify-end">
+    <div className="mt-5 pt-3 border-t border-gray-100 flex justify-end">
       <button
         onClick={onClickMore}
-        className="text-[11px] font-bold text-black hover:text-[#005a96] hover:underline flex items-center gap-1 cursor-pointer transition-colors"
+        className={`text-[12px] font-bold ${accentColorClass} hover:opacity-80 flex items-center gap-1 cursor-pointer transition-all hover:gap-2`}
       >
         <span>{moreLabel}</span>
-        <ChevronRight className="w-3 h-3" />
+        <ChevronRight className="w-3.5 h-3.5" />
       </button>
     </div>
-  </div>
+  </motion.div>
 );
 
 export const MultiCategorySection: React.FC<MultiCategorySectionProps> = ({
@@ -113,9 +127,18 @@ export const MultiCategorySection: React.FC<MultiCategorySectionProps> = ({
   return (
     <>
       {/* ──────────────── ROW 1 ─── */}
-      <section className="w-full bg-[#f8f9fa] border-b border-gray-200 py-6 sm:py-8">
+      <section className="w-full bg-[#f8f9fa] border-b border-gray-200 py-6 sm:py-8 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={{
+              hidden: { opacity: 0 },
+              visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
+            }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5"
+          >
             <CategoryColumn
               headerLabel="TIN NHÀ TRƯỜNG"
               featuredImage={{ label: 'TIN TỨC', subLabel: 'Nhà Trường', theme: 'campus', imageUrl: schoolNews[0]?.imgUrl || schoolNews[0]?.imageUrl }}
@@ -124,6 +147,8 @@ export const MultiCategorySection: React.FC<MultiCategorySectionProps> = ({
               onClickFeatured={() => onSelectNews?.(schoolNews[0]?.id)}
               onSelectItem={(id) => onSelectNews?.(id)}
               onClickMore={() => onNavigate?.('news-list')}
+              accentColorClass="text-blue-600"
+              accentBgClass="bg-gradient-brand"
             />
             <CategoryColumn
               headerLabel="HOẠT ĐỘNG ĐOÀN"
@@ -133,6 +158,8 @@ export const MultiCategorySection: React.FC<MultiCategorySectionProps> = ({
               onClickFeatured={() => onSelectNews?.(youthActivities[0]?.id)}
               onSelectItem={(id) => onSelectNews?.(id)}
               onClickMore={() => onNavigate?.('news-list')}
+              accentColorClass="text-green-600"
+              accentBgClass="bg-gradient-success"
             />
             <CategoryColumn
               headerLabel="CÂU LẠC BỘ"
@@ -142,6 +169,8 @@ export const MultiCategorySection: React.FC<MultiCategorySectionProps> = ({
               onClickFeatured={() => onNavigate?.('clubs-list')}
               onSelectItem={() => onNavigate?.('clubs-list')}
               onClickMore={() => onNavigate?.('clubs-list')}
+              accentColorClass="text-purple-600"
+              accentBgClass="bg-gradient-purple"
             />
             <CategoryColumn
               headerLabel="THÔNG BÁO"
@@ -151,15 +180,26 @@ export const MultiCategorySection: React.FC<MultiCategorySectionProps> = ({
               onClickFeatured={() => onNavigate?.('announcement-list')}
               onSelectItem={() => onNavigate?.('announcement-list')}
               onClickMore={() => onNavigate?.('announcement-list')}
+              accentColorClass="text-red-600"
+              accentBgClass="bg-gradient-to-r from-red-500 to-rose-600"
             />
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* ──────────────── ROW 2 ─── */}
-      <section className="w-full bg-[#f8f9fa] border-b border-gray-200 py-6 sm:py-8">
+      <section className="w-full bg-[#f8f9fa] border-b border-gray-200 py-6 sm:py-8 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={{
+              hidden: { opacity: 0 },
+              visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
+            }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5"
+          >
             <CategoryColumn
               headerLabel="TUYỂN SINH"
               featuredImage={{ label: 'TUYỂN SINH', subLabel: 'Tuyển Sinh', theme: 'exam', imageUrl: admissions[0]?.imgUrl || admissions[0]?.imageUrl }}
@@ -168,6 +208,8 @@ export const MultiCategorySection: React.FC<MultiCategorySectionProps> = ({
               onClickFeatured={() => onNavigate?.('admissions-list')}
               onSelectItem={() => onNavigate?.('admissions-list')}
               onClickMore={() => onNavigate?.('admissions-list')}
+              accentColorClass="text-orange-500"
+              accentBgClass="bg-gradient-accent"
             />
             <CategoryColumn
               headerLabel="KỲ THI HSG"
@@ -177,6 +219,8 @@ export const MultiCategorySection: React.FC<MultiCategorySectionProps> = ({
               onClickFeatured={() => onSelectNews?.(competitions[0]?.id)}
               onSelectItem={(id) => onSelectNews?.(id)}
               onClickMore={() => onNavigate?.('news-list')}
+              accentColorClass="text-teal-600"
+              accentBgClass="bg-gradient-to-r from-teal-500 to-emerald-500"
             />
             <CategoryColumn
               headerLabel="NGHIÊN CỨU STEM"
@@ -186,6 +230,8 @@ export const MultiCategorySection: React.FC<MultiCategorySectionProps> = ({
               onClickFeatured={() => onSelectNews?.(science[0]?.id)}
               onSelectItem={(id) => onSelectNews?.(id)}
               onClickMore={() => onNavigate?.('news-list')}
+              accentColorClass="text-pink-500"
+              accentBgClass="bg-gradient-pink"
             />
             <CategoryColumn
               headerLabel="DU HỌC"
@@ -195,8 +241,10 @@ export const MultiCategorySection: React.FC<MultiCategorySectionProps> = ({
               onClickFeatured={() => onNavigate?.('study-abroad-list')}
               onSelectItem={() => onNavigate?.('study-abroad-list')}
               onClickMore={() => onNavigate?.('study-abroad-list')}
+              accentColorClass="text-indigo-600"
+              accentBgClass="bg-gradient-to-r from-indigo-500 to-blue-500"
             />
-          </div>
+          </motion.div>
         </div>
       </section>
     </>

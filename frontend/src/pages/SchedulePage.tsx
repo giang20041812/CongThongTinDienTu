@@ -51,7 +51,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onGoHome }) => {
         </nav>
 
         {/* Page Header */}
-        <div className="border-b-2 border-[#0B78B5] pb-4 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="border-b-2 border-[#0052cc] pb-4 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <span className="text-[11px] font-mono tracking-widest uppercase text-[#0875B1] font-bold flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5" />
@@ -72,7 +72,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onGoHome }) => {
             </button>
             <button
               onClick={() => alert(`Đang tải tệp PDF Thời Khóa Biểu lớp ${selectedClass}`)}
-              className="px-4 py-2 bg-[#0B78B5] hover:bg-[#075F91] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="px-4 py-2 bg-[#0052cc] hover:bg-[#0026e6] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Tải PDF TKB</span>
@@ -81,7 +81,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onGoHome }) => {
         </div>
 
         {/* Filters: Grade & Class */}
-        <div className="bg-white border-2 border-[#0B78B5] p-5 mb-8 shadow-xs">
+        <div className="bg-white border-2 border-[#0052cc] p-5 mb-8 shadow-xs">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             
             {/* Grade Selection */}
@@ -97,7 +97,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onGoHome }) => {
                     }}
                     className={`px-3 py-1.5 text-xs font-bold transition-colors cursor-pointer border ${
                       selectedGrade === grade
-                        ? 'bg-[#0B78B5] text-white border-[#0B78B5]'
+                        ? 'bg-[#0052cc] text-white border-[#0052cc]'
                         : 'bg-stone-50 text-black border-stone-300 hover:border-stone-400'
                     }`}
                   >
@@ -138,16 +138,16 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onGoHome }) => {
         </div>
 
         {/* Timetable Schedule Grid */}
-        <div className="bg-white border-2 border-[#0B78B5] shadow-md overflow-x-auto">
+        <div className="bg-white border-2 border-[#0052cc] shadow-md overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs sm:text-sm">
             <thead>
-              <tr className="bg-[#0B78B5] text-white font-bold text-center border-b border-[#075F91]">
-                <th className="p-3 border-r border-[#075F91] w-20">Tiết</th>
-                <th className="p-3 border-r border-[#075F91] w-32">Thời gian</th>
-                <th className="p-3 border-r border-[#075F91]">Thứ Hai</th>
-                <th className="p-3 border-r border-[#075F91]">Thứ Ba</th>
-                <th className="p-3 border-r border-[#075F91]">Thứ Tư</th>
-                <th className="p-3 border-r border-[#075F91]">Thứ Năm</th>
+              <tr className="bg-[#0052cc] text-white font-bold text-center border-b border-[#0026e6]">
+                <th className="p-3 border-r border-[#0026e6] w-20">Tiết</th>
+                <th className="p-3 border-r border-[#0026e6] w-32">Thời gian</th>
+                <th className="p-3 border-r border-[#0026e6]">Thứ Hai</th>
+                <th className="p-3 border-r border-[#0026e6]">Thứ Ba</th>
+                <th className="p-3 border-r border-[#0026e6]">Thứ Tư</th>
+                <th className="p-3 border-r border-[#0026e6]">Thứ Năm</th>
                 <th className="p-3">Thứ Sáu</th>
               </tr>
             </thead>

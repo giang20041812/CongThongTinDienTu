@@ -14,7 +14,7 @@ export const AdmissionsAndStudyAbroadSection: React.FC<AdmissionsAndStudyAbroadS
   onOpenStudyAbroadModal,
 }) => {
   return (
-    <section id="tuyen-sinh" className="relative w-full py-12 sm:py-16 bg-[#FFFFFF] border-b border-[#d1ddf5]">
+    <section id="tuyen-sinh" className="relative w-full py-12 sm:py-16 bg-[#FFFFFF] border-b border-[#dbeafe]">
       {/* Background Subtle Coordinate Lines */}
       <BackgroundGeometricMesh variant="schematic" className="opacity-40" />
 
@@ -42,7 +42,7 @@ export const AdmissionsAndStudyAbroadSection: React.FC<AdmissionsAndStudyAbroadS
               {/* Featured Item: [ẢNH TIN] + Title */}
               <div
                 onClick={onOpenAdmissionModal}
-                className="group cursor-pointer border border-[#d1ddf5] bg-white hover:border-black transition-all p-3.5 flex flex-col sm:flex-row gap-4 shadow-xs"
+                className="group cursor-pointer border border-[#dbeafe] bg-white hover:border-black transition-all p-3.5 flex flex-col sm:flex-row gap-4 shadow-xs"
               >
                 {/* Image slot */}
                 <div className="sm:w-44 shrink-0 h-24 sm:h-auto bg-gray-100 flex items-center justify-center overflow-hidden">
@@ -61,7 +61,7 @@ export const AdmissionsAndStudyAbroadSection: React.FC<AdmissionsAndStudyAbroadS
                 {/* Title & Description */}
                 <div className="flex flex-col justify-between min-w-0">
                   <div>
-                    <span className="text-[10px] font-mono font-bold text-black uppercase tracking-wider bg-transparent px-1.5 py-0.5 border border-[#c5d3ec]/40">
+                    <span className="text-[10px] font-mono font-bold text-black uppercase tracking-wider bg-transparent px-1.5 py-0.5 border border-[#bfdbfe]/40">
                       CHỈ TIÊU & QUY CHẾ
                     </span>
                     <h3 className="text-xs sm:text-sm font-bold text-black group-hover:text-black transition-colors uppercase leading-snug mt-1.5 line-clamp-3">
@@ -85,7 +85,7 @@ export const AdmissionsAndStudyAbroadSection: React.FC<AdmissionsAndStudyAbroadS
                   <div
                     key={idx}
                     onClick={onOpenAdmissionModal}
-                    className="group cursor-pointer p-2.5 border border-[#d1ddf5] hover:border-black hover:bg-transparent transition-all flex items-start gap-3"
+                    className="group cursor-pointer p-2.5 border border-[#dbeafe] hover:border-black hover:bg-transparent transition-all flex items-start gap-3"
                   >
                     {/* Sharp Angular Polygon Arrow */}
                     <div className="mt-0.5 shrink-0 text-black group-hover:translate-x-1 transition-transform">
@@ -104,17 +104,17 @@ export const AdmissionsAndStudyAbroadSection: React.FC<AdmissionsAndStudyAbroadS
             </div>
 
             {/* Quick action buttons */}
-            <div className="mt-6 pt-4 border-t border-[#d1ddf5] flex flex-wrap gap-2">
+            <div className="mt-6 pt-4 border-t border-[#dbeafe] flex flex-wrap gap-2">
               <button
                 onClick={onOpenAdmissionModal}
-                className="px-4 py-2 bg-[#003087] hover:bg-[#001a52] text-white text-xs font-bold tracking-wide uppercase transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2 bg-[#0052cc] hover:bg-[#0026e6] text-white text-xs font-bold tracking-wide uppercase transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <FileCheck className="w-3.5 h-3.5" />
                 <span>Nộp Hồ Sơ Trực Tuyến</span>
               </button>
               <button
                 onClick={onOpenAdmissionModal}
-                className="px-3.5 py-2 bg-white hover:bg-transparent border border-[#c5d3ec] text-black text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-2 bg-white hover:bg-transparent border border-[#bfdbfe] text-black text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5 text-black" />
                 <span>Tải Mẫu Đơn Đăng Ký</span>
@@ -125,7 +125,7 @@ export const AdmissionsAndStudyAbroadSection: React.FC<AdmissionsAndStudyAbroadS
           {/* ========================================================
               VERTICAL DIVIDER LINE (Between Tuyển sinh & Du học)
              ======================================================== */}
-          <div className="hidden lg:block absolute top-0 bottom-0 left-1/2 w-[1px] bg-[#d1ddf5] -translate-x-1/2" />
+          <div className="hidden lg:block absolute top-0 bottom-0 left-1/2 w-[1px] bg-[#dbeafe] -translate-x-1/2" />
 
           {/* ========================================================
               RIGHT COLUMN: DU HỌC (Study Abroad & International Programs)
@@ -146,7 +146,7 @@ export const AdmissionsAndStudyAbroadSection: React.FC<AdmissionsAndStudyAbroadS
               {/* Featured Item: [ẢNH TIN] + Title */}
               <div
                 onClick={onOpenStudyAbroadModal}
-                className="group cursor-pointer border border-[#d1ddf5] bg-white hover:border-black transition-all p-3.5 flex flex-col sm:flex-row gap-4 shadow-xs"
+                className="group cursor-pointer border border-[#dbeafe] bg-white hover:border-black transition-all p-3.5 flex flex-col sm:flex-row gap-4 shadow-xs"
               >
                 {/* Image slot */}
                 <div className="sm:w-44 shrink-0 h-24 sm:h-auto bg-gray-100 flex items-center justify-center overflow-hidden">
@@ -165,7 +165,7 @@ export const AdmissionsAndStudyAbroadSection: React.FC<AdmissionsAndStudyAbroadS
                 {/* Title & Description */}
                 <div className="flex flex-col justify-between min-w-0">
                   <div>
-                    <span className="text-[10px] font-mono font-bold text-black uppercase tracking-wider bg-transparent px-1.5 py-0.5 border border-[#c5d3ec]/40">
+                    <span className="text-[10px] font-mono font-bold text-black uppercase tracking-wider bg-transparent px-1.5 py-0.5 border border-[#bfdbfe]/40">
                       HỌC BỔNG TOÀN PHẦN
                     </span>
                     <h3 className="text-xs sm:text-sm font-bold text-black group-hover:text-black transition-colors uppercase leading-snug mt-1.5 line-clamp-3">
@@ -189,7 +189,7 @@ export const AdmissionsAndStudyAbroadSection: React.FC<AdmissionsAndStudyAbroadS
                   <div
                     key={idx}
                     onClick={onOpenStudyAbroadModal}
-                    className="group cursor-pointer p-2.5 border border-[#d1ddf5] hover:border-black hover:bg-transparent transition-all flex items-start gap-3"
+                    className="group cursor-pointer p-2.5 border border-[#dbeafe] hover:border-black hover:bg-transparent transition-all flex items-start gap-3"
                   >
                     {/* Sharp Angular Polygon Arrow */}
                     <div className="mt-0.5 shrink-0 text-black group-hover:translate-x-1 transition-transform">
@@ -208,17 +208,17 @@ export const AdmissionsAndStudyAbroadSection: React.FC<AdmissionsAndStudyAbroadS
             </div>
 
             {/* Quick action buttons */}
-            <div className="mt-6 pt-4 border-t border-[#d1ddf5] flex flex-wrap gap-2">
+            <div className="mt-6 pt-4 border-t border-[#dbeafe] flex flex-wrap gap-2">
               <button
                 onClick={onOpenStudyAbroadModal}
-                className="px-4 py-2 bg-[#003087] hover:bg-[#001a52] text-white text-xs font-bold tracking-wide uppercase transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2 bg-[#0052cc] hover:bg-[#0026e6] text-white text-xs font-bold tracking-wide uppercase transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <Globe className="w-3.5 h-3.5" />
                 <span>Cổng Tư Vấn Du Học</span>
               </button>
               <button
                 onClick={onOpenStudyAbroadModal}
-                className="px-3.5 py-2 bg-white hover:bg-transparent border border-[#c5d3ec] text-black text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-2 bg-white hover:bg-transparent border border-[#bfdbfe] text-black text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <ArrowUpRight className="w-3.5 h-3.5 text-black" />
                 <span>Danh Sách Trường Đối Tác</span>

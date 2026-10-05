@@ -1,17 +1,29 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Award, Landmark } from 'lucide-react';
-import { SCHOOL_SHOWCASE } from '../data/mockData';
 import { SchoolHighlight } from '../types';
 import { EduImageFrame } from './EduImageFrame';
 import { BackgroundGeometricMesh } from './BackgroundGeometricMesh';
+import { usePosts } from '../api';
 
 interface SchoolShowcaseSectionProps {
   onSelectHighlight: (item: SchoolHighlight) => void;
 }
 
 export const SchoolShowcaseSection: React.FC<SchoolShowcaseSectionProps> = ({
-  onSelectHighlight,
+  onSelectHighlight
 }) => {
+  const { data: posts, loading } = usePosts();
+  const showcaseList = posts.slice(0, 3).map((p: any) => ({
+    id: p.id,
+    title: p.title,
+    date: new Date(p.createdAt).toLocaleDateString('vi-VN'),
+    tag: p.category?.name || 'TIN NỔI BẬT',
+    summary: p.blocks?.find((b: any) => b.type === 'TEXT')?.content || '',
+    stats: { label: 'Xem', value: '100+' },
+    content: p.blocks?.find((b: any) => b.type === 'TEXT')?.content || '',
+    imageUrl: p.imgUrl || p.imageUrl
+  }));
+  const displayShowcase = showcaseList.length > 0 ? showcaseList : [];
   const [activeSlide, setActiveSlide] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchCurrentX, setTouchCurrentX] = useState<number | null>(null);
@@ -21,11 +33,13 @@ export const SchoolShowcaseSection: React.FC<SchoolShowcaseSectionProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const nextSlide = () => {
-    setActiveSlide((prev) => (prev + 1) % SCHOOL_SHOWCASE.length);
+    if (displayShowcase.length === 0) return;
+    setActiveSlide((prev) => (prev + 1) % displayShowcase.length);
   };
 
   const prevSlide = () => {
-    setActiveSlide((prev) => (prev - 1 + SCHOOL_SHOWCASE.length) % SCHOOL_SHOWCASE.length);
+    if (displayShowcase.length === 0) return;
+    setActiveSlide((prev) => (prev - 1 + displayShowcase.length) % displayShowcase.length);
   };
 
   // Touch Handlers for Mobile Swiping
@@ -88,24 +102,24 @@ export const SchoolShowcaseSection: React.FC<SchoolShowcaseSectionProps> = ({
   };
 
   return (
-    <section className="relative w-full py-10 sm:py-16 bg-transparent border-b border-[#c5d3ec] overflow-hidden">
+    <section className="relative w-full py-10 sm:py-16 bg-transparent border-b border-[#bfdbfe] overflow-hidden">
       {/* Background Subtle Modern Dots and Schematics */}
       <BackgroundGeometricMesh variant="dots" className="opacity-60" />
 
       <div className="relative max-w-7xl mx-auto px-4 z-10">
         
         {/* Centered Headline */}
-        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
-          <span className="text-[11px] font-mono tracking-widest uppercase text-black font-bold">
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12 bg-gradient-to-r from-blue-50 via-[#EAF3F8] to-blue-50 py-4 px-6 rounded-xl border border-blue-100 shadow-sm">
+          <span className="text-[11px] font-mono tracking-widest uppercase text-[#0052cc] font-bold">
             BẢN SẮC & TRUYỀN THỐNG
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-black tracking-tight uppercase mt-1">
             Tin Nhà Trường
           </h2>
           <div className="flex items-center justify-center gap-2 mt-2 sm:mt-3">
-            <div className="w-8 sm:w-12 h-[2px] bg-[#003087]" />
-            <div className="w-2.5 sm:w-3 h-2.5 sm:h-3 border border-[#FFD700] rotate-45 bg-[#FFD700]" />
-            <div className="w-8 sm:w-12 h-[2px] bg-[#003087]" />
+            <div className="w-8 sm:w-12 h-[2px] bg-[#0052cc]" />
+            <div className="w-2.5 sm:w-3 h-2.5 sm:h-3 border border-[#ff9900] rotate-45 bg-[#ff9900]" />
+            <div className="w-8 sm:w-12 h-[2px] bg-[#0052cc]" />
           </div>
         </div>
 
@@ -121,11 +135,11 @@ export const SchoolShowcaseSection: React.FC<SchoolShowcaseSectionProps> = ({
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
         >
-          {SCHOOL_SHOWCASE.map((item, idx) => {
-            const diff = (idx - activeSlide + SCHOOL_SHOWCASE.length) % SCHOOL_SHOWCASE.length;
+          {displayShowcase.length > 0 ? displayShowcase.map((item, idx) => {
+            const diff = (idx - activeSlide + displayShowcase.length) % displayShowcase.length;
             let offset = diff;
-            if (diff > Math.floor(SCHOOL_SHOWCASE.length / 2)) {
-              offset = diff - SCHOOL_SHOWCASE.length;
+            if (diff > Math.floor(displayShowcase.length / 2)) {
+              offset = diff - displayShowcase.length;
             }
 
             const baseTranslate = offset === 0 ? 0 : offset > 0 ? 75 : -75;
@@ -148,7 +162,7 @@ export const SchoolShowcaseSection: React.FC<SchoolShowcaseSectionProps> = ({
                 className={`absolute w-[88%] sm:w-[65%] md:w-[50%] lg:w-[42%] flex flex-col transition-all duration-500 ease-out cursor-pointer ${
                   offset === 0 
                     ? 'border-2 border-black bg-white shadow-xl' 
-                    : 'border border-[#c5d3ec] bg-white shadow-md'
+                    : 'border border-[#bfdbfe] bg-white shadow-md'
                 }`}
                 style={{
                   transform,
@@ -161,11 +175,11 @@ export const SchoolShowcaseSection: React.FC<SchoolShowcaseSectionProps> = ({
                   {/* Meta Top Bar */}
                   <div className="flex items-center justify-between gap-2 mb-3 sm:mb-4">
                     <span className={`text-[10px] sm:text-[11px] font-bold font-mono tracking-widest px-2.5 py-1 uppercase transition-colors ${
-                      offset === 0 ? 'bg-[#003087] text-white' : 'bg-transparent text-black'
+                      offset === 0 ? 'bg-[#0052cc] text-white' : 'bg-transparent text-black'
                     }`}>
                       {item.tag}
                     </span>
-                    <span className="text-[11px] font-mono font-bold text-black border border-[#c5d3ec] px-2 py-0.5 bg-white/95">
+                    <span className="text-[11px] font-mono font-bold text-black border border-[#bfdbfe] px-2 py-0.5 bg-white/95">
                       {item.date}
                     </span>
                   </div>
@@ -197,7 +211,7 @@ export const SchoolShowcaseSection: React.FC<SchoolShowcaseSectionProps> = ({
                   </p>
 
                   {/* Action Button for Active Slide */}
-                  <div className={`mt-5 pt-4 border-t border-[#d1ddf5] transition-opacity duration-300 ${
+                  <div className={`mt-5 pt-4 border-t border-[#dbeafe] transition-opacity duration-300 ${
                     offset === 0 ? 'opacity-100' : 'opacity-0'
                   }`}>
                     <span className="inline-flex items-center gap-1.5 text-black text-xs font-bold uppercase tracking-wider group-hover:gap-2 transition-all">
@@ -207,23 +221,23 @@ export const SchoolShowcaseSection: React.FC<SchoolShowcaseSectionProps> = ({
                 </div>
               </div>
             );
-          })}
+          }) : <div className="text-black text-center py-20">Không có dữ liệu tiêu điểm.</div>}
         </div>
 
         {/* Bottom Controls / Pagination */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 sm:mt-12 max-w-3xl mx-auto pt-4 border-t border-[#c5d3ec]">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 sm:mt-12 max-w-3xl mx-auto pt-4 border-t border-[#bfdbfe]">
           
           {/* Dash Indicators */}
           <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
-            {SCHOOL_SHOWCASE.map((_, idx) => (
+            {displayShowcase.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setActiveSlide(idx)}
                 aria-label={`Tin nhà trường số ${idx + 1}`}
                 className={`h-2 transition-all cursor-pointer ${
                   activeSlide === idx
-                    ? 'w-12 bg-[#003087]'
-                    : 'w-4 bg-[#c5d3ec] hover:bg-[#9aabd4]'
+                    ? 'w-12 bg-[#0052cc]'
+                    : 'w-4 bg-[#bfdbfe] hover:bg-[#93c5fd]'
                 }`}
               />
             ))}
@@ -235,14 +249,14 @@ export const SchoolShowcaseSection: React.FC<SchoolShowcaseSectionProps> = ({
               <button
                 onClick={prevSlide}
                 aria-label="Xem tin trước"
-                className="w-12 h-12 sm:w-10 sm:h-10 border border-[#c5d3ec] hover:border-black hover:bg-transparent flex items-center justify-center text-black hover:text-black active:bg-[#003087] active:text-white transition-colors cursor-pointer"
+                className="w-12 h-12 sm:w-10 sm:h-10 border border-[#bfdbfe] hover:border-black hover:bg-transparent flex items-center justify-center text-black hover:text-black active:bg-[#0052cc] active:text-white transition-colors cursor-pointer"
               >
                 <ChevronLeft className="w-5 h-5 sm:w-4 sm:h-4" />
               </button>
               <button
                 onClick={nextSlide}
                 aria-label="Xem tin kế tiếp"
-                className="w-12 h-12 sm:w-10 sm:h-10 border border-[#c5d3ec] hover:border-black hover:bg-transparent flex items-center justify-center text-black hover:text-black active:bg-[#003087] active:text-white transition-colors cursor-pointer"
+                className="w-12 h-12 sm:w-10 sm:h-10 border border-[#bfdbfe] hover:border-black hover:bg-transparent flex items-center justify-center text-black hover:text-black active:bg-[#0052cc] active:text-white transition-colors cursor-pointer"
               >
                 <ChevronRight className="w-5 h-5 sm:w-4 sm:h-4" />
               </button>

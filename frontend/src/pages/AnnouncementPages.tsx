@@ -70,17 +70,17 @@ export const AnnouncementListPage: React.FC<AnnouncementListPageProps> = ({
       <div className="max-w-7xl mx-auto px-4 relative z-10">
         {/* Breadcrumbs */}
         <nav className="flex items-center gap-2 text-xs font-mono text-black mb-6">
-          <button onClick={onGoHome} className="hover:text-[#003087] transition-colors cursor-pointer">
+          <button onClick={onGoHome} className="hover:text-[#0052cc] transition-colors cursor-pointer">
             Trang chủ
           </button>
           <span>/</span>
-          <span className="text-[#003087] font-bold">Thông Báo</span>
+          <span className="text-[#0052cc] font-bold">Thông Báo</span>
         </nav>
 
         {/* Page Header */}
-        <div className="border-b-2 border-[#003087] pb-4 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="border-b-2 border-[#0052cc] pb-4 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <span className="text-[11px] font-mono tracking-widest uppercase text-[#003087] font-bold flex items-center gap-1.5">
+            <span className="text-[11px] font-mono tracking-widest uppercase text-[#0052cc] font-bold flex items-center gap-1.5">
               <Bell className="w-3.5 h-3.5" />
               HỆ THỐNG VĂN BẢN ĐIỀU HÀNH & CHỈ ĐẠO
             </span>
@@ -95,7 +95,7 @@ export const AnnouncementListPage: React.FC<AnnouncementListPageProps> = ({
               value={searchQuery}
               onChange={handleSearchChange}
               placeholder="Tìm kiếm công văn, thông báo..."
-              className="w-full h-10 pl-3 pr-10 text-xs sm:text-sm bg-white border border-[#c5d3ec] focus:border-[#003087] focus:outline-none"
+              className="w-full h-10 pl-3 pr-10 text-xs sm:text-sm bg-white border border-[#bfdbfe] focus:border-[#0052cc] focus:outline-none"
             />
             <Search className="absolute right-3 top-3 w-4 h-4 text-black" />
           </div>
@@ -109,8 +109,8 @@ export const AnnouncementListPage: React.FC<AnnouncementListPageProps> = ({
               onClick={() => handleDeptChange(dept.id)}
               className={`px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border shrink-0 ${
                 selectedDept === dept.id
-                  ? 'bg-[#003087] text-white border-[#003087]'
-                  : 'bg-white text-black border-[#c5d3ec] hover:border-[#9aabd4]'
+                  ? 'bg-[#0052cc] text-white border-[#0052cc]'
+                  : 'bg-white text-black border-[#bfdbfe] hover:border-[#93c5fd]'
               }`}
             >
               {dept.label}
@@ -119,8 +119,8 @@ export const AnnouncementListPage: React.FC<AnnouncementListPageProps> = ({
         </div>
 
         {/* Announcements List Table */}
-        <div className="bg-white border-2 border-[#003087] shadow-sm divide-y divide-[#d1ddf5]">
-          <div className="hidden sm:grid grid-cols-12 gap-4 p-4 bg-[#FAF8F5] text-xs font-mono font-bold text-black uppercase border-b border-[#c5d3ec]">
+        <div className="bg-white border-2 border-[#0052cc] shadow-sm divide-y divide-[#dbeafe]">
+          <div className="hidden sm:grid grid-cols-12 gap-4 p-4 bg-[#FAF8F5] text-xs font-mono font-bold text-black uppercase border-b border-[#bfdbfe]">
             <div className="col-span-2">Số & Ngày ban hành</div>
             <div className="col-span-6">Trích yếu nội dung thông báo</div>
             <div className="col-span-2">Đơn vị phát hành</div>
@@ -136,7 +136,7 @@ export const AnnouncementListPage: React.FC<AnnouncementListPageProps> = ({
               >
                 {/* Date & Number */}
                 <div className="sm:col-span-2 flex items-center sm:flex-col sm:items-start justify-between gap-1">
-                  <span className="font-mono text-xs font-bold text-[#003087] bg-[#e8eef8] px-2 py-0.5 border border-[#c5d3ec]/40">
+                  <span className="font-mono text-xs font-bold text-[#0052cc] bg-[#eef5ff] px-2 py-0.5 border border-[#bfdbfe]/40">
                     {ann.date}
                   </span>
                   <span className="text-[11px] font-mono text-black">
@@ -148,7 +148,7 @@ export const AnnouncementListPage: React.FC<AnnouncementListPageProps> = ({
                 <div className="sm:col-span-6">
                   <div className="flex items-center gap-2 mb-1">
                     {ann.isImportant && (
-                      <span className="text-[9px] font-bold text-white bg-[#003087] px-1.5 py-0.2 uppercase font-mono">
+                      <span className="text-[9px] font-bold text-white bg-[#0052cc] px-1.5 py-0.2 uppercase font-mono">
                         KHẨN
                       </span>
                     )}
@@ -157,7 +157,7 @@ export const AnnouncementListPage: React.FC<AnnouncementListPageProps> = ({
                     </span>
                   </div>
 
-                  <h3 className="text-xs sm:text-sm font-bold text-black group-hover:text-[#003087] transition-colors leading-snug line-clamp-2">
+                  <h3 className="text-xs sm:text-sm font-bold text-black group-hover:text-[#0052cc] transition-colors leading-snug line-clamp-2">
                     {ann.title}
                   </h3>
                   <p className="mt-1 text-xs text-black line-clamp-1">
@@ -175,7 +175,7 @@ export const AnnouncementListPage: React.FC<AnnouncementListPageProps> = ({
                   <span className="sm:hidden text-black font-mono text-[11px]">
                     PDF (1.8 MB)
                   </span>
-                  <span className="font-bold text-[#003087] group-hover:underline flex items-center gap-1">
+                  <span className="font-bold text-[#0052cc] group-hover:underline flex items-center gap-1">
                     <FileText className="w-3.5 h-3.5" />
                     <span>Xem văn bản →</span>
                   </span>
@@ -195,17 +195,17 @@ export const AnnouncementListPage: React.FC<AnnouncementListPageProps> = ({
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1 bg-white border border-[#c5d3ec] hover:border-[#003087] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-black text-xs font-bold uppercase"
+              className="px-3 py-1 bg-white border border-[#bfdbfe] hover:border-[#0052cc] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-black text-xs font-bold uppercase"
             >
               Trang trước
             </button>
-            <span className="text-sm font-bold text-[#003087] px-4">
+            <span className="text-sm font-bold text-[#0052cc] px-4">
               {currentPage} / {totalPages}
             </span>
             <button
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 bg-white border border-[#c5d3ec] hover:border-[#003087] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-black text-xs font-bold uppercase"
+              className="px-3 py-1 bg-white border border-[#bfdbfe] hover:border-[#0052cc] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-black text-xs font-bold uppercase"
             >
               Trang sau
             </button>
@@ -251,7 +251,7 @@ export const AnnouncementDetailPage: React.FC<AnnouncementDetailPageProps> = ({
         <div className="mb-6">
           <button
             onClick={onBack}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#c5d3ec] hover:border-[#003087] text-[#003087] text-xs font-bold uppercase transition-colors cursor-pointer shadow-xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#bfdbfe] hover:border-[#0052cc] text-[#0052cc] text-xs font-bold uppercase transition-colors cursor-pointer shadow-xs"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Quay lại danh sách thông báo</span>
@@ -259,16 +259,16 @@ export const AnnouncementDetailPage: React.FC<AnnouncementDetailPageProps> = ({
         </div>
 
         {/* Official Vietnamese Letterhead Container */}
-        <div className="bg-white border-2 border-[#003087] p-6 sm:p-10 shadow-md text-black">
+        <div className="bg-white border-2 border-[#0052cc] p-6 sm:p-10 shadow-md text-black">
           
           {/* Official Letterhead Header */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-6 border-b-2 border-[#c5d3ec] text-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-6 border-b-2 border-[#bfdbfe] text-center">
             {/* Left Header */}
             <div>
               <div className="text-xs font-bold uppercase text-black">
                 SỞ GIÁO DỤC VÀ ĐÀO TẠO HÀ NỘI
               </div>
-              <div className="text-xs font-extrabold uppercase text-[#003087] mt-0.5">
+              <div className="text-xs font-extrabold uppercase text-[#0052cc] mt-0.5">
                 {SCHOOL_INFO.name}
               </div>
               <div className="text-[11px] font-mono text-black mt-1">
@@ -284,7 +284,7 @@ export const AnnouncementDetailPage: React.FC<AnnouncementDetailPageProps> = ({
               <div className="text-xs font-bold text-black mt-0.5 italic">
                 Độc lập - Tự do - Hạnh phúc
               </div>
-              <div className="w-24 h-[1px] bg-[#9aabd4] mx-auto mt-1" />
+              <div className="w-24 h-[1px] bg-[#93c5fd] mx-auto mt-1" />
               <div className="text-[11px] font-mono text-black mt-1">
                 Hà Nội, ngày {ann.date}
               </div>
@@ -293,7 +293,7 @@ export const AnnouncementDetailPage: React.FC<AnnouncementDetailPageProps> = ({
 
           {/* Announcement Main Title */}
           <div className="text-center my-8">
-            <span className="text-xs font-bold font-mono tracking-widest text-[#003087] uppercase bg-[#e8eef8] px-3 py-1 border border-[#c5d3ec]/40">
+            <span className="text-xs font-bold font-mono tracking-widest text-[#0052cc] uppercase bg-[#eef5ff] px-3 py-1 border border-[#bfdbfe]/40">
               VĂN BẢN CHỈ ĐẠO CHÍNH THỨC
             </span>
             <h1 className="text-lg sm:text-2xl font-extrabold text-black uppercase tracking-tight leading-snug mt-3">
@@ -302,10 +302,10 @@ export const AnnouncementDetailPage: React.FC<AnnouncementDetailPageProps> = ({
           </div>
 
           {/* Recipient & Metadata */}
-          <div className="bg-[#f5f7fc] border border-[#d1ddf5] p-4 mb-6 text-xs sm:text-sm space-y-1.5">
+          <div className="bg-[#f5f7fc] border border-[#dbeafe] p-4 mb-6 text-xs sm:text-sm space-y-1.5">
             <div>
               <span className="font-bold text-black">Đơn vị ban hành: </span>
-              <span className="text-[#003087] font-semibold">{ann.department}</span>
+              <span className="text-[#0052cc] font-semibold">{ann.department}</span>
             </div>
             <div>
               <span className="font-bold text-black">Đối tượng thực hiện: </span>
@@ -327,9 +327,9 @@ export const AnnouncementDetailPage: React.FC<AnnouncementDetailPageProps> = ({
           </div>
 
           {/* Official Attachment Box */}
-          <div className="mt-8 p-4 border border-[#c5d3ec] bg-[#f5f7fc] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="mt-8 p-4 border border-[#bfdbfe] bg-[#f5f7fc] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#e8eef8] border border-[#003087] flex items-center justify-center text-[#003087] shrink-0">
+              <div className="w-10 h-10 bg-[#eef5ff] border border-[#0052cc] flex items-center justify-center text-[#0052cc] shrink-0">
                 <FileText className="w-5 h-5" />
               </div>
               <div>
@@ -344,7 +344,7 @@ export const AnnouncementDetailPage: React.FC<AnnouncementDetailPageProps> = ({
 
             <button
               onClick={() => alert(`Đang tải tệp: ${ann.fileAttachment || 'CV-MaTranDeThiHSG-Signed.pdf'}`)}
-              className="px-4 py-2 bg-[#003087] hover:bg-[#001a52] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer shrink-0"
+              className="px-4 py-2 bg-[#0052cc] hover:bg-[#0026e6] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Tải Văn Bản PDF</span>
@@ -352,7 +352,7 @@ export const AnnouncementDetailPage: React.FC<AnnouncementDetailPageProps> = ({
           </div>
 
           {/* Official Signatures & Receipt */}
-          <div className="mt-10 pt-6 border-t-2 border-[#d1ddf5] grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
+          <div className="mt-10 pt-6 border-t-2 border-[#dbeafe] grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
             <div>
               <div className="font-bold text-black italic">Nơi nhận:</div>
               <ul className="mt-1 list-disc list-inside text-black space-y-0.5 font-mono text-[11px]">

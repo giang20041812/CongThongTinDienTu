@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Plus, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLostItems } from '../api';
 import { EduImageFrame } from './EduImageFrame';
+import { motion } from 'motion/react';
 
 interface LostFoundBannerProps {
   onSelectLostItem: (item: any) => void;
@@ -84,15 +85,21 @@ export const LostFoundBanner: React.FC<LostFoundBannerProps> = ({
   }, []);
 
   return (
-    <section className="w-full bg-white border-b border-[#B8D3E2] py-5 sm:py-6 overflow-hidden">
+    <motion.section 
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.6 }}
+      className="w-full bg-white border-b border-[#B8D3E2] py-5 sm:py-6 overflow-hidden"
+    >
       <div className="max-w-7xl mx-auto px-4">
 
         {/* Section header */}
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-end gap-3 border-b-2 border-black pb-2.5">
+          <div className="flex items-end gap-3 border-b-[3px] border-[#00a3bf] pb-2.5">
             <div>
-              <span className="text-[11px] font-mono tracking-widest uppercase text-black font-bold block">HỖ TRỢ HỌC ĐƯỜNG</span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-black tracking-tight uppercase">Góc thất lạc</h2>
+              <span className="text-[11px] font-mono tracking-widest uppercase text-[#00a3bf] font-bold block">HỖ TRỢ HỌC ĐƯỜNG</span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-gradient tracking-tight uppercase">Góc thất lạc</h2>
             </div>
             <span className="hidden">
               Lướt ngang để xem tất cả đồ thất lạc
@@ -106,7 +113,7 @@ export const LostFoundBanner: React.FC<LostFoundBannerProps> = ({
               aria-label="Xem trước"
               className={`w-8 h-8 flex items-center justify-center border transition-colors cursor-pointer ${
                 canScrollLeft
-                  ? 'border-[#55B9E8] text-black hover:bg-[#55B9E8] hover:text-white'
+                  ? 'border-[#00d2ff] text-black hover:bg-[#00d2ff] hover:text-white'
                   : 'border-white/20 text-white/20 cursor-not-allowed'
               }`}
             >
@@ -118,7 +125,7 @@ export const LostFoundBanner: React.FC<LostFoundBannerProps> = ({
               aria-label="Xem tiếp"
               className={`w-8 h-8 flex items-center justify-center border transition-colors cursor-pointer ${
                 canScrollRight
-                  ? 'border-[#55B9E8] text-black hover:bg-[#55B9E8] hover:text-white'
+                  ? 'border-[#00d2ff] text-black hover:bg-[#00d2ff] hover:text-white'
                   : 'border-white/20 text-white/20 cursor-not-allowed'
               }`}
             >
@@ -126,7 +133,7 @@ export const LostFoundBanner: React.FC<LostFoundBannerProps> = ({
             </button>
             <button
               onClick={onOpenReportLostModal}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#55B9E8] hover:bg-[#0B78B5] text-white text-xs font-bold uppercase tracking-wide transition-colors cursor-pointer ml-1"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#00d2ff] hover:bg-[#0052cc] text-white text-xs font-bold uppercase tracking-wide transition-colors cursor-pointer ml-1"
             >
               <Plus className="w-3.5 h-3.5" />
               <span className="hidden xs:inline">Báo Mất Đồ</span>
@@ -152,18 +159,18 @@ export const LostFoundBanner: React.FC<LostFoundBannerProps> = ({
               <div
                 key={item.id}
                 onClick={() => onSelectLostItem(item)}
-                className="lost-found-card flex-shrink-0 w-56 sm:w-64 bg-white border-t-2 border-[#55B9E8] p-3 cursor-pointer group hover:shadow-lg transition-shadow"
+                className="lost-found-card flex-shrink-0 w-56 sm:w-64 bg-white border-t-[4px] border-[#00a3bf] p-4 cursor-pointer group glass-card hover-lift rounded-xl"
               >
                 {/* Status badge + type */}
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-bold font-mono bg-[#003087] text-white px-1.5 py-0.5 uppercase tracking-wide">
+                  <span className="text-[10px] font-bold font-mono bg-gradient-brand text-white px-2 py-1 rounded-md uppercase tracking-wide">
                     {item.itemType}
                   </span>
                   <span
-                    className={`text-[9px] font-mono font-bold px-1.5 py-0.5 border ${
+                    className={`text-[9px] font-mono font-bold px-2 py-1 rounded-md border ${
                       item.status === 'claimed'
                         ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                        : 'bg-transparent text-black border-[#c5d3ec]'
+                        : 'bg-red-50 text-red-600 border-red-200'
                     }`}
                   >
                     {item.status === 'claimed' ? 'ĐÃ NHẬN' : 'CHƯA NHẬN'}
@@ -197,7 +204,7 @@ export const LostFoundBanner: React.FC<LostFoundBannerProps> = ({
                 </div>
 
                 {/* Title */}
-                <h4 className="relative z-10 block text-xs font-bold text-black group-hover:text-black group-hover:underline transition-colors leading-snug line-clamp-2 uppercase">
+                <h4 className="relative z-10 block text-sm font-bold text-gray-800 group-hover:text-[#00a3bf] transition-colors leading-snug line-clamp-2 uppercase mt-2">
                   {item.title}
                 </h4>
 
@@ -215,10 +222,10 @@ export const LostFoundBanner: React.FC<LostFoundBannerProps> = ({
             {/* "Xem tất cả" card at end */}
             <div
               onClick={onOpenReportLostModal}
-              className="flex-shrink-0 w-40 sm:w-48 flex flex-col items-center justify-center gap-3 border-2 border-dashed border-[#55B9E8]/60 cursor-pointer hover:border-black transition-colors group p-4"
+              className="flex-shrink-0 w-40 sm:w-48 flex flex-col items-center justify-center gap-3 border-2 border-dashed border-[#00a3bf]/50 cursor-pointer hover:border-[#00a3bf] hover:bg-[#00a3bf]/5 transition-all group p-4 rounded-xl"
             >
-              <Plus className="w-8 h-8 text-black/60 group-hover:text-black transition-colors" />
-              <span className="text-xs text-black/70 group-hover:text-black font-bold uppercase tracking-wide text-center transition-colors">
+              <Plus className="w-10 h-10 text-[#00a3bf]/60 group-hover:text-[#00a3bf] group-hover:scale-110 transition-all" />
+              <span className="text-xs text-[#00a3bf]/80 group-hover:text-[#00a3bf] font-bold uppercase tracking-wide text-center transition-colors">
                 Báo mất đồ hoặc xem thêm
               </span>
             </div>
@@ -227,13 +234,13 @@ export const LostFoundBanner: React.FC<LostFoundBannerProps> = ({
             onClick={() => scroll('left')}
             disabled={!canScrollLeft}
             aria-label="Xem đồ thất lạc trước"
-            className={`absolute left-0 top-1/2 -translate-y-1/2 z-[60] pointer-events-auto w-8 h-12 sm:w-9 flex items-center justify-center bg-white border-2 border-[#55B9E8] shadow-md transition-all ${canScrollLeft ? 'text-black hover:bg-[#55B9E8] hover:text-white' : 'text-[#9bb8c9] cursor-not-allowed'}`}
+            className={`absolute left-0 top-1/2 -translate-y-1/2 z-[60] pointer-events-auto w-8 h-12 sm:w-9 flex items-center justify-center bg-white border-2 border-[#00d2ff] shadow-md transition-all ${canScrollLeft ? 'text-black hover:bg-[#00d2ff] hover:text-white' : 'text-[#9bb8c9] cursor-not-allowed'}`}
           ><ChevronLeft className="w-5 h-5" /></button>
           <button
             onClick={() => scroll('right')}
             disabled={!canScrollRight}
             aria-label="Xem đồ thất lạc tiếp theo"
-            className={`absolute right-0 top-1/2 -translate-y-1/2 z-[60] pointer-events-auto w-8 h-12 sm:w-9 flex items-center justify-center bg-white border-2 border-[#55B9E8] shadow-md transition-all ${canScrollRight ? 'text-black hover:bg-[#55B9E8] hover:text-white' : 'text-[#9bb8c9] cursor-not-allowed'}`}
+            className={`absolute right-0 top-1/2 -translate-y-1/2 z-[60] pointer-events-auto w-8 h-12 sm:w-9 flex items-center justify-center bg-white border-2 border-[#00d2ff] shadow-md transition-all ${canScrollRight ? 'text-black hover:bg-[#00d2ff] hover:text-white' : 'text-[#9bb8c9] cursor-not-allowed'}`}
           ><ChevronRight className="w-5 h-5" /></button>
         </div>
 
@@ -245,7 +252,7 @@ export const LostFoundBanner: React.FC<LostFoundBannerProps> = ({
         </div>
 
       </div>
-    </section>
+    </motion.section>
   );
 };
 

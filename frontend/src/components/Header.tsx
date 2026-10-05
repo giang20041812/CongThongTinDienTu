@@ -124,13 +124,13 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="w-full bg-[#FFFFFF] border-b border-[#d1ddf5] relative z-40">
+    <header className="w-full bg-[#FFFFFF] border-b border-[#dbeafe] relative z-40">
       {/* Top Utility Meta Strip - Deep Navy Blue */}
-      <div className="bg-[#003087] border-b border-[#001a52] px-3 sm:px-4 py-1.5 text-xs text-white">
+      <div className="bg-[#0052cc] border-b border-[#0026e6] px-3 sm:px-4 py-1.5 text-xs text-white">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 sm:gap-3">
           {/* Slogan & Authority */}
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <span className="font-semibold text-[#FFD700] uppercase tracking-wider text-[10px] sm:text-[11px]">
+            <span className="font-semibold text-[#ff9900] uppercase tracking-wider text-[10px] sm:text-[11px]">
               SỞ GD&ĐT HÀ NỘI
             </span>
             <span className="text-white/40">/</span>
@@ -144,24 +144,25 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Contact Details */}
           <div className="flex items-center gap-3 sm:gap-4 text-[10px] sm:text-[11px] font-sans">
-            <span className="hidden md:flex items-center gap-1.5 hover:text-[#FFD700] transition-colors">
-              <MapPin className="w-3.5 h-3.5 text-[#FFD700]" />
+            <span className="hidden md:flex items-center gap-1.5 hover:text-[#ff9900] transition-colors">
+              <MapPin className="w-3.5 h-3.5 text-[#ff9900]" />
               {SCHOOL_INFO.address}
             </span>
-            <span className="hidden sm:flex items-center gap-1.5 hover:text-[#FFD700] transition-colors">
-              <Mail className="w-3.5 h-3.5 text-[#FFD700]" />
+            <span className="hidden sm:flex items-center gap-1.5 hover:text-[#ff9900] transition-colors">
+              <Mail className="w-3.5 h-3.5 text-[#ff9900]" />
               {SCHOOL_INFO.email}
             </span>
             <a
               href={`tel:${SCHOOL_INFO.hotline}`}
-              className="flex items-center gap-1.5 font-bold text-[#FFD700]"
+              className="flex items-center gap-1.5 font-bold text-[#ff9900]"
             >
-              <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-[#FFD700]" />
-              <span className="text-sm sm:text-base">{SCHOOL_INFO.hotline}</span>
+              <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#ff9900]" />
+              <span>{SCHOOL_INFO.hotline}</span>
             </a>
           </div>
         </div>
       </div>
+
 
     </header>
   );

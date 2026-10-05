@@ -151,7 +151,7 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
   const currentLost = filteredItems[activeLostIndex] || filteredItems[0];
 
   return (
-    <section id="do-that-lac" className="relative w-full py-10 sm:py-16 bg-transparent border-b border-[#d1ddf5] overflow-hidden">
+    <section id="do-that-lac" className="relative w-full py-10 sm:py-16 bg-transparent border-b border-[#dbeafe] overflow-hidden">
       {/* Background Architectural Grid */}
       <BackgroundGeometricMesh variant="grid" className="opacity-60" />
 
@@ -166,9 +166,9 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
           <div className="lg:col-span-6 flex flex-col justify-between">
             <div>
               {/* Header: CLB with clean double underline */}
-              <div className="border-b-2 border-black pb-2.5 mb-6 flex items-end justify-between">
+              <div className="border-b-2 border-[#0052cc] pb-3 pt-4 px-5 mb-6 flex items-end justify-between bg-gradient-to-r from-blue-50 to-transparent rounded-t-xl border border-b-0 border-blue-100/50">
                 <div>
-                  <span className="text-[11px] font-mono tracking-widest uppercase text-black font-bold flex items-center gap-1.5">
+                  <span className="text-[11px] font-mono tracking-widest uppercase text-[#0052cc] font-bold flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5" />
                     HOẠT ĐỘNG NGOẠI KHÓA
                   </span>
@@ -202,7 +202,7 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
                   }}
                 >
                   <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="text-[10px] font-bold font-mono tracking-widest text-white bg-[#003087] px-2 py-0.5 uppercase">
+                    <span className="text-[10px] font-bold font-mono tracking-widest text-white bg-[#0052cc] px-2 py-0.5 uppercase">
                       {currentClub.category}
                     </span>
                     <span className="text-[11px] font-mono text-black font-semibold">
@@ -214,14 +214,18 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
                     {currentClub.name}
                   </h3>
 
-                  <div className="relative mt-3">
-                    <EduImageFrame
-                      label="ẢNH TIN"
-                      subLabel={currentClub.badgeText}
-                      theme="club"
-                      aspectRatio="16:9"
-                    />
-                    <div className="absolute bottom-2 right-2 bg-white/95 px-2 py-0.5 text-[11px] font-mono font-bold text-black border border-[#c5d3ec] shadow-xs">
+                  <div className="relative mt-3 h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
+                    {currentClub.imageUrl ? (
+                      <img src={currentClub.imageUrl} alt={currentClub.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <EduImageFrame
+                        label="ẢNH TIN"
+                        subLabel={currentClub.badgeText}
+                        theme="club"
+                        aspectRatio="16:9"
+                      />
+                    )}
+                    <div className="absolute bottom-2 right-2 bg-white/95 px-2 py-0.5 text-[11px] font-mono font-bold text-black border border-[#bfdbfe] shadow-xs z-10">
                       {currentClub.members} Thành viên
                     </div>
                   </div>
@@ -232,7 +236,7 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
                 </div>
 
                 {/* Mobile Swipe Hint Badge */}
-                <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-black bg-transparent py-1.5 px-3 border border-[#c5d3ec]/40 mt-3">
+                <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-black bg-transparent py-1.5 px-3 border border-[#bfdbfe]/40 mt-3">
                   <span className="animate-pulse">👈 Vuốt sang trái / phải để đổi CLB 👉</span>
                 </div>
 
@@ -246,8 +250,8 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
                         aria-label={`CLB ${idx + 1}`}
                         className={`h-2 transition-all cursor-pointer ${
                           activeClubIndex === idx
-                            ? 'w-8 bg-[#003087]'
-                            : 'w-3 bg-[#c5d3ec] hover:bg-[#9aabd4]'
+                            ? 'w-8 bg-[#0052cc]'
+                            : 'w-3 bg-[#bfdbfe] hover:bg-[#93c5fd]'
                         }`}
                       />
                     ))}
@@ -257,20 +261,20 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
                     <button
                       onClick={prevClub}
                       aria-label="CLB trước"
-                      className="w-9 h-9 border border-[#c5d3ec] hover:border-black hover:bg-transparent flex items-center justify-center text-black hover:text-black active:bg-[#003087] active:text-white transition-colors cursor-pointer"
+                      className="w-9 h-9 border border-[#bfdbfe] hover:border-black hover:bg-transparent flex items-center justify-center text-black hover:text-black active:bg-[#0052cc] active:text-white transition-colors cursor-pointer"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
                     <button
                       onClick={nextClub}
                       aria-label="CLB kế tiếp"
-                      className="w-9 h-9 border border-[#c5d3ec] hover:border-black hover:bg-transparent flex items-center justify-center text-black hover:text-black active:bg-[#003087] active:text-white transition-colors cursor-pointer"
+                      className="w-9 h-9 border border-[#bfdbfe] hover:border-black hover:bg-transparent flex items-center justify-center text-black hover:text-black active:bg-[#0052cc] active:text-white transition-colors cursor-pointer"
                     >
                       <ChevronRight className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => alert(`Đăng ký tham gia: ${currentClub.badgeText}`)}
-                      className="px-3 py-1.5 bg-[#003087] hover:bg-[#001a52] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                      className="px-3 py-1.5 bg-[#0052cc] hover:bg-[#0026e6] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
                     >
                       Đăng Ký
                     </button>
@@ -286,9 +290,9 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
               <div className="hidden md:flex flex-col gap-5">
                 
                 {/* Top Big Card */}
-                <div className="border border-[#d1ddf5] bg-white p-4 shadow-xs group hover:border-black transition-all">
+                <div className="border border-[#dbeafe] bg-white p-4 shadow-xs group hover:border-black transition-all">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-mono font-bold uppercase text-black bg-transparent px-2 py-0.5 border border-[#c5d3ec]/40">
+                    <span className="text-[10px] font-mono font-bold uppercase text-black bg-transparent px-2 py-0.5 border border-[#bfdbfe]/40">
                       {CLUBS_DATA.featured.category}
                     </span>
                     <span className="text-xs font-mono text-black">
@@ -300,13 +304,17 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
                     {CLUBS_DATA.featured.name}
                   </h3>
 
-                  <div className="mt-3 relative">
-                    <EduImageFrame
-                      label="ẢNH TIN"
-                      subLabel={CLUBS_DATA.featured.badgeText}
-                      theme="club"
-                      aspectRatio="16:9"
-                    />
+                  <div className="mt-3 relative h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
+                    {CLUBS_DATA.featured.imageUrl ? (
+                      <img src={CLUBS_DATA.featured.imageUrl} alt={CLUBS_DATA.featured.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <EduImageFrame
+                        label="ẢNH TIN"
+                        subLabel={CLUBS_DATA.featured.badgeText}
+                        theme="club"
+                        aspectRatio="16:9"
+                      />
+                    )}
                   </div>
 
                   <p className="mt-3 text-xs sm:text-sm text-black leading-relaxed line-clamp-2">
@@ -319,11 +327,11 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
                   {CLUBS_DATA.secondary.map((subClub) => (
                     <div
                       key={subClub.id}
-                      className="border border-[#d1ddf5] bg-white p-3.5 shadow-xs group hover:border-black transition-all flex flex-col justify-between"
+                      className="border border-[#dbeafe] bg-white p-3.5 shadow-xs group hover:border-black transition-all flex flex-col justify-between"
                     >
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-[9px] font-mono font-bold uppercase text-black bg-transparent px-1.5 py-0.5 border border-[#c5d3ec]/30">
+                          <span className="text-[9px] font-mono font-bold uppercase text-black bg-transparent px-1.5 py-0.5 border border-[#bfdbfe]/30">
                             {subClub.category}
                           </span>
                           <span className="text-[10px] font-mono text-black">
@@ -335,13 +343,17 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
                           {subClub.name}
                         </h4>
 
-                        <div className="mt-2.5">
-                          <EduImageFrame
-                            label="ẢNH TIN"
-                            subLabel={subClub.badgeText}
-                            theme={subClub.id === 'club-sub-1' ? 'campus' : 'lab'}
-                            aspectRatio="4:3"
-                          />
+                        <div className="mt-2.5 h-24 bg-gray-100 flex items-center justify-center overflow-hidden">
+                          {subClub.imageUrl ? (
+                            <img src={subClub.imageUrl} alt={subClub.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <EduImageFrame
+                              label="ẢNH TIN"
+                              subLabel={subClub.badgeText}
+                              theme={subClub.id === 'club-sub-1' ? 'campus' : 'lab'}
+                              aspectRatio="4:3"
+                            />
+                          )}
                         </div>
                       </div>
 
@@ -356,13 +368,13 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
             </div>
 
             {/* CLB Footer Links */}
-            <div className="mt-5 pt-3 border-t border-[#d1ddf5] flex items-center justify-between">
+            <div className="mt-5 pt-3 border-t border-[#dbeafe] flex items-center justify-between">
               <span className="text-xs font-mono text-black">
                 Đăng ký CLB: Tháng 9 hàng năm
               </span>
               <button
                 onClick={() => alert('Cổng đăng ký CLB trực tuyến mở đến 30/09/2026')}
-                className="px-4 py-2 bg-[#003087] hover:bg-[#001a52] text-white text-xs font-bold uppercase tracking-wide transition-colors cursor-pointer"
+                className="px-4 py-2 bg-[#0052cc] hover:bg-[#0026e6] text-white text-xs font-bold uppercase tracking-wide transition-colors cursor-pointer"
               >
                 Đăng Ký Tham Gia CLB →
               </button>
@@ -372,7 +384,7 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
           {/* ========================================================
               VERTICAL DIVIDER LINE (Between CLB & Góc thất lạc)
              ======================================================== */}
-          <div className="hidden lg:block absolute top-0 bottom-0 left-1/2 w-[1px] bg-[#d1ddf5] -translate-x-1/2" />
+          <div className="hidden lg:block absolute top-0 bottom-0 left-1/2 w-[1px] bg-[#dbeafe] -translate-x-1/2" />
 
           {/* ========================================================
               RIGHT COLUMN: GÓC THẤT LẠC (Lost & Found)
@@ -380,9 +392,9 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
           <div className="lg:col-span-6 flex flex-col justify-between">
             <div>
               {/* Header: Góc thất lạc with clean double underline */}
-              <div className="border-b-2 border-black pb-2.5 mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+              <div className="border-b-2 border-[#0052cc] pb-3 pt-4 px-5 mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-3 bg-gradient-to-r from-blue-50 to-transparent rounded-t-xl border border-b-0 border-blue-100/50">
                 <div>
-                  <span className="text-[11px] font-mono tracking-widest uppercase text-black font-bold flex items-center gap-1.5">
+                  <span className="text-[11px] font-mono tracking-widest uppercase text-[#0052cc] font-bold flex items-center gap-1.5">
                     <Search className="w-3.5 h-3.5" />
                     HỖ TRỢ HỌC ĐƯỜNG
                   </span>
@@ -395,13 +407,13 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setFilterType(filterType === 'all' ? 'pending' : 'all')}
-                    className="text-xs font-semibold px-2.5 py-1 border border-[#c5d3ec] bg-white hover:bg-transparent text-black transition-colors cursor-pointer"
+                    className="text-xs font-semibold px-2.5 py-1 border border-[#bfdbfe] bg-white hover:bg-transparent text-black transition-colors cursor-pointer"
                   >
                     {filterType === 'all' ? 'Chưa nhận' : 'Tất cả'}
                   </button>
                   <button
                     onClick={onOpenReportLostModal}
-                    className="flex items-center gap-1 px-3 py-1 bg-[#003087] hover:bg-[#001a52] text-white text-xs font-bold transition-colors cursor-pointer shadow-xs"
+                    className="flex items-center gap-1 px-3 py-1 bg-[#0052cc] hover:bg-[#0026e6] text-white text-xs font-bold transition-colors cursor-pointer shadow-xs"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Báo Mất Đồ</span>
@@ -431,7 +443,7 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
                     }}
                   >
                     <div className="flex items-center justify-between gap-2 mb-2">
-                      <span className="text-[10px] font-bold font-mono tracking-widest text-white bg-[#003087] px-2 py-0.5 uppercase">
+                      <span className="text-[10px] font-bold font-mono tracking-widest text-white bg-[#0052cc] px-2 py-0.5 uppercase">
                         {currentLost.itemType}
                       </span>
                       <div className="flex items-center gap-2">
@@ -439,7 +451,7 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
                           className={`text-[9px] font-mono font-bold px-1.5 py-0.5 border ${
                             currentLost.status === 'claimed'
                               ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                              : 'bg-transparent text-black border-[#c5d3ec]'
+                              : 'bg-transparent text-black border-[#bfdbfe]'
                           }`}
                         >
                           {currentLost.status === 'claimed' ? 'ĐÃ NHẬN LẠI' : 'CHƯA NHẬN'}
@@ -488,7 +500,7 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
                       {currentLost.description}
                     </p>
 
-                    <div className="mt-2 pt-2 border-t border-[#e8eef8] flex items-center justify-between text-[11px] font-mono text-black">
+                    <div className="mt-2 pt-2 border-t border-[#eef5ff] flex items-center justify-between text-[11px] font-mono text-black">
                       <span className="flex items-center gap-1 truncate max-w-[200px]">
                         <MapPin className="w-3 h-3 text-black shrink-0" />
                         <span className="truncate">{currentLost.locationFound}</span>
@@ -498,7 +510,7 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
                   </div>
 
                   {/* Mobile Swipe Hint Badge */}
-                  <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-black bg-transparent py-1.5 px-3 border border-[#c5d3ec]/40 mt-3">
+                  <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-black bg-transparent py-1.5 px-3 border border-[#bfdbfe]/40 mt-3">
                     <span className="animate-pulse">👈 Vuốt sang trái / phải để xem đồ khác 👉</span>
                   </div>
 
@@ -512,8 +524,8 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
                           aria-label={`Vật phẩm ${idx + 1}`}
                           className={`h-2 transition-all cursor-pointer ${
                             activeLostIndex === idx
-                              ? 'w-8 bg-[#003087]'
-                              : 'w-3 bg-[#c5d3ec] hover:bg-[#9aabd4]'
+                              ? 'w-8 bg-[#0052cc]'
+                              : 'w-3 bg-[#bfdbfe] hover:bg-[#93c5fd]'
                           }`}
                         />
                       ))}
@@ -523,20 +535,20 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
                       <button
                         onClick={prevLost}
                         aria-label="Đồ trước"
-                        className="w-9 h-9 border border-[#c5d3ec] hover:border-black hover:bg-transparent flex items-center justify-center text-black hover:text-black active:bg-[#003087] active:text-white transition-colors cursor-pointer"
+                        className="w-9 h-9 border border-[#bfdbfe] hover:border-black hover:bg-transparent flex items-center justify-center text-black hover:text-black active:bg-[#0052cc] active:text-white transition-colors cursor-pointer"
                       >
                         <ChevronLeft className="w-4 h-4" />
                       </button>
                       <button
                         onClick={nextLost}
                         aria-label="Đồ kế tiếp"
-                        className="w-9 h-9 border border-[#c5d3ec] hover:border-black hover:bg-transparent flex items-center justify-center text-black hover:text-black active:bg-[#003087] active:text-white transition-colors cursor-pointer"
+                        className="w-9 h-9 border border-[#bfdbfe] hover:border-black hover:bg-transparent flex items-center justify-center text-black hover:text-black active:bg-[#0052cc] active:text-white transition-colors cursor-pointer"
                       >
                         <ChevronRight className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => onSelectLostItem(currentLost)}
-                        className="px-3 py-1.5 bg-[#003087] hover:bg-[#001a52] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                        className="px-3 py-1.5 bg-[#0052cc] hover:bg-[#0026e6] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
                       >
                         Nhận Lại
                       </button>
@@ -555,7 +567,7 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
                   <div
                     key={lostItem.id}
                     onClick={() => onSelectLostItem(lostItem)}
-                    className="group cursor-pointer border border-[#d1ddf5] bg-white hover:border-black transition-all p-3 shadow-xs"
+                    className="group cursor-pointer border border-[#dbeafe] bg-white hover:border-black transition-all p-3 shadow-xs"
                   >
                     {/* Header line of the item row: Item title & status */}
                     <div className="flex items-center justify-between mb-1.5">
@@ -572,7 +584,7 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
                         className={`text-[9px] font-mono font-bold px-1.5 py-0.5 border shrink-0 ${
                           lostItem.status === 'claimed'
                             ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                            : 'bg-transparent text-black border-[#c5d3ec]'
+                            : 'bg-transparent text-black border-[#bfdbfe]'
                         }`}
                       >
                         {lostItem.status === 'claimed' ? 'ĐÃ NHẬN LẠI' : 'CHƯA NHẬN'}
@@ -609,7 +621,7 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
                         {lostItem.description}
                       </p>
 
-                      <div className="mt-1.5 pt-1.5 border-t border-[#e8eef8] flex items-center justify-between text-[11px] font-mono text-black">
+                      <div className="mt-1.5 pt-1.5 border-t border-[#eef5ff] flex items-center justify-between text-[11px] font-mono text-black">
                         <span className="flex items-center gap-1 truncate max-w-[200px]">
                           <MapPin className="w-3 h-3 text-black shrink-0" />
                           <span className="truncate">{lostItem.locationFound}</span>
@@ -625,7 +637,7 @@ export const ClubsAndLostFoundSection: React.FC<ClubsAndLostFoundSectionProps> =
             </div>
 
             {/* Note on receiving lost items */}
-            <div className="mt-5 pt-3 border-t border-[#d1ddf5] text-xs text-black flex items-center justify-between">
+            <div className="mt-5 pt-3 border-t border-[#dbeafe] text-xs text-black flex items-center justify-between">
               <span>Địa điểm nhận: Phòng Quản sinh (Nhà B, Tầng 1)</span>
               <span className="font-mono text-black">Hotline: {SCHOOL_INFO.hotline}</span>
             </div>

@@ -37,7 +37,7 @@ export const Modals: React.FC<ModalsProps> = ({
       <div className="relative w-full max-w-2xl max-h-[92vh] bg-white border-2 border-black shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
         {/* Modal Top Header */}
-        <div className="flex items-center justify-between px-3.5 sm:px-5 py-3 sm:py-3.5 bg-[#003087] text-white border-b border-[#001a52] shrink-0">
+        <div className="flex items-center justify-between px-3.5 sm:px-5 py-3 sm:py-3.5 bg-[#0052cc] text-white border-b border-[#0026e6] shrink-0">
           <div className="flex items-center gap-2 pr-2">
             <span className="w-2.5 h-2.5 bg-white shrink-0" />
             <span className="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider truncate">
@@ -53,7 +53,7 @@ export const Modals: React.FC<ModalsProps> = ({
           <button
             onClick={onClose}
             aria-label="Đóng cửa sổ"
-            className="w-8 h-8 sm:w-7 sm:h-7 flex items-center justify-center hover:bg-[#001a52] active:bg-[#601313] text-white transition-colors cursor-pointer shrink-0"
+            className="w-8 h-8 sm:w-7 sm:h-7 flex items-center justify-center hover:bg-[#0026e6] active:bg-[#601313] text-white transition-colors cursor-pointer shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
@@ -67,8 +67,8 @@ export const Modals: React.FC<ModalsProps> = ({
              ======================================================== */}
           {modal.type === 'news' && (
             <div>
-              <div className="flex items-center gap-3 text-xs text-black font-mono pb-2 border-b border-[#d1ddf5]">
-                <span className="bg-transparent text-black font-bold px-2 py-0.5 border border-[#c5d3ec]">
+              <div className="flex items-center gap-3 text-xs text-black font-mono pb-2 border-b border-[#dbeafe]">
+                <span className="bg-transparent text-black font-bold px-2 py-0.5 border border-[#bfdbfe]">
                   {modal.data.category}
                 </span>
                 <span>Ngày đăng: {modal.data.date}</span>
@@ -97,11 +97,11 @@ export const Modals: React.FC<ModalsProps> = ({
                 {modal.data.content}
               </div>
 
-              <div className="mt-6 pt-4 border-t border-[#d1ddf5] flex items-center justify-between text-xs text-black">
+              <div className="mt-6 pt-4 border-t border-[#dbeafe] flex items-center justify-between text-xs text-black">
                 <span className="font-semibold text-black">Tác giả: {modal.data.author}</span>
                 <button
                   onClick={() => window.print()}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-transparent hover:bg-[#d1ddf5] text-black font-semibold cursor-pointer border border-[#c5d3ec]"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-transparent hover:bg-[#dbeafe] text-black font-semibold cursor-pointer border border-[#bfdbfe]"
                 >
                   <Printer className="w-3.5 h-3.5" />
                   <span>In bài viết</span>
@@ -115,8 +115,8 @@ export const Modals: React.FC<ModalsProps> = ({
              ======================================================== */}
           {modal.type === 'announcement' && (
             <div>
-              <div className="flex items-center justify-between text-xs font-mono text-black pb-2 border-b border-[#d1ddf5]">
-                <span className="font-bold text-black bg-transparent px-2 py-0.5 border border-[#c5d3ec]">
+              <div className="flex items-center justify-between text-xs font-mono text-black pb-2 border-b border-[#dbeafe]">
+                <span className="font-bold text-black bg-transparent px-2 py-0.5 border border-[#bfdbfe]">
                   {modal.data.department}
                 </span>
                 <span>Ngày ban hành: {modal.data.date}</span>
@@ -126,7 +126,7 @@ export const Modals: React.FC<ModalsProps> = ({
                 {modal.data.title}
               </h2>
 
-              <div className="mt-4 p-4 bg-transparent border border-[#d1ddf5] space-y-3">
+              <div className="mt-4 p-4 bg-transparent border border-[#dbeafe] space-y-3">
                 <div className="text-xs font-bold text-black uppercase tracking-wide">
                   Nội dung chi tiết chỉ đạo:
                 </div>
@@ -136,7 +136,7 @@ export const Modals: React.FC<ModalsProps> = ({
               </div>
 
               {/* Attachment Download */}
-              <div className="mt-4 p-3.5 border border-[#c5d3ec] bg-white flex items-center justify-between">
+              <div className="mt-4 p-3.5 border border-[#bfdbfe] bg-white flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <FileText className="w-5 h-5 text-black" />
                   <div>
@@ -155,7 +155,7 @@ export const Modals: React.FC<ModalsProps> = ({
                     e.preventDefault();
                     alert(`Đang tải tệp: ${modal.data.fileAttachment || 'CV-MaTranDeThiHSG-Signed.pdf'}`);
                   }}
-                  className="px-3 py-1.5 bg-[#003087] hover:bg-[#001a52] text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1.5 bg-[#0052cc] hover:bg-[#0026e6] text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Tải Về</span>
@@ -169,7 +169,7 @@ export const Modals: React.FC<ModalsProps> = ({
              ======================================================== */}
           {modal.type === 'lostItem' && (
             <div>
-              <div className="flex items-center justify-between text-xs font-mono pb-2 border-b border-[#d1ddf5]">
+              <div className="flex items-center justify-between text-xs font-mono pb-2 border-b border-[#dbeafe]">
                 <span className="font-bold text-black">
                   Loại: {modal.data.itemType}
                 </span>
@@ -198,7 +198,7 @@ export const Modals: React.FC<ModalsProps> = ({
                 />
               </div>
 
-              <div className="mt-4 p-3.5 bg-transparent border border-[#d1ddf5] space-y-2 text-xs sm:text-sm">
+              <div className="mt-4 p-3.5 bg-transparent border border-[#dbeafe] space-y-2 text-xs sm:text-sm">
                 <div>
                   <span className="font-semibold text-black">Vị trí phát hiện: </span>
                   <span className="text-black">{modal.data.locationFound}</span>
@@ -214,7 +214,7 @@ export const Modals: React.FC<ModalsProps> = ({
               </div>
 
               {/* Claim Action */}
-              <div className="mt-5 pt-4 border-t border-[#d1ddf5] flex items-center justify-between">
+              <div className="mt-5 pt-4 border-t border-[#dbeafe] flex items-center justify-between">
                 {claimSuccess ? (
                   <div className="flex items-center gap-2 text-emerald-700 font-semibold text-xs bg-emerald-50 p-2.5 border border-emerald-200 w-full">
                     <CheckCircle className="w-4 h-4" />
@@ -230,7 +230,7 @@ export const Modals: React.FC<ModalsProps> = ({
                         setClaimSuccess(true);
                         if (onItemClaimed) onItemClaimed(modal.data.id);
                       }}
-                      className="px-4 py-2 bg-[#003087] hover:bg-[#001a52] text-white text-xs font-bold uppercase tracking-wider cursor-pointer shadow-xs"
+                      className="px-4 py-2 bg-[#0052cc] hover:bg-[#0026e6] text-white text-xs font-bold uppercase tracking-wider cursor-pointer shadow-xs"
                     >
                       Tôi Muốn Nhận Lại Đồ
                     </button>
@@ -258,7 +258,7 @@ export const Modals: React.FC<ModalsProps> = ({
                   </p>
                   <button
                     onClick={onClose}
-                    className="mt-4 px-5 py-2 bg-[#003087] text-white text-xs font-bold uppercase cursor-pointer"
+                    className="mt-4 px-5 py-2 bg-[#0052cc] text-white text-xs font-bold uppercase cursor-pointer"
                   >
                     Hoàn Tất
                   </button>
@@ -299,7 +299,7 @@ export const Modals: React.FC<ModalsProps> = ({
                         value={reportFormData.name}
                         onChange={(e) => setReportFormData({ ...reportFormData, name: e.target.value })}
                         placeholder="Nguyễn Văn A"
-                        className="w-full h-9 px-3 border border-[#c5d3ec] focus:border-black focus:outline-none"
+                        className="w-full h-9 px-3 border border-[#bfdbfe] focus:border-black focus:outline-none"
                       />
                     </div>
                     <div>
@@ -312,7 +312,7 @@ export const Modals: React.FC<ModalsProps> = ({
                         value={reportFormData.studentClass}
                         onChange={(e) => setReportFormData({ ...reportFormData, studentClass: e.target.value })}
                         placeholder="11 Tin / 10 Toán 1"
-                        className="w-full h-9 px-3 border border-[#c5d3ec] focus:border-black focus:outline-none"
+                        className="w-full h-9 px-3 border border-[#bfdbfe] focus:border-black focus:outline-none"
                       />
                     </div>
                   </div>
@@ -328,7 +328,7 @@ export const Modals: React.FC<ModalsProps> = ({
                         value={reportFormData.itemTitle}
                         onChange={(e) => setReportFormData({ ...reportFormData, itemTitle: e.target.value })}
                         placeholder="Thẻ xe, ví tiền, chìa khóa..."
-                        className="w-full h-9 px-3 border border-[#c5d3ec] focus:border-black focus:outline-none"
+                        className="w-full h-9 px-3 border border-[#bfdbfe] focus:border-black focus:outline-none"
                       />
                     </div>
                     <div>
@@ -341,7 +341,7 @@ export const Modals: React.FC<ModalsProps> = ({
                         value={reportFormData.phone}
                         onChange={(e) => setReportFormData({ ...reportFormData, phone: e.target.value })}
                         placeholder="0912 345 67x"
-                        className="w-full h-9 px-3 border border-[#c5d3ec] focus:border-black focus:outline-none"
+                        className="w-full h-9 px-3 border border-[#bfdbfe] focus:border-black focus:outline-none"
                       />
                     </div>
                   </div>
@@ -355,7 +355,7 @@ export const Modals: React.FC<ModalsProps> = ({
                       value={reportFormData.location}
                       onChange={(e) => setReportFormData({ ...reportFormData, location: e.target.value })}
                       placeholder="Phòng học, nhà đa năng, căng tin..."
-                      className="w-full h-9 px-3 border border-[#c5d3ec] focus:border-black focus:outline-none"
+                      className="w-full h-9 px-3 border border-[#bfdbfe] focus:border-black focus:outline-none"
                     />
                   </div>
 
@@ -368,7 +368,7 @@ export const Modals: React.FC<ModalsProps> = ({
                       value={reportFormData.description}
                       onChange={(e) => setReportFormData({ ...reportFormData, description: e.target.value })}
                       placeholder="Màu sắc, kích thước, móc treo đặc biệt..."
-                      className="w-full p-2 border border-[#c5d3ec] focus:border-black focus:outline-none"
+                      className="w-full p-2 border border-[#bfdbfe] focus:border-black focus:outline-none"
                     />
                   </div>
 
@@ -376,13 +376,13 @@ export const Modals: React.FC<ModalsProps> = ({
                     <button
                       type="button"
                       onClick={onClose}
-                      className="px-4 py-2 bg-[#d1ddf5] hover:bg-[#c5d3ec] text-black font-semibold cursor-pointer"
+                      className="px-4 py-2 bg-[#dbeafe] hover:bg-[#bfdbfe] text-black font-semibold cursor-pointer"
                     >
                       Hủy
                     </button>
                     <button
                       type="submit"
-                      className="px-5 py-2 bg-[#003087] hover:bg-[#001a52] text-white font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
+                      className="px-5 py-2 bg-[#0052cc] hover:bg-[#0026e6] text-white font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
                     >
                       <Send className="w-3.5 h-3.5" />
                       <span>Gửi Báo Cáo</span>
@@ -398,7 +398,7 @@ export const Modals: React.FC<ModalsProps> = ({
              ======================================================== */}
           {modal.type === 'tkb' && (
             <div>
-              <div className="p-3 bg-[#FAF8F5] border border-[#d1ddf5] mb-4 flex items-center justify-between">
+              <div className="p-3 bg-[#FAF8F5] border border-[#dbeafe] mb-4 flex items-center justify-between">
                 <div>
                   <div className="text-xs font-bold text-black uppercase">
                     ÁP DỤNG TỪ NGÀY 05/09/2026 (NĂM HỌC 2026–2027)
@@ -409,27 +409,27 @@ export const Modals: React.FC<ModalsProps> = ({
                 </div>
                 <button
                   onClick={() => alert('Đang tải tệp PDF Thời Khóa Biểu')}
-                  className="px-3 py-1.5 bg-[#003087] text-white text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                  className="px-3 py-1.5 bg-[#0052cc] text-white text-xs font-semibold flex items-center gap-1 cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" /> Tải TKB
                 </button>
               </div>
 
               {/* Structured Schedule Table */}
-              <div className="overflow-x-auto border border-[#d1ddf5] text-xs">
+              <div className="overflow-x-auto border border-[#dbeafe] text-xs">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-[#003087] text-white font-bold text-center">
-                      <th className="p-2 border border-[#001a52]">Tiết</th>
-                      <th className="p-2 border border-[#001a52]">Thời gian</th>
-                      <th className="p-2 border border-[#001a52]">Thứ Hai</th>
-                      <th className="p-2 border border-[#001a52]">Thứ Ba</th>
-                      <th className="p-2 border border-[#001a52]">Thứ Tư</th>
-                      <th className="p-2 border border-[#001a52]">Thứ Năm</th>
-                      <th className="p-2 border border-[#001a52]">Thứ Sáu</th>
+                    <tr className="bg-[#0052cc] text-white font-bold text-center">
+                      <th className="p-2 border border-[#0026e6]">Tiết</th>
+                      <th className="p-2 border border-[#0026e6]">Thời gian</th>
+                      <th className="p-2 border border-[#0026e6]">Thứ Hai</th>
+                      <th className="p-2 border border-[#0026e6]">Thứ Ba</th>
+                      <th className="p-2 border border-[#0026e6]">Thứ Tư</th>
+                      <th className="p-2 border border-[#0026e6]">Thứ Năm</th>
+                      <th className="p-2 border border-[#0026e6]">Thứ Sáu</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#d1ddf5] font-mono">
+                  <tbody className="divide-y divide-[#dbeafe] font-mono">
                     <tr className="hover:bg-transparent text-center">
                       <td className="p-2 font-bold bg-transparent">Tiết 1</td>
                       <td className="p-2 text-black">07:30 - 08:15</td>
@@ -477,7 +477,7 @@ export const Modals: React.FC<ModalsProps> = ({
              ======================================================== */}
           {modal.type === 'calendar' && (
             <div>
-              <div className="p-3 bg-[#FAF8F5] border border-[#d1ddf5] mb-4">
+              <div className="p-3 bg-[#FAF8F5] border border-[#dbeafe] mb-4">
                 <div className="text-xs font-bold text-black uppercase">
                   LỊCH CÔNG TÁC TUẦN 02 (TỪ 05/09/2026 ĐẾN 11/09/2026)
                 </div>
@@ -487,7 +487,7 @@ export const Modals: React.FC<ModalsProps> = ({
               </div>
 
               <div className="space-y-3 text-xs">
-                <div className="border border-[#d1ddf5] p-3 bg-white">
+                <div className="border border-[#dbeafe] p-3 bg-white">
                   <div className="font-bold text-black font-mono text-xs">
                     THỨ HAI (05/09/2026)
                   </div>
@@ -499,7 +499,7 @@ export const Modals: React.FC<ModalsProps> = ({
                   </div>
                 </div>
 
-                <div className="border border-[#d1ddf5] p-3 bg-white">
+                <div className="border border-[#dbeafe] p-3 bg-white">
                   <div className="font-bold text-black font-mono text-xs">
                     THỨ BA (06/09/2026)
                   </div>
@@ -511,7 +511,7 @@ export const Modals: React.FC<ModalsProps> = ({
                   </div>
                 </div>
 
-                <div className="border border-[#d1ddf5] p-3 bg-white">
+                <div className="border border-[#dbeafe] p-3 bg-white">
                   <div className="font-bold text-black font-mono text-xs">
                     THỨ NĂM (08/09/2026)
                   </div>

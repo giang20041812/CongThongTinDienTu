@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Search, ChevronDown, Calendar, Clock, CloudSun } from 'lucide-react';
+import { WeatherWidget } from './WeatherWidget';
 
 interface NavigationBarProps {
   activeTab: string;
@@ -55,7 +56,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ activeTab, onTabCh
 
   return (
     <div className="sticky top-0 z-50 w-full relative">
-      <div className="bg-gradient-to-b from-[#2080c3] to-[#0b63a8] text-white select-none border-t border-[#005a96] shadow-sm">
+      <div className="bg-gradient-to-b from-[#0066ff] to-[#0052cc] text-white select-none border-t border-[#005a96] shadow-sm">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 relative flex items-center justify-between">
           
           {/* Mobile Menu Toggle */}
@@ -73,7 +74,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ activeTab, onTabCh
 
           <div className="flex-1 relative flex items-center overflow-hidden">
             {canScrollLeft && (
-              <button onClick={() => scrollNav(-220)} aria-label="Cuộn sang trái" className="absolute left-0 top-0 bottom-0 z-20 w-8 bg-gradient-to-r from-[#0072bc] to-transparent flex items-center pl-1 hover:text-[#FFD700] cursor-pointer">
+              <button onClick={() => scrollNav(-220)} aria-label="Cuộn sang trái" className="absolute left-0 top-0 bottom-0 z-20 w-8 bg-gradient-to-r from-[#0066ff] to-transparent flex items-center pl-1 hover:text-[#ff9900] cursor-pointer">
                 <ChevronLeft className="w-5 h-5" />
               </button>
             )}
@@ -85,7 +86,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ activeTab, onTabCh
                     onClick={() => { onTabChange(item.id); if (isMobileMenuOpen) onToggleMobileMenu(); }}
                     className={`relative px-3 sm:px-5 font-bold whitespace-nowrap flex items-center justify-center gap-1 transition-colors cursor-pointer text-[12px] sm:text-[13px]
                       ${activeTab === item.id 
-                        ? 'bg-white text-[#0060a0] rounded-tl-[12px] rounded-tr-[12px] pt-2.5 pb-2 sm:pt-3 sm:pb-2.5' 
+                        ? 'bg-white text-[#0052cc] rounded-tl-[12px] rounded-tr-[12px] pt-2.5 pb-2 sm:pt-3 sm:pb-2.5' 
                         : 'text-white hover:bg-white/10 py-2.5 sm:py-3'}
                     `}
                   >
@@ -99,7 +100,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ activeTab, onTabCh
             </div>
 
             {canScrollRight && (
-              <button onClick={() => scrollNav(220)} aria-label="Cuộn sang phải" className="absolute right-0 top-0 bottom-0 z-20 w-8 bg-gradient-to-l from-[#0072bc] to-transparent flex items-center justify-end pr-1 hover:text-[#FFD700] cursor-pointer">
+              <button onClick={() => scrollNav(220)} aria-label="Cuộn sang phải" className="absolute right-0 top-0 bottom-0 z-20 w-8 bg-gradient-to-l from-[#0066ff] to-transparent flex items-center justify-end pr-1 hover:text-[#ff9900] cursor-pointer">
                 <ChevronRight className="w-5 h-5" />
               </button>
             )}
@@ -114,18 +115,8 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ activeTab, onTabCh
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-2 lg:gap-4">
           
           {/* Left: Date & Weather */}
-          <div className="flex flex-col text-black text-[11px] font-bold shrink-0 border-r border-black/20 pr-3 justify-center gap-0.5">
-            <div className="flex items-center gap-1.5">
-              <span>Hà Nội</span>
-              <span>_</span>
-              <span>28°C</span>
-              <span>_</span>
-              <CloudSun className="w-4 h-4 text-orange-500" />
-            </div>
-            <div className="text-[10px] text-gray-700">
-              {currentTime.toLocaleDateString('vi-VN')} {currentTime.toLocaleTimeString('vi-VN')}
-            </div>
-          </div>
+          {/* Left: Weather Widget */}
+          <WeatherWidget />
 
           {/* Middle: Breaking News Ticker */}
           <div className="flex items-center gap-1.5 flex-1 min-w-0">
@@ -147,7 +138,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ activeTab, onTabCh
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Tìm kiếm bài viết, quy chế..."
-                className="w-full h-8 pl-3 pr-8 text-xs bg-white border border-[#c5d3ec] focus:border-black focus:ring-1 focus:ring-[#003087] placeholder:text-gray-500 focus:outline-none transition-all text-black"
+                className="w-full h-8 pl-3 pr-8 text-xs bg-white border border-[#bfdbfe] focus:border-black focus:ring-1 focus:ring-[#0052cc] placeholder:text-gray-500 focus:outline-none transition-all text-black"
               />
               <button
                 type="submit"
@@ -165,7 +156,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ activeTab, onTabCh
       {isMobileMenuOpen && (
         <div className="lg:hidden bg-white border-b-2 border-black shadow-lg">
           {navItems.map(item => (
-            <button key={item.id} onClick={() => { onTabChange(item.id); onToggleMobileMenu(); }} className={`w-full px-4 py-3 text-left text-sm font-bold border-b border-[#e8eef8] flex items-center justify-between ${activeTab === item.id ? 'bg-transparent text-black border-l-4 border-[#FFD700]' : 'text-[#1a2744]'}`}>
+            <button key={item.id} onClick={() => { onTabChange(item.id); onToggleMobileMenu(); }} className={`w-full px-4 py-3 text-left text-sm font-bold border-b border-[#eef5ff] flex items-center justify-between ${activeTab === item.id ? 'bg-transparent text-black border-l-4 border-[#ff9900]' : 'text-[#1a2744]'}`}>
               {item.label}
               {item.id !== 'trang-chu' && item.id !== 'lien-he' && (
                 <ChevronDown className="w-4 h-4" />

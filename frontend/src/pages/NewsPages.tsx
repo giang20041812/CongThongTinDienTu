@@ -66,17 +66,17 @@ export const NewsListPage: React.FC<NewsListPageProps> = ({ onSelectNews, onGoHo
       <div className="max-w-7xl mx-auto px-4 relative z-10">
         {/* Breadcrumb Navigation */}
         <nav className="flex items-center gap-2 text-xs font-mono text-black mb-6">
-          <button onClick={onGoHome} className="hover:text-[#003087] transition-colors cursor-pointer">
+          <button onClick={onGoHome} className="hover:text-[#0052cc] transition-colors cursor-pointer">
             Trang chủ
           </button>
           <span>/</span>
-          <span className="text-[#003087] font-bold">Tin tức - Sự kiện</span>
+          <span className="text-[#0052cc] font-bold">Tin tức - Sự kiện</span>
         </nav>
 
         {/* Page Header */}
-        <div className="border-b-2 border-[#003087] pb-4 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="border-b-2 border-[#0052cc] pb-4 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <span className="text-[11px] font-mono tracking-widest uppercase text-[#003087] font-bold">
+            <span className="text-[11px] font-mono tracking-widest uppercase text-[#0052cc] font-bold">
               CỔNG THÔNG TIN BÁO CHÍ & TRUYỀN THÔNG
             </span>
             <h1 className="text-2xl sm:text-4xl font-extrabold text-black tracking-tight uppercase mt-1">
@@ -91,7 +91,7 @@ export const NewsListPage: React.FC<NewsListPageProps> = ({ onSelectNews, onGoHo
               value={searchQuery}
               onChange={handleSearchChange}
               placeholder="Tìm kiếm bài viết..."
-              className="w-full h-10 pl-3 pr-10 text-xs sm:text-sm bg-white border border-[#c5d3ec] focus:border-[#003087] focus:outline-none text-black"
+              className="w-full h-10 pl-3 pr-10 text-xs sm:text-sm bg-white border border-[#bfdbfe] focus:border-[#0052cc] focus:outline-none text-black"
             />
             <Search className="absolute right-3 top-3 w-4 h-4 text-black" />
           </div>
@@ -105,8 +105,8 @@ export const NewsListPage: React.FC<NewsListPageProps> = ({ onSelectNews, onGoHo
               onClick={() => handleCategoryChange(cat.id)}
               className={`px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border shrink-0 ${
                 selectedCategory === cat.id
-                  ? 'bg-[#003087] text-white border-[#003087]'
-                  : 'bg-white text-black border-[#c5d3ec] hover:border-[#9aabd4]'
+                  ? 'bg-[#0052cc] text-white border-[#0052cc]'
+                  : 'bg-white text-black border-[#bfdbfe] hover:border-[#93c5fd]'
               }`}
             >
               {cat.label}
@@ -123,11 +123,11 @@ export const NewsListPage: React.FC<NewsListPageProps> = ({ onSelectNews, onGoHo
               <div
                 key={news.id}
                 onClick={() => onSelectNews(news.id)}
-                className="group cursor-pointer border border-[#d1ddf5] bg-white hover:border-[#003087] transition-all p-4 flex flex-col justify-between shadow-xs"
+                className="group cursor-pointer border border-[#dbeafe] bg-white hover:border-[#0052cc] transition-all p-4 flex flex-col justify-between shadow-xs"
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-mono font-bold text-[#003087] bg-[#e8eef8] px-2 py-0.5 border border-[#c5d3ec]/40">
+                    <span className="text-[10px] font-mono font-bold text-[#0052cc] bg-[#eef5ff] px-2 py-0.5 border border-[#bfdbfe]/40">
                       {news.category}
                     </span>
                     <span className="text-xs font-mono text-black font-semibold">
@@ -135,7 +135,7 @@ export const NewsListPage: React.FC<NewsListPageProps> = ({ onSelectNews, onGoHo
                     </span>
                   </div>
 
-                  <h3 className="text-sm sm:text-base font-bold text-black group-hover:text-[#003087] transition-colors uppercase leading-snug line-clamp-3">
+                  <h3 className="text-sm sm:text-base font-bold text-black group-hover:text-[#0052cc] transition-colors uppercase leading-snug line-clamp-3">
                     {news.title}
                   </h3>
 
@@ -157,7 +157,7 @@ export const NewsListPage: React.FC<NewsListPageProps> = ({ onSelectNews, onGoHo
                   </p>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-[#d1ddf5] flex items-center justify-between text-xs font-semibold text-[#003087]">
+                <div className="mt-4 pt-3 border-t border-[#dbeafe] flex items-center justify-between text-xs font-semibold text-[#0052cc]">
                   <span className="text-black font-mono text-[11px] flex items-center gap-1">
                     <Eye className="w-3.5 h-3.5" />
                     {news.views.toLocaleString()} lượt đọc
@@ -170,7 +170,7 @@ export const NewsListPage: React.FC<NewsListPageProps> = ({ onSelectNews, onGoHo
             ))}
           </div>
         ) : (
-          <div className="p-12 text-center bg-white border border-[#d1ddf5] text-black text-sm">
+          <div className="p-12 text-center bg-white border border-[#dbeafe] text-black text-sm">
             Không tìm thấy bài viết nào phù hợp với bộ lọc hiện tại.
           </div>
         )}
@@ -181,17 +181,17 @@ export const NewsListPage: React.FC<NewsListPageProps> = ({ onSelectNews, onGoHo
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1 bg-white border border-[#c5d3ec] hover:border-[#003087] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-black text-xs font-bold uppercase"
+              className="px-3 py-1 bg-white border border-[#bfdbfe] hover:border-[#0052cc] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-black text-xs font-bold uppercase"
             >
               Trang trước
             </button>
-            <span className="text-sm font-bold text-[#003087] px-4">
+            <span className="text-sm font-bold text-[#0052cc] px-4">
               {currentPage} / {totalPages}
             </span>
             <button
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 bg-white border border-[#c5d3ec] hover:border-[#003087] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-black text-xs font-bold uppercase"
+              className="px-3 py-1 bg-white border border-[#bfdbfe] hover:border-[#0052cc] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-black text-xs font-bold uppercase"
             >
               Trang sau
             </button>
@@ -241,10 +241,10 @@ export const NewsDetailPage: React.FC<NewsDetailPageProps> = ({
 
       <div className="max-w-5xl mx-auto px-4 relative z-10">
         {/* Back Button & Breadcrumb */}
-        <div className="flex items-center justify-between mb-6 pb-3 border-b border-[#d1ddf5]">
+        <div className="flex items-center justify-between mb-6 pb-3 border-b border-[#dbeafe]">
           <button
             onClick={onBack}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#c5d3ec] hover:border-[#003087] text-[#003087] text-xs font-bold uppercase transition-colors cursor-pointer shadow-xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#bfdbfe] hover:border-[#0052cc] text-[#0052cc] text-xs font-bold uppercase transition-colors cursor-pointer shadow-xs"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Quay lại danh sách tin tức</span>
@@ -253,16 +253,16 @@ export const NewsDetailPage: React.FC<NewsDetailPageProps> = ({
           <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-black">
             <span>Tin tức</span>
             <span>/</span>
-            <span className="text-[#003087] font-bold">{news.category}</span>
+            <span className="text-[#0052cc] font-bold">{news.category}</span>
           </div>
         </div>
 
         {/* Article Container */}
-        <article className="bg-white border-2 border-[#003087] p-5 sm:p-8 shadow-md">
+        <article className="bg-white border-2 border-[#0052cc] p-5 sm:p-8 shadow-md">
           {/* Metadata Header */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#d1ddf5] text-xs text-black font-mono">
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#dbeafe] text-xs text-black font-mono">
             <div className="flex items-center gap-2">
-              <span className="bg-[#003087] text-white px-2.5 py-0.5 font-bold uppercase text-[10px]">
+              <span className="bg-[#0052cc] text-white px-2.5 py-0.5 font-bold uppercase text-[10px]">
                 {news.category}
               </span>
               <span>Ngày đăng: {news.date}</span>
@@ -270,12 +270,12 @@ export const NewsDetailPage: React.FC<NewsDetailPageProps> = ({
 
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1">
-                <User className="w-3.5 h-3.5 text-[#003087]" />
+                <User className="w-3.5 h-3.5 text-[#0052cc]" />
                 {news.author}
               </span>
               <span>·</span>
               <span className="flex items-center gap-1">
-                <Eye className="w-3.5 h-3.5 text-[#003087]" />
+                <Eye className="w-3.5 h-3.5 text-[#0052cc]" />
                 {news.views.toLocaleString()} lượt đọc
               </span>
             </div>
@@ -304,7 +304,7 @@ export const NewsDetailPage: React.FC<NewsDetailPageProps> = ({
           </div>
 
           {/* Pull Quote Excerpt */}
-          <div className="p-4 bg-[#FAF8F5] border-l-4 border-[#003087] text-sm sm:text-base font-semibold text-black leading-relaxed italic my-6">
+          <div className="p-4 bg-[#FAF8F5] border-l-4 border-[#0052cc] text-sm sm:text-base font-semibold text-black leading-relaxed italic my-6">
             "{news.summary}"
           </div>
 
@@ -314,7 +314,7 @@ export const NewsDetailPage: React.FC<NewsDetailPageProps> = ({
           </div>
 
           {/* Signature Block */}
-          <div className="mt-8 pt-6 border-t border-[#d1ddf5] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="mt-8 pt-6 border-t border-[#dbeafe] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <div className="text-xs font-mono text-black">Nguồn trích dẫn:</div>
               <div className="text-xs font-bold text-black uppercase mt-0.5">
@@ -325,7 +325,7 @@ export const NewsDetailPage: React.FC<NewsDetailPageProps> = ({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => window.print()}
-                className="flex items-center gap-1 px-3 py-1.5 bg-[#e8eef8] hover:bg-[#d1ddf5] text-black text-xs font-semibold cursor-pointer border border-[#c5d3ec]"
+                className="flex items-center gap-1 px-3 py-1.5 bg-[#eef5ff] hover:bg-[#dbeafe] text-black text-xs font-semibold cursor-pointer border border-[#bfdbfe]"
               >
                 <Printer className="w-3.5 h-3.5" />
                 <span>In bài viết</span>
@@ -336,13 +336,13 @@ export const NewsDetailPage: React.FC<NewsDetailPageProps> = ({
 
         {/* Related Articles Section */}
         <div className="mt-10">
-          <div className="border-b-2 border-[#003087] pb-2 mb-6 flex items-center justify-between">
+          <div className="border-b-2 border-[#0052cc] pb-2 mb-6 flex items-center justify-between">
             <h2 className="text-lg sm:text-xl font-bold text-black uppercase tracking-wide">
               Tin Tức Liên Quan
             </h2>
             <button
               onClick={onBack}
-              className="text-xs font-bold text-[#003087] hover:underline cursor-pointer"
+              className="text-xs font-bold text-[#0052cc] hover:underline cursor-pointer"
             >
               Xem tất cả tin tức →
             </button>
@@ -353,22 +353,22 @@ export const NewsDetailPage: React.FC<NewsDetailPageProps> = ({
               <div
                 key={item.id}
                 onClick={() => onSelectOtherNews(item.id)}
-                className="group cursor-pointer border border-[#d1ddf5] bg-white p-3.5 hover:border-[#003087] transition-all flex flex-col justify-between shadow-xs"
+                className="group cursor-pointer border border-[#dbeafe] bg-white p-3.5 hover:border-[#0052cc] transition-all flex flex-col justify-between shadow-xs"
               >
                 <div>
-                  <span className="text-[10px] font-mono font-bold text-[#003087] bg-[#e8eef8] px-2 py-0.5 border border-[#c5d3ec]/40">
+                  <span className="text-[10px] font-mono font-bold text-[#0052cc] bg-[#eef5ff] px-2 py-0.5 border border-[#bfdbfe]/40">
                     {item.category}
                   </span>
-                  <h3 className="text-xs sm:text-sm font-bold text-black group-hover:text-[#003087] transition-colors uppercase leading-snug line-clamp-2 mt-2">
+                  <h3 className="text-xs sm:text-sm font-bold text-black group-hover:text-[#0052cc] transition-colors uppercase leading-snug line-clamp-2 mt-2">
                     {item.title}
                   </h3>
                   <p className="mt-2 text-xs text-black line-clamp-2">
                     {item.summary}
                   </p>
                 </div>
-                <div className="mt-3 pt-2 border-t border-[#e8eef8] flex items-center justify-between text-[11px] font-mono text-black">
+                <div className="mt-3 pt-2 border-t border-[#eef5ff] flex items-center justify-between text-[11px] font-mono text-black">
                   <span>{item.date}</span>
-                  <span className="text-[#003087] font-semibold group-hover:underline">Chi tiết →</span>
+                  <span className="text-[#0052cc] font-semibold group-hover:underline">Chi tiết →</span>
                 </div>
               </div>
             ))}

@@ -3,6 +3,7 @@ import { AlertCircle, ChevronLeft, ChevronRight, Bell, Eye, Search } from 'lucid
 import { usePosts, useAnnouncements } from '../api';
 import { EduImageFrame } from './EduImageFrame';
 import { BackgroundGeometricMesh } from './BackgroundGeometricMesh';
+import { motion } from 'motion/react';
 
 interface NewsAndAnnouncementsSectionProps {
   onSelectNews: (item: any) => void;
@@ -142,7 +143,7 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
   }
 
   return (
-    <section id="tin-tuc" className="relative w-full py-4 sm:py-6 bg-[#FFFFFF] border-b border-[#d1ddf5] overflow-hidden">
+    <section id="tin-tuc" className="relative w-full py-4 sm:py-6 bg-[#FFFFFF] border-b border-[#dbeafe] overflow-hidden">
       {/* Subtle modern background grid */}
       <BackgroundGeometricMesh variant="grid" className="opacity-70" />
 
@@ -152,14 +153,20 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
           {/* ========================================================
               LEFT COLUMN: TIN TỨC - SỰ KIỆN
              ======================================================== */}
-          <div className="lg:col-span-8 flex flex-col">
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-8 flex flex-col"
+          >
             {/* Header: Tin tức - Sự Kiện với gold underline */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-2.5 mb-3 gap-3 border-b-2 border-black">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-2.5 mb-5 gap-3 border-b-[3px] border-[#0052cc]">
               <div>
-                <span className="text-[11px] font-mono tracking-widest uppercase text-black font-bold">
+                <span className="text-[11px] font-mono tracking-widest uppercase text-[#ff9900] font-bold">
                   BẢN TIN NHÀ TRƯỜNG
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-black tracking-tight uppercase">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-gradient tracking-tight uppercase">
                   Tin tức - Sự Kiện
                 </h2>
               </div>
@@ -172,8 +179,8 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
                     onClick={() => setActiveNewsCategory(cat.id as any)}
                     className={`px-3 py-1.5 sm:py-1 text-xs font-semibold tracking-wider transition-colors cursor-pointer border shrink-0 ${
                       activeNewsCategory === cat.id
-                        ? 'bg-[#003087] text-white border-black'
-                        : 'bg-white text-black border-[#c5d3ec] hover:border-black hover:text-black'
+                        ? 'bg-[#0052cc] text-white border-black'
+                        : 'bg-white text-black border-[#bfdbfe] hover:border-black hover:text-black'
                     }`}
                   >
                     {cat.label}
@@ -198,8 +205,8 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
               >
-                <button onClick={prevNews} aria-label="Tin trước" className="absolute left-0 top-1/2 -translate-y-1/2 z-[60] w-9 h-12 bg-white border-2 border-[#55B9E8] text-black shadow-md hover:bg-[#55B9E8] hover:text-white transition-colors"><ChevronLeft className="w-5 h-5 mx-auto" /></button>
-                <button onClick={nextNews} aria-label="Tin tiếp theo" className="absolute right-0 top-1/2 -translate-y-1/2 z-[60] w-9 h-12 bg-white border-2 border-[#55B9E8] text-black shadow-md hover:bg-[#55B9E8] hover:text-white transition-colors"><ChevronRight className="w-5 h-5 mx-auto" /></button>
+                <button onClick={prevNews} aria-label="Tin trước" className="absolute left-0 top-1/2 -translate-y-1/2 z-[60] w-9 h-12 bg-white border-2 border-[#00d2ff] text-black shadow-md hover:bg-[#00d2ff] hover:text-white transition-colors"><ChevronLeft className="w-5 h-5 mx-auto" /></button>
+                <button onClick={nextNews} aria-label="Tin tiếp theo" className="absolute right-0 top-1/2 -translate-y-1/2 z-[60] w-9 h-12 bg-white border-2 border-[#00d2ff] text-black shadow-md hover:bg-[#00d2ff] hover:text-white transition-colors"><ChevronRight className="w-5 h-5 mx-auto" /></button>
                 {allNewsList.length > 0 && allNewsList.map((item, idx) => {
                   const diff = (idx - activeNewsIndex + allNewsList.length) % allNewsList.length;
                   let offset = diff;
@@ -228,7 +235,7 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
                       className={`absolute w-[88%] sm:w-[70%] flex flex-col transition-all duration-500 ease-out cursor-pointer ${
                         offset === 0 
                           ? 'border-2 border-black bg-white shadow-xl' 
-                          : 'border border-[#d1ddf5] bg-white shadow-md'
+                          : 'border border-[#dbeafe] bg-white shadow-md'
                       }`}
                       style={{
                         transform,
@@ -246,7 +253,7 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
                           }`}>
                             {item.category}
                           </span>
-                          <span className="text-[11px] font-mono font-bold text-black border border-[#c5d3ec] px-2 py-0.5 bg-white/95">
+                          <span className="text-[11px] font-mono font-bold text-black border border-[#bfdbfe] px-2 py-0.5 bg-white/95">
                             {item.date}
                           </span>
                         </div>
@@ -281,12 +288,12 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
               </div>
 
               {/* Mobile Swipe Hint Badge */}
-              <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-black bg-transparent py-1.5 px-3 border border-[#c5d3ec]/40 mt-2 w-fit mx-auto">
+              <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-black bg-transparent py-1.5 px-3 border border-[#bfdbfe]/40 mt-2 w-fit mx-auto">
                 <span className="animate-pulse">👈 Vuốt sang trái / phải để đổi tin tức 👉</span>
               </div>
 
               {/* Bottom Pagination Dash Indicators */}
-              <div className="mt-4 pt-4 border-t border-[#d1ddf5] flex items-center justify-between gap-3">
+              <div className="mt-4 pt-4 border-t border-[#dbeafe] flex items-center justify-between gap-3">
                 
                 {/* Dash Indicators */}
                 <div className="flex items-center gap-1.5">
@@ -297,8 +304,8 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
                       aria-label={`Tin số ${idx + 1}`}
                       className={`h-2 transition-all cursor-pointer ${
                         activeNewsIndex === idx
-                          ? 'w-10 bg-[#003087]'
-                          : 'w-4 bg-[#c5d3ec] hover:bg-[#9aabd4]'
+                          ? 'w-10 bg-[#0052cc]'
+                          : 'w-4 bg-[#bfdbfe] hover:bg-[#93c5fd]'
                       }`}
                     />
                   ))}
@@ -309,14 +316,14 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
                   <button
                     onClick={prevNews}
                     aria-label="Tin trước"
-                    className="w-10 h-10 border border-[#c5d3ec] hover:border-black hover:bg-transparent flex items-center justify-center text-black hover:text-black active:bg-[#003087] active:text-white transition-colors cursor-pointer"
+                    className="w-10 h-10 border border-[#bfdbfe] hover:border-black hover:bg-transparent flex items-center justify-center text-black hover:text-black active:bg-[#0052cc] active:text-white transition-colors cursor-pointer"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
                   <button
                     onClick={nextNews}
                     aria-label="Tin kế tiếp"
-                    className="w-10 h-10 border border-[#c5d3ec] hover:border-black hover:bg-transparent flex items-center justify-center text-black hover:text-black active:bg-[#003087] active:text-white transition-colors cursor-pointer"
+                    className="w-10 h-10 border border-[#bfdbfe] hover:border-black hover:bg-transparent flex items-center justify-center text-black hover:text-black active:bg-[#0052cc] active:text-white transition-colors cursor-pointer"
                   >
                     <ChevronRight className="w-5 h-5" />
                   </button>
@@ -332,11 +339,14 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
               {/* Featured News Item (md:col-span-7) */}
               <div
                 onClick={() => onSelectNews(FEATURED_NEWS)}
-                className="md:col-span-7 group cursor-pointer border border-[#d1ddf5] bg-white hover:border-black transition-all flex flex-col justify-between p-3 sm:p-4 shadow-xs"
+                className="md:col-span-7 group cursor-pointer border border-gray-100 bg-white hover:border-[#0052cc] hover:shadow-xl transition-all duration-300 flex flex-col justify-between p-4 sm:p-5 shadow-sm rounded-2xl relative overflow-hidden"
               >
+                {/* Accent glow on hover */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl group-hover:bg-blue-400/20 transition-all -z-10"></div>
+                
                 <div>
                   {/* Title */}
-                  <h3 className="text-base sm:text-lg font-bold text-black group-hover:text-black transition-colors line-clamp-3 leading-snug uppercase">
+                  <h3 className="text-base sm:text-[19px] font-extrabold text-gray-800 group-hover:text-[#0052cc] transition-colors line-clamp-3 leading-snug uppercase">
                     {FEATURED_NEWS.title}
                   </h3>
 
@@ -354,7 +364,7 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
                     )}
 
                     {/* Date Tag */}
-                    <div className="absolute bottom-2 right-2 bg-white/95 px-2.5 py-1 text-[11px] font-mono font-bold text-black border border-[#c5d3ec] shadow-xs z-10">
+                    <div className="absolute bottom-2 right-2 bg-white/95 px-2.5 py-1 text-[11px] font-mono font-bold text-black border border-[#bfdbfe] shadow-xs z-10">
                       {FEATURED_NEWS.date}
                     </div>
                   </div>
@@ -366,7 +376,7 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
                 </div>
 
                 {/* Footer read more */}
-                <div className="mt-4 pt-3 border-t border-[#d1ddf5] flex items-center justify-between text-xs font-semibold text-black">
+                <div className="mt-4 pt-3 border-t border-[#dbeafe] flex items-center justify-between text-xs font-semibold text-black">
                   <span className="flex items-center gap-1.5 text-black font-mono text-[11px]">
                     <Eye className="w-3.5 h-3.5" />
                     {FEATURED_NEWS.views.toLocaleString()} lượt đọc
@@ -378,15 +388,15 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
               </div>
 
               {/* Stacked 3 Secondary News Items (md:col-span-5) */}
-              <div className="md:col-span-5 flex flex-col gap-2">
+              <div className="md:col-span-5 flex flex-col gap-3">
                 {SECONDARY_NEWS.map((item) => (
                   <div
                     key={item.id}
                     onClick={() => onSelectNews(item)}
-                    className="group cursor-pointer border border-[#d1ddf5] bg-[#FFFFFF] hover:border-black transition-all p-2.5 flex gap-3 shadow-xs"
+                    className="group cursor-pointer border border-gray-100 bg-white hover:border-[#ff9900] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 p-3 flex gap-4 shadow-sm rounded-xl"
                   >
                     {/* Thumbnail Image Slot */}
-                    <div className="w-24 sm:w-28 shrink-0 h-16 sm:h-20 bg-gray-100 flex items-center justify-center overflow-hidden">
+                    <div className="w-24 sm:w-28 shrink-0 h-20 sm:h-24 bg-gray-100 flex items-center justify-center overflow-hidden rounded-lg group-hover:shadow-md transition-shadow">
                       {item.imgUrl ? (
                         <img src={item.imgUrl} alt={item.title} className="w-full h-full object-cover" />
                       ) : (
@@ -407,7 +417,7 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
 
                       {/* Date Badge */}
                       <div className="mt-2 flex items-center justify-between text-[11px]">
-                        <span className="font-mono text-black font-semibold bg-transparent px-1.5 py-0.5 border border-[#c5d3ec]/40">
+                        <span className="font-mono text-black font-semibold bg-transparent px-1.5 py-0.5 border border-[#bfdbfe]/40">
                           {item.date}
                         </span>
                         <ChevronRight className="w-3 h-3 text-black group-hover:text-black group-hover:translate-x-0.5 transition-transform" />
@@ -419,59 +429,65 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
                 {/* View More News Button */}
                 <button
                   onClick={() => onSelectNews(FEATURED_NEWS)}
-                  className="w-full mt-1 py-2 text-center text-xs font-bold text-black bg-transparent hover:bg-transparent border border-[#d1ddf5] hover:border-black transition-colors cursor-pointer"
+                  className="w-full mt-1 py-2 text-center text-xs font-bold text-black bg-transparent hover:bg-transparent border border-[#dbeafe] hover:border-black transition-colors cursor-pointer"
                 >
                   XEM THÊM TIN TỨC SỰ KIỆN →
                 </button>
               </div>
 
             </div>
-          </div>
+            </motion.div>
 
           {/* ========================================================
               RIGHT COLUMN: THÔNG BÁO
              ======================================================== */}
-          <div className="lg:col-span-4 flex flex-col justify-between border-t-2 lg:border-t-0 lg:border-l border-black pt-4 lg:pt-0 lg:pl-5">
+          <motion.div 
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-4 flex flex-col justify-between border-t-2 lg:border-t-0 lg:border-l border-black pt-4 lg:pt-0 lg:pl-5"
+          >
             <div className="hidden flex items-center gap-2 mb-3">
               <form onSubmit={submitSearch} className="relative flex-1">
-                <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Tìm kiếm..." className="w-full h-9 pl-3 pr-9 text-xs bg-white border border-[#B8D3E2] text-black placeholder:text-[#7895AD] focus:border-black focus:ring-1 focus:ring-[#0B78B5] focus:outline-none" />
+                <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Tìm kiếm..." className="w-full h-9 pl-3 pr-9 text-xs bg-white border border-[#B8D3E2] text-black placeholder:text-[#7895AD] focus:border-black focus:ring-1 focus:ring-[#0052cc] focus:outline-none" />
                 <button type="submit" aria-label="Tìm kiếm" className="absolute right-0 top-0 bottom-0 px-2.5 text-black hover:bg-[#EAF3F8] cursor-pointer"><Search className="w-4 h-4" /></button>
               </form>
-              <button onClick={onOpenQuickModal} aria-label="Báo mất đồ" className="h-9 px-2.5 bg-[#0B78B5] hover:bg-[#075F91] text-white flex items-center justify-center cursor-pointer"><AlertCircle className="w-4 h-4" /></button>
+              <button onClick={onOpenQuickModal} aria-label="Báo mất đồ" className="h-9 px-2.5 bg-[#0052cc] hover:bg-[#0026e6] text-white flex items-center justify-center cursor-pointer"><AlertCircle className="w-4 h-4" /></button>
             </div>
             
             {/* Header: Thông báo */}
-            <div className="border-b-2 border-black pb-2.5 mb-3">
-              <span className="text-[11px] font-mono tracking-widest uppercase text-black font-bold flex items-center gap-1.5">
-                <Bell className="w-3 h-3" />
+            <div className="border-b-[3px] border-[#e63946] pb-2.5 mb-5 mt-4 lg:mt-0">
+              <span className="text-[11px] font-mono tracking-widest uppercase text-[#e63946] font-bold flex items-center gap-1.5">
+                <Bell className="w-3.5 h-3.5 animate-bounce" />
                 VĂN BẢN CHỈ ĐẠO
               </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-black tracking-tight uppercase">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#e63946] to-[#b5179e] tracking-tight uppercase mt-1">
                 Thông báo
               </h2>
             </div>
 
             {/* List of 5 Announcements */}
-            <div className="flex flex-col divide-y divide-[#d1ddf5]">
+            <div className="flex flex-col gap-3">
               {ANNOUNCEMENTS.map((ann, idx) => (
                 <div
                   key={ann.id}
                   onClick={() => onSelectAnnouncement(ann)}
-                  className="group cursor-pointer py-3.5 transition-colors px-2 flex flex-col justify-between"
+                  className="group cursor-pointer p-3.5 transition-all bg-white border border-gray-100 shadow-sm rounded-xl hover:shadow-md hover:border-[#e63946] flex flex-col justify-between hover:-translate-y-0.5"
                 >
                   {/* Announcement Title */}
-                  <h4 className="text-xs sm:text-sm font-semibold text-black group-hover:text-black group-hover:underline transition-colors line-clamp-2 leading-snug">
+                  <h4 className="text-sm font-bold text-gray-800 group-hover:text-[#e63946] transition-colors line-clamp-2 leading-snug">
                     {ann.title}
                   </h4>
 
                   {/* Announcement Footer: Department & Date Box */}
-                  <div className="mt-2 flex items-center justify-between text-[11px]">
-                    <span className="text-black font-medium truncate max-w-[180px]">
+                  <div className="mt-3 flex items-center justify-between text-[11px]">
+                    <span className="text-[#0052cc] font-semibold truncate max-w-[180px] bg-blue-50 px-2 py-0.5 rounded-md">
                       {ann.department}
                     </span>
 
                     {/* Date badge */}
-                    <span className="font-mono text-[11px] font-bold text-black bg-white border border-black/40 px-2 py-0.5 shadow-2xs">
+                    <span className="font-mono text-[11px] font-bold text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md">
                       {ann.date}
                     </span>
                   </div>
@@ -480,17 +496,17 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
             </div>
 
             {/* Footer of Announcement Box */}
-            <div className="mt-6 pt-3 border-t border-[#d1ddf5]">
+            <div className="mt-6 pt-3 border-t border-[#dbeafe]">
               <button
                 onClick={() => onSelectAnnouncement(ANNOUNCEMENTS[0])}
-                className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#003087] hover:bg-[#001a52] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border border-[#001a52]"
+                className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#0052cc] hover:bg-[#0026e6] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border border-[#0026e6]"
               >
                 <span>Xem Tất Cả Thông Báo</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
 
-          </div>
+          </motion.div>
 
         </div>
       </div>

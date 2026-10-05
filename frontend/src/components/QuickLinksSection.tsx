@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Clock, BookOpen, User, Megaphone, FileText } from 'lucide-react';
+import { Calendar, Clock, BookOpen, User, Megaphone, FileText, Globe } from 'lucide-react';
 
 interface QuickLinksSectionProps {
   onNavigate: (view: string) => void;
@@ -43,6 +43,5 @@ export const QuickLinksSection: React.FC<QuickLinksSectionProps> = ({ onNavigate
   );
 };
 
-// Also need to import Globe if not imported
-import { Globe } from 'lucide-react';
+
 

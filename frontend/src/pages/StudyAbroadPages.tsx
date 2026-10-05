@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Globe, Award, Calendar, ExternalLink, CheckCircle2, Send, Clock, BookOpen } from 'lucide-react';
-import { ALL_STUDY_ABROAD, SCHOOL_INFO } from '../data/mockData';
+import { SCHOOL_INFO } from '../data/mockData';
 import { StudyAbroadItem } from '../types';
 import { EduImageFrame } from '../components/EduImageFrame';
 import { BackgroundGeometricMesh } from '../components/BackgroundGeometricMesh';
+import { usePosts } from '../api';
 
 interface StudyAbroadListPageProps {
   onSelectProgram: (id: string) => void;
@@ -14,10 +15,24 @@ export const StudyAbroadListPage: React.FC<StudyAbroadListPageProps> = ({
   onSelectProgram,
   onGoHome,
 }) => {
+  const { data: posts, loading } = usePosts();
+  const programsList = posts.filter((p: any) => p.category?.code === 'STUDY_ABROAD').map((p: any) => ({
+    id: p.id,
+    title: p.title,
+    country: p.blocks?.[0]?.content || 'Quốc tế',
+    date: new Date(p.createdAt).toLocaleDateString('vi-VN'),
+    scholarshipRate: 'Học bổng',
+    deadline: 'Đang cập nhật',
+    description: p.blocks?.find((b: any) => b.type === 'TEXT')?.content || '',
+    imageUrl: p.imgUrl || p.imageUrl
+  }));
+
   const itemsPerPage = 4;
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(ALL_STUDY_ABROAD.length / itemsPerPage);
-  const paginatedPrograms = ALL_STUDY_ABROAD.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const totalPages = Math.ceil(programsList.length / itemsPerPage) || 1;
+  const paginatedPrograms = programsList.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  if (loading) return <div className="text-center py-20">Đang tải...</div>;
 
   return (
     <div className="w-full bg-[#f5f7fc] min-h-screen py-8 sm:py-12 relative">
@@ -26,17 +41,17 @@ export const StudyAbroadListPage: React.FC<StudyAbroadListPageProps> = ({
       <div className="max-w-7xl mx-auto px-4 relative z-10">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-xs font-mono text-black mb-6">
-          <button onClick={onGoHome} className="hover:text-[#003087] transition-colors cursor-pointer">
+          <button onClick={onGoHome} className="hover:text-[#0052cc] transition-colors cursor-pointer">
             Trang chủ
           </button>
           <span>/</span>
-          <span className="text-[#003087] font-bold">Du Học & Học Bổng Quốc Tế</span>
+          <span className="text-[#0052cc] font-bold">Du Học & Học Bổng Quốc Tế</span>
         </nav>
 
         {/* Page Header */}
-        <div className="border-b-2 border-[#003087] pb-4 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="border-b-2 border-[#0052cc] pb-4 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <span className="text-[11px] font-mono tracking-widest uppercase text-[#003087] font-bold flex items-center gap-1.5">
+            <span className="text-[11px] font-mono tracking-widest uppercase text-[#0052cc] font-bold flex items-center gap-1.5">
               <Globe className="w-3.5 h-3.5" />
               CHƯƠNG TRÌNH HỢP TÁC & HỌC BỔNG TOÀN CẦU
             </span>
@@ -45,8 +60,8 @@ export const StudyAbroadListPage: React.FC<StudyAbroadListPageProps> = ({
             </h1>
           </div>
 
-          <div className="text-xs font-mono text-black bg-white p-2.5 border border-[#c5d3ec]">
-            Học bổng cao nhất: <span className="text-base font-bold text-[#003087]">100% Học phí</span> (Hoa Kỳ & Singapore)
+          <div className="text-xs font-mono text-black bg-white p-2.5 border border-[#bfdbfe]">
+            Học bổng cao nhất: <span className="text-base font-bold text-[#0052cc]">100% Học phí</span> (Hoa Kỳ & Singapore)
           </div>
         </div>
 
@@ -56,11 +71,11 @@ export const StudyAbroadListPage: React.FC<StudyAbroadListPageProps> = ({
             <div
               key={prog.id}
               onClick={() => onSelectProgram(prog.id)}
-              className="group cursor-pointer border border-[#d1ddf5] bg-white hover:border-[#003087] transition-all p-5 shadow-xs flex flex-col justify-between"
+              className="group cursor-pointer border border-[#dbeafe] bg-white hover:border-[#0052cc] transition-all p-5 shadow-xs flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="text-[10px] font-mono font-bold text-[#003087] uppercase bg-[#e8eef8] px-2 py-0.5 border border-[#c5d3ec]/40">
+                  <span className="text-[10px] font-mono font-bold text-[#0052cc] uppercase bg-[#eef5ff] px-2 py-0.5 border border-[#bfdbfe]/40">
                     {prog.country}
                   </span>
                   <span className="text-xs font-mono text-emerald-700 font-bold">
@@ -68,7 +83,7 @@ export const StudyAbroadListPage: React.FC<StudyAbroadListPageProps> = ({
                   </span>
                 </div>
 
-                <h3 className="text-sm sm:text-base font-bold text-black group-hover:text-[#003087] transition-colors uppercase leading-snug">
+                <h3 className="text-sm sm:text-base font-bold text-black group-hover:text-[#0052cc] transition-colors uppercase leading-snug">
                   {prog.title}
                 </h3>
 
@@ -89,9 +104,9 @@ export const StudyAbroadListPage: React.FC<StudyAbroadListPageProps> = ({
                   {prog.description}
                 </p>
 
-                <div className="mt-4 pt-3 border-t border-[#e8eef8] flex items-center justify-between text-xs font-mono text-black">
+                <div className="mt-4 pt-3 border-t border-[#eef5ff] flex items-center justify-between text-xs font-mono text-black">
                   <span>Hạn nộp hồ sơ: {prog.deadline}</span>
-                  <span className="text-[#003087] font-bold group-hover:underline">
+                  <span className="text-[#0052cc] font-bold group-hover:underline">
                     Xem điều kiện học bổng →
                   </span>
                 </div>
@@ -106,17 +121,17 @@ export const StudyAbroadListPage: React.FC<StudyAbroadListPageProps> = ({
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1 bg-white border border-[#c5d3ec] hover:border-[#003087] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-black text-xs font-bold uppercase"
+              className="px-3 py-1 bg-white border border-[#bfdbfe] hover:border-[#0052cc] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-black text-xs font-bold uppercase"
             >
               Trang trước
             </button>
-            <span className="text-sm font-bold text-[#003087] px-4">
+            <span className="text-sm font-bold text-[#0052cc] px-4">
               {currentPage} / {totalPages}
             </span>
             <button
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 bg-white border border-[#c5d3ec] hover:border-[#003087] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-black text-xs font-bold uppercase"
+              className="px-3 py-1 bg-white border border-[#bfdbfe] hover:border-[#0052cc] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-black text-xs font-bold uppercase"
             >
               Trang sau
             </button>
@@ -136,8 +151,24 @@ export const StudyAbroadDetailPage: React.FC<StudyAbroadDetailPageProps> = ({
   programId,
   onBack,
 }) => {
-  const prog = ALL_STUDY_ABROAD.find((p) => p.id === programId) || ALL_STUDY_ABROAD[0];
+  const { data: posts, loading } = usePosts();
   const [formSubmitted, setFormSubmitted] = useState(false);
+
+  if (loading) return <div className="text-center py-20">Đang tải...</div>;
+
+  const rawPost = posts.find((p: any) => p.id === programId);
+  const prog = rawPost ? {
+    id: rawPost.id,
+    title: rawPost.title,
+    country: rawPost.blocks?.[0]?.content || 'Quốc tế',
+    date: new Date(rawPost.createdAt).toLocaleDateString('vi-VN'),
+    scholarshipRate: 'Học bổng',
+    deadline: 'Đang cập nhật',
+    description: rawPost.blocks?.find((b: any) => b.type === 'TEXT')?.content || '',
+    imageUrl: rawPost.imgUrl || rawPost.imageUrl
+  } : null;
+
+  if (!prog) return <div className="text-center py-20">Không tìm thấy dữ liệu.</div>;
 
   return (
     <div className="w-full bg-[#f5f7fc] min-h-screen py-8 sm:py-12 relative">
@@ -147,16 +178,16 @@ export const StudyAbroadDetailPage: React.FC<StudyAbroadDetailPageProps> = ({
         <div className="mb-6">
           <button
             onClick={onBack}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#c5d3ec] hover:border-[#003087] text-[#003087] text-xs font-bold uppercase transition-colors cursor-pointer shadow-xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#bfdbfe] hover:border-[#0052cc] text-[#0052cc] text-xs font-bold uppercase transition-colors cursor-pointer shadow-xs"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Quay lại danh sách chương trình du học</span>
           </button>
         </div>
 
-        <div className="bg-white border-2 border-[#003087] p-6 sm:p-8 shadow-md">
-          <div className="flex items-center justify-between border-b border-[#d1ddf5] pb-3 text-xs font-mono text-black">
-            <span className="font-bold text-[#003087] uppercase">{prog.country}</span>
+        <div className="bg-white border-2 border-[#0052cc] p-6 sm:p-8 shadow-md">
+          <div className="flex items-center justify-between border-b border-[#dbeafe] pb-3 text-xs font-mono text-black">
+            <span className="font-bold text-[#0052cc] uppercase">{prog.country}</span>
             <span className="text-emerald-700 font-bold">{prog.scholarshipRate}</span>
           </div>
 
@@ -178,7 +209,7 @@ export const StudyAbroadDetailPage: React.FC<StudyAbroadDetailPageProps> = ({
           </div>
 
           <div className="space-y-4 text-xs sm:text-sm text-black leading-relaxed">
-            <h2 className="text-base font-bold text-[#003087] uppercase tracking-wide">
+            <h2 className="text-base font-bold text-[#0052cc] uppercase tracking-wide">
               1. Điều Kiện Ứng Tuyển Học Bổng
             </h2>
             <ul className="list-disc list-inside space-y-1 text-black">
@@ -188,14 +219,14 @@ export const StudyAbroadDetailPage: React.FC<StudyAbroadDetailPageProps> = ({
               <li>Có thành tích xuất sắc trong các kỳ thi học sinh giỏi, nghiên cứu khoa học kỹ thuật hoặc hoạt động lãnh đạo ngoại khóa.</li>
             </ul>
 
-            <h2 className="text-base font-bold text-[#003087] uppercase tracking-wide pt-2">
+            <h2 className="text-base font-bold text-[#0052cc] uppercase tracking-wide pt-2">
               2. Quyền Lợi & Hỗ Trợ Từ Phía Nhà Trường
             </h2>
             <p>
               Tổ Hợp tác Quốc tế trường THPT Chuyên Chu Văn An trực tiếp thẩm định thư giới thiệu (Letter of Recommendation), hướng dẫn viết luận cá nhân và tổ chức các buổi phỏng vấn giả định (Mock Interview) với các chuyên gia giáo dục Hoa Kỳ và Châu Âu.
             </p>
 
-            <h2 className="text-base font-bold text-[#003087] uppercase tracking-wide pt-2">
+            <h2 className="text-base font-bold text-[#0052cc] uppercase tracking-wide pt-2">
               3. Đăng Ký Tư Vấn Trực Tiếp 1-1
             </h2>
 
@@ -210,7 +241,7 @@ export const StudyAbroadDetailPage: React.FC<StudyAbroadDetailPageProps> = ({
                   e.preventDefault();
                   setFormSubmitted(true);
                 }}
-                className="bg-[#f5f7fc] border border-[#d1ddf5] p-4 space-y-3"
+                className="bg-[#f5f7fc] border border-[#dbeafe] p-4 space-y-3"
               >
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
@@ -218,7 +249,7 @@ export const StudyAbroadDetailPage: React.FC<StudyAbroadDetailPageProps> = ({
                     <input
                       required
                       placeholder="Nguyễn Văn A"
-                      className="w-full h-9 px-3 bg-white border border-[#c5d3ec] focus:border-[#003087] focus:outline-none"
+                      className="w-full h-9 px-3 bg-white border border-[#bfdbfe] focus:border-[#0052cc] focus:outline-none"
                     />
                   </div>
                   <div>
@@ -226,14 +257,14 @@ export const StudyAbroadDetailPage: React.FC<StudyAbroadDetailPageProps> = ({
                     <input
                       required
                       placeholder="0912 345 67x"
-                      className="w-full h-9 px-3 bg-white border border-[#c5d3ec] focus:border-[#003087] focus:outline-none"
+                      className="w-full h-9 px-3 bg-white border border-[#bfdbfe] focus:border-[#0052cc] focus:outline-none"
                     />
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-[#003087] hover:bg-[#001a52] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  className="px-5 py-2.5 bg-[#0052cc] hover:bg-[#0026e6] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer shadow-xs"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>Đặt Lịch Tư Vấn Hồ Sơ Du Học</span>

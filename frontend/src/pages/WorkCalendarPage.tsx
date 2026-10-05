@@ -59,7 +59,7 @@ export const WorkCalendarPage: React.FC<WorkCalendarPageProps> = ({ onGoHome }) 
         </nav>
 
         {/* Page Header */}
-        <div className="border-b-2 border-[#0B78B5] pb-4 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="border-b-2 border-[#0052cc] pb-4 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <span className="text-[11px] font-mono tracking-widest uppercase text-[#0875B1] font-bold flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5" />
@@ -80,7 +80,7 @@ export const WorkCalendarPage: React.FC<WorkCalendarPageProps> = ({ onGoHome }) 
             </button>
             <button
               onClick={() => alert('Đang tải tệp PDF Lịch Công Tác Tuần')}
-              className="px-4 py-2 bg-[#0B78B5] hover:bg-[#075F91] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="px-4 py-2 bg-[#0052cc] hover:bg-[#0026e6] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Tải PDF</span>
@@ -89,11 +89,11 @@ export const WorkCalendarPage: React.FC<WorkCalendarPageProps> = ({ onGoHome }) 
         </div>
 
         {/* Week Selector Bar */}
-        <div className="bg-white border-2 border-[#0B78B5] p-4 mb-8 flex items-center justify-between shadow-xs">
+        <div className="bg-white border-2 border-[#0052cc] p-4 mb-8 flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSelectedWeek(Math.max(1, selectedWeek - 1))}
-              className="w-8 h-8 border border-stone-300 hover:border-[#0B78B5] hover:bg-[#EAF3F8] flex items-center justify-center cursor-pointer"
+              className="w-8 h-8 border border-stone-300 hover:border-[#0052cc] hover:bg-[#EAF3F8] flex items-center justify-center cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -102,7 +102,7 @@ export const WorkCalendarPage: React.FC<WorkCalendarPageProps> = ({ onGoHome }) 
             </span>
             <button
               onClick={() => setSelectedWeek(Math.min(36, selectedWeek + 1))}
-              className="w-8 h-8 border border-stone-300 hover:border-[#0B78B5] hover:bg-[#EAF3F8] flex items-center justify-center cursor-pointer"
+              className="w-8 h-8 border border-stone-300 hover:border-[#0052cc] hover:bg-[#EAF3F8] flex items-center justify-center cursor-pointer"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -118,7 +118,7 @@ export const WorkCalendarPage: React.FC<WorkCalendarPageProps> = ({ onGoHome }) 
           {workEvents.map((item) => (
             <div
               key={item.day}
-              className="border-2 border-[#B8D3E2] bg-white shadow-xs hover:border-[#0B78B5] transition-colors overflow-hidden"
+              className="border-2 border-[#B8D3E2] bg-white shadow-xs hover:border-[#0052cc] transition-colors overflow-hidden"
             >
               {/* Day Header */}
               <div className="bg-[#EAF3F8] border-b border-[#B8D3E2] px-5 py-3 flex items-center justify-between">
@@ -149,11 +149,11 @@ export const WorkCalendarPage: React.FC<WorkCalendarPageProps> = ({ onGoHome }) 
 
                   <div className="space-y-1 text-black text-xs pt-1 font-mono">
                     <div className="flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-[#0B78B5] shrink-0" />
+                      <User className="w-3.5 h-3.5 text-[#0052cc] shrink-0" />
                       <span>Chủ trì: <strong className="text-black">{item.morning.chair}</strong></span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-[#0B78B5] shrink-0" />
+                      <MapPin className="w-3.5 h-3.5 text-[#0052cc] shrink-0" />
                       <span>Địa điểm: <strong className="text-black">{item.morning.location}</strong></span>
                     </div>
                     <div className="text-black pt-0.5 font-sans">
@@ -176,11 +176,11 @@ export const WorkCalendarPage: React.FC<WorkCalendarPageProps> = ({ onGoHome }) 
 
                   <div className="space-y-1 text-black text-xs pt-1 font-mono">
                     <div className="flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-[#0B78B5] shrink-0" />
+                      <User className="w-3.5 h-3.5 text-[#0052cc] shrink-0" />
                       <span>Chủ trì: <strong className="text-black">{item.afternoon.chair}</strong></span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-[#0B78B5] shrink-0" />
+                      <MapPin className="w-3.5 h-3.5 text-[#0052cc] shrink-0" />
                       <span>Địa điểm: <strong className="text-black">{item.afternoon.location}</strong></span>
                     </div>
                     <div className="text-black pt-0.5 font-sans">

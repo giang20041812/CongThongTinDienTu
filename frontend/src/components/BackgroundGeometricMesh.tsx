@@ -71,7 +71,7 @@ export const BackgroundGeometricMesh: React.FC<BackgroundGeometricMeshProps> = (
       </div>
 
       {/* Hairline horizontal laser accent */}
-      <div className="animate-pulse-laser absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#0B78B5]/10 to-transparent" />
+      <div className="animate-pulse-laser absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#0052cc]/10 to-transparent" />
     </div>
   );
 };
