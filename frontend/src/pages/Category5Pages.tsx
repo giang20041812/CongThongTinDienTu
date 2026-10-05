@@ -6,12 +6,12 @@ import { EduImageFrame } from '../components/EduImageFrame';
 import { BackgroundGeometricMesh } from '../components/BackgroundGeometricMesh';
 import { usePosts } from '../api';
 
-interface ClubsListPageProps {
+interface Category5ListPageProps {
   onSelectClub: (id: string) => void;
   onGoHome: () => void;
 }
 
-export const ClubsListPage: React.FC<ClubsListPageProps> = ({
+export const Category5ListPage: React.FC<Category5ListPageProps> = ({
   onSelectClub,
   onGoHome,
 }) => {
@@ -184,12 +184,12 @@ export const ClubsListPage: React.FC<ClubsListPageProps> = ({
   );
 };
 
-interface ClubDetailPageProps {
+interface Category5DetailPageProps {
   clubId: string;
   onBack: () => void;
 }
 
-export const ClubDetailPage: React.FC<ClubDetailPageProps> = ({
+export const Category5DetailPage: React.FC<Category5DetailPageProps> = ({
   clubId,
   onBack,
 }) => {

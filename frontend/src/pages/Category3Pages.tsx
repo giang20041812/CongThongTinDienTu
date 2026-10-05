@@ -6,17 +6,17 @@ import { EduImageFrame } from '../components/EduImageFrame';
 import { BackgroundGeometricMesh } from '../components/BackgroundGeometricMesh';
 import { usePosts } from '../api';
 
-interface AdmissionsListPageProps {
-  onSelectAdmission: (id: string) => void;
+interface Category3ListPageProps {
+  onSelectCategory3: (id: string) => void;
   onGoHome: () => void;
 }
 
-export const AdmissionsListPage: React.FC<AdmissionsListPageProps> = ({
-  onSelectAdmission,
+export const Category3ListPage: React.FC<Category3ListPageProps> = ({
+  onSelectCategory3,
   onGoHome,
 }) => {
   const { data: posts, loading } = usePosts();
-  const admissionsList = posts.filter((p: any) => p.category?.code === 'ADMISSION').map((p: any) => ({
+  const category3sList = posts.filter((p: any) => p.category?.displayOrder === 3).map((p: any) => ({
     id: p.id,
     title: p.title,
     date: new Date(p.createdAt).toLocaleDateString('vi-VN'),
@@ -29,8 +29,8 @@ export const AdmissionsListPage: React.FC<AdmissionsListPageProps> = ({
 
   const itemsPerPage = 4;
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(admissionsList.length / itemsPerPage) || 1;
-  const paginatedAdmissions = admissionsList.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const totalPages = Math.ceil(category3sList.length / itemsPerPage) || 1;
+  const paginatedCategory3s = category3sList.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   if (loading) return <div className="text-center py-20">Đang tải...</div>;
 
@@ -94,12 +94,12 @@ export const AdmissionsListPage: React.FC<AdmissionsListPageProps> = ({
           </div>
         </div>
 
-        {/* Admission Targets Grid */}
+        {/* Category3 Targets Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {paginatedAdmissions.map((adm) => (
+          {paginatedCategory3s.map((adm) => (
             <div
               key={adm.id}
-              onClick={() => onSelectAdmission(adm.id)}
+              onClick={() => onSelectCategory3(adm.id)}
               className="group cursor-pointer border border-[#dbeafe] bg-white hover:border-[#0052cc] transition-all p-5 shadow-xs flex flex-col justify-between"
             >
               <div>
@@ -158,20 +158,20 @@ export const AdmissionsListPage: React.FC<AdmissionsListPageProps> = ({
   );
 };
 
-interface AdmissionDetailPageProps {
-  admissionId: string;
+interface Category3DetailPageProps {
+  category3Id: string;
   onBack: () => void;
 }
 
-export const AdmissionDetailPage: React.FC<AdmissionDetailPageProps> = ({
-  admissionId,
+export const Category3DetailPage: React.FC<Category3DetailPageProps> = ({
+  category3Id,
   onBack,
 }) => {
   const { data: posts, loading } = usePosts();
 
   if (loading) return <div className="text-center py-20">Đang tải...</div>;
 
-  const rawPost = posts.find((p: any) => p.id === admissionId);
+  const rawPost = posts.find((p: any) => p.id === category3Id);
   const item = rawPost ? {
     id: rawPost.id,
     title: rawPost.title,

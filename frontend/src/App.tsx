@@ -18,21 +18,102 @@ import { fetchPosts, fetchAnnouncements, useHomepageData, useCategories } from '
 import { Search, X } from 'lucide-react';
 
 // Dedicated Full Pages
-import { NewsListPage, NewsDetailPage } from './pages/NewsPages';
-import { AnnouncementListPage, AnnouncementDetailPage } from './pages/AnnouncementPages';
-import { AdmissionsListPage, AdmissionDetailPage } from './pages/AdmissionsPages';
-import { StudyAbroadListPage, StudyAbroadDetailPage } from './pages/StudyAbroadPages';
+import { Category1ListPage, Category1DetailPage } from './pages/Category1Pages';
+import { Category2ListPage, Category2DetailPage } from './pages/Category2Pages';
+import { Category3ListPage, Category3DetailPage } from './pages/Category3Pages';
+import { Category4ListPage, Category4DetailPage } from './pages/Category4Pages';
 import { SchedulePage } from './pages/SchedulePage';
 import { WorkCalendarPage } from './pages/WorkCalendarPage';
 
-import { ClubsListPage, ClubDetailPage } from './pages/ClubsPages';
+import { Category5ListPage, Category5DetailPage } from './pages/Category5Pages';
+import { Category6ListPage, Category6DetailPage } from './pages/Category6Pages';
+import { AnnouncementListPage, AnnouncementDetailPage } from './pages/AnnouncementPages';
 import { AdminApp } from './pages/admin';
 export default function App() {
   if (window.location.pathname === '/admin' || window.location.pathname === '/admin/login') {
     return <AdminApp />;
   }
 
-  const [currentRoute, setCurrentRoute] = useState<PageRoute>({ view: 'home' });
+  const getRouteFromPath = (path: string): PageRoute => {
+    const segments = path.split('/').filter(Boolean);
+    if (segments.length === 0) return { view: 'home' };
+    
+    if (segments[0] === 'thong-bao') {
+      if (segments[1] === 'chi-tiet' && segments[2]) return { view: 'announcement-detail', id: segments[2] };
+      return { view: 'announcement-list' };
+    }
+    
+    if (segments[0] === 'loai-tin-1') {
+      if (segments[1] === 'chi-tiet' && segments[2]) return { view: 'category1-detail', id: segments[2] };
+      if (segments[1]) return { view: 'category1-list', id: decodeURIComponent(segments[1]) };
+      return { view: 'category1-list', id: 'all' };
+    }
+    
+    if (segments[0] === 'loai-tin-2') {
+      if (segments[1] === 'chi-tiet' && segments[2]) return { view: 'category2-detail', id: segments[2] };
+      return { view: 'category2-list' };
+    }
+    
+    if (segments[0] === 'loai-tin-3') {
+      if (segments[1] === 'chi-tiet' && segments[2]) return { view: 'category3-detail', id: segments[2] };
+      return { view: 'category3-list' };
+    }
+
+    if (segments[0] === 'loai-tin-4') {
+      if (segments[1] === 'chi-tiet' && segments[2]) return { view: 'category4-detail', id: segments[2] };
+      return { view: 'category4-list' };
+    }
+
+    if (segments[0] === 'loai-tin-5') {
+      if (segments[1] === 'chi-tiet' && segments[2]) return { view: 'category5-detail', id: segments[2] };
+      return { view: 'category5-list' };
+    }
+    
+    if (segments[0] === 'loai-tin-6') {
+      if (segments[1] === 'chi-tiet' && segments[2]) return { view: 'category6-detail', id: segments[2] };
+      return { view: 'category6-list' };
+    }
+
+    if (segments[0] === 'tkb') return { view: 'tkb' };
+    if (segments[0] === 'lich-lam-viec') return { view: 'calendar' };
+
+    return { view: 'home' };
+  };
+
+  const [currentRouteState, setCurrentRouteState] = useState<PageRoute>(getRouteFromPath(window.location.pathname));
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentRouteState(getRouteFromPath(window.location.pathname));
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const setCurrentRoute = (route: PageRoute) => {
+    let url = '/';
+    if (route.view === 'category1-list') url = route.id && route.id !== 'all' ? `/loai-tin-1/${encodeURIComponent(route.id)}` : `/loai-tin-1`;
+    else if (route.view === 'category1-detail') url = `/loai-tin-1/chi-tiet/${route.id}`;
+    else if (route.view === 'category2-list') url = `/loai-tin-2`;
+    else if (route.view === 'category2-detail') url = `/loai-tin-2/chi-tiet/${route.id}`;
+    else if (route.view === 'category3-list') url = `/loai-tin-3`;
+    else if (route.view === 'category3-detail') url = `/loai-tin-3/chi-tiet/${route.id}`;
+    else if (route.view === 'category4-list') url = `/loai-tin-4`;
+    else if (route.view === 'category4-detail') url = `/loai-tin-4/chi-tiet/${route.id}`;
+    else if (route.view === 'category5-list') url = `/loai-tin-5`;
+    else if (route.view === 'category5-detail') url = `/loai-tin-5/chi-tiet/${route.id}`;
+    else if (route.view === 'category6-list') url = `/loai-tin-6`;
+    else if (route.view === 'category6-detail') url = `/loai-tin-6/chi-tiet/${route.id}`;
+    else if (route.view === 'tkb') url = `/tkb`;
+    else if (route.view === 'calendar') url = `/lich-lam-viec`;
+
+    if (window.location.pathname !== url) {
+      window.history.pushState(null, '', url);
+    }
+    setCurrentRouteState(route);
+  };
+  
+  const currentRoute = currentRouteState;
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
@@ -48,7 +129,8 @@ export default function App() {
 
   const [allSearchableItems, setAllSearchableItems] = useState<any[]>([]);
 
-  useEffect(() => {
+  const fetchSearchData = () => {
+    if (allSearchableItems.length > 0) return;
     Promise.all([fetchPosts(), fetchAnnouncements()]).then(([posts, announcements]) => {
       const mappedPosts = (posts || []).map((d: any) => ({
         id: d.id,
@@ -68,7 +150,7 @@ export default function App() {
       }));
       setAllSearchableItems([...mappedPosts, ...mappedAnnouncements]);
     }).catch(console.error);
-  }, []);
+  };
 
 
 
@@ -84,17 +166,26 @@ export default function App() {
       case 'trang-chu':
         setCurrentRoute({ view: 'home' });
         break;
-      case 'tin-tuc':
-        setCurrentRoute({ view: 'news-list' });
-        break;
       case 'thong-bao':
         setCurrentRoute({ view: 'announcement-list' });
         break;
-      case 'tuyen-sinh':
-        setCurrentRoute({ view: 'admissions-list' });
+      case 'loai-tin-1':
+        setCurrentRoute({ view: 'category1-list' });
         break;
-      case 'du-hoc':
-        setCurrentRoute({ view: 'study-abroad-list' });
+      case 'loai-tin-2':
+        setCurrentRoute({ view: 'category2-list' });
+        break;
+      case 'loai-tin-3':
+        setCurrentRoute({ view: 'category3-list' });
+        break;
+      case 'loai-tin-4':
+        setCurrentRoute({ view: 'category4-list' });
+        break;
+      case 'loai-tin-5':
+        setCurrentRoute({ view: 'category5-list' });
+        break;
+      case 'loai-tin-6':
+        setCurrentRoute({ view: 'category6-list' });
         break;
       case 'tkb':
         setCurrentRoute({ view: 'tkb' });
@@ -110,28 +201,37 @@ export default function App() {
 
   // Determine active tab ID for header indicator
   const getActiveTabId = (): string => {
-    if (currentRoute.view === 'news-list' && currentRoute.id && currentRoute.id !== 'all') {
+    if (currentRoute.view === 'category1-list' && currentRoute.id && currentRoute.id !== 'all') {
       return `category-${currentRoute.id}`;
     }
     switch (currentRoute.view) {
       case 'home':
         return 'trang-chu';
-      case 'news-list':
-      case 'news-detail':
-        return 'tin-tuc';
       case 'announcement-list':
       case 'announcement-detail':
         return 'thong-bao';
-      case 'admissions-list':
-      case 'admission-detail':
-        return 'tuyen-sinh';
+      case 'category1-list':
+      case 'category1-detail':
+        return 'loai-tin-1';
+      case 'category2-list':
+      case 'category2-detail':
+        return 'loai-tin-2';
+      case 'category3-list':
+      case 'category3-detail':
+        return 'loai-tin-3';
+      case 'category4-list':
+      case 'category4-detail':
+        return 'loai-tin-4';
+      case 'category5-list':
+      case 'category5-detail':
+        return 'loai-tin-5';
+      case 'category6-list':
+      case 'category6-detail':
+        return 'loai-tin-6';
       case 'tkb':
         return 'tkb';
       case 'calendar':
         return 'lich-lam-viec';
-      case 'study-abroad-list':
-      case 'study-abroad-detail':
-        return 'du-hoc';
       default:
         return '';
     }
@@ -140,7 +240,10 @@ export default function App() {
   // Search handler
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setIsSearchOpen(true);
+    if (!isSearchOpen) {
+      setIsSearchOpen(true);
+      fetchSearchData();
+    }
   };
 
   // Search matching across articles & announcements
@@ -179,7 +282,7 @@ export default function App() {
             {/* Hero Banner Slider */}
             <HeroSlider
               onSelectSlide={(slideId) => {
-                setCurrentRoute({ view: 'news-detail', id: 'news-1' });
+                setCurrentRoute({ view: 'category1-detail', id: 'news-1' });
               }}
             />
 
@@ -189,7 +292,7 @@ export default function App() {
             {/* Section 1: Tin tức - Sự kiện & Thông báo */}
             <NewsAndAnnouncementsSection
               topSections={homepageData?.topSections || []}
-              onSelectNews={(item: any) => setCurrentRoute({ view: 'news-detail', id: item.id })}
+              onSelectNews={(item: any) => setCurrentRoute({ view: 'category1-detail', id: item.id })}
               onSelectAnnouncement={(item: any) => setCurrentRoute({ view: 'announcement-detail', id: item.id })}
               onSearch={handleSearch}
             />
@@ -197,13 +300,9 @@ export default function App() {
             {/* Section 2 + 3: Multi-category grid */}
             <MultiCategorySection
               bottomSections={homepageData?.bottomSections || []}
-              onSelectNews={(id: string) => setCurrentRoute({ view: 'news-detail', id })}
+              onSelectNews={(id: string, view?: string) => setCurrentRoute({ view: (view as any) || 'category1-detail', id })}
               onNavigate={(view: string) => {
-                if (view === 'news-list') setCurrentRoute({ view: 'news-list' });
-                else if (view === 'announcement-list') setCurrentRoute({ view: 'announcement-list' });
-                else if (view === 'admissions-list') setCurrentRoute({ view: 'admissions-list' });
-                else if (view === 'study-abroad-list') setCurrentRoute({ view: 'study-abroad-list' });
-                else if (view === 'clubs-list') setCurrentRoute({ view: 'clubs-list' });
+                setCurrentRoute({ view: view as any });
               }}
             />
 
@@ -211,69 +310,106 @@ export default function App() {
           </>
         )}
 
-        {/* VIEW: NEWS LIST */}
-        {currentRoute.view === 'news-list' && (
-          <NewsListPage
-            initialCategory={currentRoute.id}
-            onSelectNews={(id) => setCurrentRoute({ view: 'news-detail', id })}
-            onGoHome={() => setCurrentRoute({ view: 'home' })}
-          />
-        )}
-
-        {/* VIEW: NEWS DETAIL */}
-        {currentRoute.view === 'news-detail' && (
-          <NewsDetailPage
-            newsId={currentRoute.id}
-            onBack={() => setCurrentRoute({ view: 'news-list' })}
-            onSelectOtherNews={(id) => setCurrentRoute({ view: 'news-detail', id })}
-          />
-        )}
-
-        {/* VIEW: ANNOUNCEMENT LIST */}
+        {/* VIEW: ANNOUNCEMENTS */}
         {currentRoute.view === 'announcement-list' && (
           <AnnouncementListPage
             onSelectAnnouncement={(id) => setCurrentRoute({ view: 'announcement-detail', id })}
             onGoHome={() => setCurrentRoute({ view: 'home' })}
           />
         )}
-
-        {/* VIEW: ANNOUNCEMENT DETAIL */}
-        {currentRoute.view === 'announcement-detail' && (
+        {currentRoute.view === 'announcement-detail' && currentRoute.id && (
           <AnnouncementDetailPage
+            id={currentRoute.id}
+            onGoHome={() => setCurrentRoute({ view: 'home' })}
+            onGoBack={() => setCurrentRoute({ view: 'announcement-list' })}
+          />
+        )}
+
+        {/* VIEW: CATEGORY 1 */}
+        {currentRoute.view === 'category1-list' && (
+          <Category1ListPage
+            initialCategory={currentRoute.id}
+            onSelectNews={(id) => setCurrentRoute({ view: 'category1-detail', id })}
+            onGoHome={() => setCurrentRoute({ view: 'home' })}
+          />
+        )}
+        {currentRoute.view === 'category1-detail' && (
+          <Category1DetailPage
+            newsId={currentRoute.id}
+            onBack={() => setCurrentRoute({ view: 'category1-list' })}
+            onSelectOtherNews={(id) => setCurrentRoute({ view: 'category1-detail', id })}
+          />
+        )}
+
+        {/* VIEW: CATEGORY 2 */}
+        {currentRoute.view === 'category2-list' && (
+          <Category2ListPage
+            onSelectAnnouncement={(id) => setCurrentRoute({ view: 'category2-detail', id })}
+            onGoHome={() => setCurrentRoute({ view: 'home' })}
+          />
+        )}
+        {currentRoute.view === 'category2-detail' && (
+          <Category2DetailPage
             announcementId={currentRoute.id}
-            onBack={() => setCurrentRoute({ view: 'announcement-list' })}
+            onBack={() => setCurrentRoute({ view: 'category2-list' })}
           />
         )}
 
-        {/* VIEW: ADMISSIONS LIST */}
-        {currentRoute.view === 'admissions-list' && (
-          <AdmissionsListPage
-            onSelectAdmission={(id) => setCurrentRoute({ view: 'admission-detail', id })}
+        {/* VIEW: CATEGORY 3 */}
+        {currentRoute.view === 'category3-list' && (
+          <Category3ListPage
+            onSelectCategory3={(id) => setCurrentRoute({ view: 'category3-detail', id })}
             onGoHome={() => setCurrentRoute({ view: 'home' })}
           />
         )}
-
-        {/* VIEW: ADMISSION DETAIL */}
-        {currentRoute.view === 'admission-detail' && (
-          <AdmissionDetailPage
-            admissionId={currentRoute.id}
-            onBack={() => setCurrentRoute({ view: 'admissions-list' })}
+        {currentRoute.view === 'category3-detail' && (
+          <Category3DetailPage
+            category3Id={currentRoute.id}
+            onBack={() => setCurrentRoute({ view: 'category3-list' })}
           />
         )}
 
-        {/* VIEW: STUDY ABROAD LIST */}
-        {currentRoute.view === 'study-abroad-list' && (
-          <StudyAbroadListPage
-            onSelectProgram={(id) => setCurrentRoute({ view: 'study-abroad-detail', id })}
+        {/* VIEW: CATEGORY 4 */}
+        {currentRoute.view === 'category4-list' && (
+          <Category4ListPage
+            onSelectProgram={(id) => setCurrentRoute({ view: 'category4-detail', id })}
             onGoHome={() => setCurrentRoute({ view: 'home' })}
           />
         )}
-
-        {/* VIEW: STUDY ABROAD DETAIL */}
-        {currentRoute.view === 'study-abroad-detail' && (
-          <StudyAbroadDetailPage
+        {currentRoute.view === 'category4-detail' && (
+          <Category4DetailPage
             programId={currentRoute.id}
-            onBack={() => setCurrentRoute({ view: 'study-abroad-list' })}
+            onBack={() => setCurrentRoute({ view: 'category4-list' })}
+          />
+        )}
+
+        {/* VIEW: CATEGORY 5 */}
+        {currentRoute.view === 'category5-list' && (
+          <Category5ListPage
+            onSelectClub={(id) => setCurrentRoute({ view: 'category5-detail', id })}
+            onGoHome={() => setCurrentRoute({ view: 'home' })}
+          />
+        )}
+        {currentRoute.view === 'category5-detail' && (
+          <Category5DetailPage
+            clubId={currentRoute.id}
+            onBack={() => setCurrentRoute({ view: 'category5-list' })}
+          />
+        )}
+
+        {/* VIEW: CATEGORY 6 */}
+        {currentRoute.view === 'category6-list' && (
+          <Category6ListPage
+            initialCategory={currentRoute.id}
+            onSelectNews={(id) => setCurrentRoute({ view: 'category6-detail', id })}
+            onGoHome={() => setCurrentRoute({ view: 'home' })}
+          />
+        )}
+        {currentRoute.view === 'category6-detail' && (
+          <Category6DetailPage
+            newsId={currentRoute.id}
+            onBack={() => setCurrentRoute({ view: 'category6-list' })}
+            onSelectOtherNews={(id) => setCurrentRoute({ view: 'category6-detail', id })}
           />
         )}
 
@@ -285,24 +421,6 @@ export default function App() {
         {/* VIEW: WORK CALENDAR */}
         {currentRoute.view === 'calendar' && (
           <WorkCalendarPage onGoHome={() => setCurrentRoute({ view: 'home' })} />
-        )}
-
-
-
-        {/* VIEW: CLUBS LIST */}
-        {currentRoute.view === 'clubs-list' && (
-          <ClubsListPage
-            onSelectClub={(id) => setCurrentRoute({ view: 'club-detail', id })}
-            onGoHome={() => setCurrentRoute({ view: 'home' })}
-          />
-        )}
-
-        {/* VIEW: CLUB DETAIL */}
-        {currentRoute.view === 'club-detail' && (
-          <ClubDetailPage
-            clubId={currentRoute.id}
-            onBack={() => setCurrentRoute({ view: 'clubs-list' })}
-          />
         )}
       </main>
 
@@ -342,9 +460,9 @@ export default function App() {
                     onClick={() => {
                       setIsSearchOpen(false);
                       if (item.typeLabel === 'Thông báo') {
-                        setCurrentRoute({ view: 'announcement-detail', id: item.id });
+                        setCurrentRoute({ view: 'category2-detail', id: item.id });
                       } else {
-                        setCurrentRoute({ view: 'news-detail', id: item.id });
+                        setCurrentRoute({ view: 'category1-detail', id: item.id });
                       }
                     }}
                     className="py-3 hover:bg-[#f5f7fc] px-2 cursor-pointer transition-colors"

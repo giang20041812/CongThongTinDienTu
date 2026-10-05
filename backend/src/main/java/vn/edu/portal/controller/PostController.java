@@ -29,40 +29,16 @@ public class PostController {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    @GetMapping("/homepage")
-    @Transactional(readOnly = true)
-    public HomepageResponseDTO getHomepageData() {
-        List<Category> categories = categoryRepository.findAll();
-        List<Category> homepageCategories = categories.stream()
-            .filter(c -> c.getDisplayOrder() != null && c.getDisplayOrder() > 0 && c.getDisplayOrder() <= 9)
-            .sorted(java.util.Comparator.comparing(Category::getDisplayOrder))
-            .collect(java.util.stream.Collectors.toList());
-
-        if (homepageCategories.isEmpty()) {
-            homepageCategories = categories.stream()
-                .limit(4)
-                .collect(java.util.stream.Collectors.toList());
-        }
-
-        List<HomepageSectionDTO> sections = new java.util.ArrayList<>();
-        for (Category cat : homepageCategories) {
-            List<Post> posts = repository.findTop5ByCategoryIdAndStatusOrderByCreatedAtDesc(cat.getId(), "PUBLISHED");
-            sections.add(new HomepageSectionDTO(cat, posts));
-        }
-        
-        List<HomepageSectionDTO> topSections = sections.size() > 0 ? sections.subList(0, 1) : new java.util.ArrayList<>();
-        List<HomepageSectionDTO> bottomSections = sections.size() > 1 ? sections.subList(1, sections.size()) : new java.util.ArrayList<>();
-        
-        return new HomepageResponseDTO(topSections, bottomSections);
-    }
-
     @GetMapping
     @Transactional(readOnly = true)
-    public List<Post> getAll(@RequestParam(required = false) String status) {
-        if (status != null && !status.isEmpty()) {
-            return repository.findByStatus(status);
-        }
-        return repository.findAll();
+    public org.springframework.data.domain.Page<Post> getAll(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) UUID categoryId,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+        return repository.searchPosts(categoryId, status, keyword, pageable);
     }
 
     @GetMapping("/{id}")

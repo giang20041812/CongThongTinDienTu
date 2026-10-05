@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { PageHeading, Toolbar, SearchBox, DataTable, StatusPill } from './components/UI';
+import React, { useState, useEffect } from 'react';
+import { PageHeading, Toolbar, SearchBox, DataTable, StatusPill, Pagination } from './components/UI';
 import { Plus, X, Check } from 'lucide-react';
 import { useAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement } from '../../api';
 
@@ -28,10 +28,16 @@ function AnnouncementForm({ post, onClose, onSave }: any) {
 export function AnnouncementSection({ notify }: { notify: (msg: string, type?: 'success' | 'error') => void }) {
   const [query, setQuery] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const { data: items, loading, refetch } = useAnnouncements();
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
+
+  const { data: items, totalPages, loading, refetch } = useAnnouncements(currentPage - 1, ITEMS_PER_PAGE, undefined, query);
   const [editingItem, setEditingItem] = useState<any>(null);
 
-  const filtered = (items || []).filter((item: any) => (item.title || '').toLowerCase().includes(query.toLowerCase()));
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [query]);
 
   const handleSave = async (formData: any) => {
     try {
@@ -72,5 +78,5 @@ export function AnnouncementSection({ notify }: { notify: (msg: string, type?: '
     }
   };
 
-  return <><PageHeading eyebrow="Thông tin điều hành" title="Quản lý thông báo" description="Đăng tải thông báo quan trọng đến học sinh, phụ huynh và giáo viên." action={<button onClick={() => { setEditingItem(null); setShowForm(!showForm); }} className="admin-primary"><Plus size={16} /> Tạo thông báo</button>} />{showForm ? <AnnouncementForm post={editingItem} onClose={() => { setShowForm(false); setEditingItem(null); }} onSave={handleSave} /> : <><Toolbar><p className="text-xs text-[#71849b]">Tổng cộng <b className="text-[#17324d]">{filtered.length} thông báo</b></p><SearchBox value={query} onChange={setQuery} placeholder="Tìm thông báo..." /></Toolbar>{loading ? <p className="p-5 text-center text-sm text-[#8a9bad]">Đang tải dữ liệu...</p> : <DataTable headers={['Thông báo', 'Đơn vị', 'Ngày tạo', 'Trạng thái', 'Quan trọng', 'Hành động']} rows={filtered.map((item: any) => [<div key={`t-${item.id}`}><p className="font-bold text-sm">{item.title}</p><p className="text-[11px] text-[#8a9bad] mt-1">Mã: {item.id ? item.id.substring(0,8) : ''}</p></div>, <span key={`d-${item.id}`} className="text-xs">{item.department}</span>, <span key={`date-${item.id}`} className="text-xs">{item.createdAt ? new Date(item.createdAt).toLocaleDateString('vi-VN') : ''}</span>, <button key={`btn-${item.id}`} onClick={() => handleToggle(item)}><StatusPill tone={item.status === 'Đã đăng' ? 'green' : 'gray'}>{item.status || 'Đã đăng'}</StatusPill></button>, item.isImportant ? <StatusPill key={`i-${item.id}`} tone="amber">Ưu tiên</StatusPill> : <span key={`ni-${item.id}`} className="text-xs text-[#9cacba]">—</span>, <div key={`act-${item.id}`} className="flex gap-2"><button onClick={() => { setEditingItem(item); setShowForm(true); }} className="text-xs font-bold text-[#0052cc]">Sửa</button><button onClick={() => handleDelete(item.id)} className="text-xs font-bold text-red-600">Xóa</button></div>])} />}</>}</>; 
+  return <><PageHeading eyebrow="Thông tin điều hành" title="Quản lý thông báo" description="Đăng tải thông báo quan trọng đến học sinh, phụ huynh và giáo viên." action={<button onClick={() => { setEditingItem(null); setShowForm(!showForm); }} className="admin-primary"><Plus size={16} /> Tạo thông báo</button>} />{showForm ? <AnnouncementForm post={editingItem} onClose={() => { setShowForm(false); setEditingItem(null); }} onSave={handleSave} /> : <><Toolbar><p className="text-xs text-[#71849b]">Trang {currentPage}</p><SearchBox value={query} onChange={setQuery} placeholder="Tìm thông báo..." /></Toolbar>{loading ? <p className="p-5 text-center text-sm text-[#8a9bad]">Đang tải dữ liệu...</p> : <><DataTable headers={['Thông báo', 'Đơn vị', 'Ngày tạo', 'Trạng thái', 'Quan trọng', 'Hành động']} rows={items.map((item: any) => [<div key={`t-${item.id}`}><p className="font-bold text-sm">{item.title}</p><p className="text-[11px] text-[#8a9bad] mt-1">Mã: {item.id ? item.id.substring(0,8) : ''}</p></div>, <span key={`d-${item.id}`} className="text-xs">{item.department}</span>, <span key={`date-${item.id}`} className="text-xs">{item.createdAt ? new Date(item.createdAt).toLocaleDateString('vi-VN') : ''}</span>, <button key={`btn-${item.id}`} onClick={() => handleToggle(item)}><StatusPill tone={item.status === 'Đã đăng' ? 'green' : 'gray'}>{item.status || 'Đã đăng'}</StatusPill></button>, item.isImportant ? <StatusPill key={`i-${item.id}`} tone="amber">Ưu tiên</StatusPill> : <span key={`ni-${item.id}`} className="text-xs text-[#9cacba]">—</span>, <div key={`act-${item.id}`} className="flex gap-2"><button onClick={() => { setEditingItem(item); setShowForm(true); }} className="text-xs font-bold text-[#0052cc]">Sửa</button><button onClick={() => handleDelete(item.id)} className="text-xs font-bold text-red-600">Xóa</button></div>])} /><Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} /></>}</>}</>; 
 }

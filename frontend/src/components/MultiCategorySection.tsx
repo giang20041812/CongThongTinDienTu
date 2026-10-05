@@ -6,7 +6,7 @@ import { motion } from 'motion/react';
 
 interface MultiCategorySectionProps {
   bottomSections: any[];
-  onSelectNews?: (id: string) => void;
+  onSelectNews?: (id: string, view?: string) => void;
   onNavigate?: (view: string) => void;
 }
 
@@ -139,7 +139,7 @@ export const MultiCategorySection: React.FC<MultiCategorySectionProps> = ({
             const cat = section.category;
             const posts = section.posts || [];
             const featuredPost = posts[0];
-            const subItems = posts.slice(1).map((n: any) => ({ title: n.title, id: n.id }));
+            const subItems = posts.slice(1, 4).map((n: any) => ({ title: n.title, id: n.id }));
             const colorTheme = colorThemes[idx % colorThemes.length];
 
             return (
@@ -154,9 +154,9 @@ export const MultiCategorySection: React.FC<MultiCategorySectionProps> = ({
                 }}
                 featuredTitle={featuredPost?.title || fallbackItem.title}
                 subItems={subItems}
-                onClickFeatured={() => onSelectNews?.(featuredPost?.id)}
-                onSelectItem={(id) => onSelectNews?.(id)}
-                onClickMore={() => onNavigate?.('news-list')}
+                onClickFeatured={() => onSelectNews?.(featuredPost?.id, `category${cat.displayOrder}-detail`)}
+                onSelectItem={(id) => onSelectNews?.(id, `category${cat.displayOrder}-detail`)}
+                onClickMore={() => onNavigate?.(`category${cat.displayOrder}-list`)}
                 accentColorClass={colorTheme.accentColorClass}
                 accentBgClass={colorTheme.accentBgClass}
               />

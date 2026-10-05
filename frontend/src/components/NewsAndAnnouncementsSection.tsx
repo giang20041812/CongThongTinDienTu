@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, ChevronLeft, ChevronRight, Bell, Eye, Search } from 'lucide-react';
-import { usePosts, useAnnouncements } from '../api';
+import { usePosts, useHomepageAnnouncements } from '../api';
 import { EduImageFrame } from './EduImageFrame';
 import { BackgroundGeometricMesh } from './BackgroundGeometricMesh';
 import { motion } from 'motion/react';
@@ -20,7 +20,7 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
 }) => {
   const [activeNewsCategory, setActiveNewsCategory] = useState<'all' | 'chuyen-mon' | 'hoat-dong'>('all');
   
-  const { data: rawAnnouncements } = useAnnouncements();
+  const { data: rawAnnouncements } = useHomepageAnnouncements();
 
   // topSections[0] -> News
   const rawPosts = topSections[0]?.posts || [];
@@ -50,8 +50,8 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
   };
   const SECONDARY_NEWS = allNewsList.slice(1, 4);
 
-  // Process Announcements
-  const ANNOUNCEMENTS = rawAnnouncements.slice(0, 5).map((a: any) => ({
+  // Process Announcements (Homepage API already limits to top 8)
+  const ANNOUNCEMENTS = rawAnnouncements.slice(0, 8).map((a: any) => ({
     id: a.id,
     title: a.title,
     department: a.department || 'Ban Giám Hiệu',
@@ -473,8 +473,8 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
               </h2>
             </div>
 
-            {/* List of 5 Announcements */}
-            <div className="flex flex-col gap-3">
+            {/* List of 8 Announcements */}
+            <div className="flex flex-col gap-3 h-[420px] sm:h-[480px] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin' }}>
               {ANNOUNCEMENTS.map((ann, idx) => (
                 <div
                   key={ann.id}

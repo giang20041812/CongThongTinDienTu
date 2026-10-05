@@ -20,12 +20,19 @@ public class AnnouncementController {
     @Autowired
     private UserRepository userRepository;
 
+    @GetMapping("/homepage")
+    public org.springframework.data.domain.Page<Announcement> getHomepageAnnouncements() {
+        return repository.findByStatusOrderByCreatedAtDesc("PUBLISHED", org.springframework.data.domain.PageRequest.of(0, 8));
+    }
+
     @GetMapping
-    public List<Announcement> getAll(@RequestParam(required = false) String status) {
-        if (status != null && !status.isEmpty()) {
-            return repository.findByStatus(status);
-        }
-        return repository.findAll();
+    public org.springframework.data.domain.Page<Announcement> getAll(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+        return repository.searchAnnouncements(status, keyword, pageable);
     }
 
     @GetMapping("/{id}")

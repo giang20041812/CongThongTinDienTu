@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { PageHeading, Toolbar, SearchBox, DataTable } from './components/UI';
+import React, { useState, useEffect } from 'react';
+import { PageHeading, Toolbar, SearchBox, DataTable, Pagination } from './components/UI';
 import { Plus, X, Check } from 'lucide-react';
 import { useCategories, createCategory, updateCategory, deleteCategory } from '../../api';
 
@@ -26,12 +26,16 @@ function CategoryForm({ category, onClose, onSave }: any) {
 export function CategorySection({ notify }: { notify: (msg: string, type?: 'success' | 'error') => void }) {
   const [query, setQuery] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const { data: categories, loading, refetch } = useCategories();
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
+
+  const { data: categories, totalPages, loading, refetch } = useCategories(currentPage - 1, ITEMS_PER_PAGE, query);
   const [editingCategory, setEditingCategory] = useState<any>(null);
 
-  const filtered = (categories || []).filter((item: any) => 
-    (item.name || '').toLowerCase().includes(query.toLowerCase())
-  );
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [query]);
 
   const handleSave = async (formData: any) => {
     try {
@@ -62,5 +66,5 @@ export function CategorySection({ notify }: { notify: (msg: string, type?: 'succ
     }
   };
 
-  return <><PageHeading eyebrow="Phân loại nội dung" title="Quản lý chuyên mục bài viết" description="Tạo và chỉnh sửa các danh mục bài viết trên hệ thống." action={<button onClick={() => { setEditingCategory(null); setShowForm(!showForm); }} className="admin-primary"><Plus size={16} /> Thêm chuyên mục</button>} />{showForm && <CategoryForm category={editingCategory} onClose={() => { setShowForm(false); setEditingCategory(null); }} onSave={handleSave} />}{!showForm && <><Toolbar><p className="text-xs text-[#71849b]">Tổng cộng <b className="text-[#17324d]">{filtered.length} chuyên mục</b></p><SearchBox value={query} onChange={setQuery} placeholder="Tìm chuyên mục..." /></Toolbar>{loading ? <p className="p-5 text-center text-sm text-[#8a9bad]">Đang tải dữ liệu...</p> : <DataTable headers={['Mã', 'Tên chuyên mục', 'Thứ tự hiển thị', 'Hành động']} rows={filtered.map((item: any) => [<span key={`code-${item.id}`} className="text-xs font-mono">{item.code}</span>, <div key={`name-${item.id}`}><p className="font-bold text-sm">{item.name}</p></div>, <span key={`order-${item.id}`} className="text-xs">{item.displayOrder > 0 ? `Vị trí ${item.displayOrder}` : 'Ẩn'}</span>, <div key={`act-${item.id}`} className="flex gap-2"><button onClick={() => { setEditingCategory(item); setShowForm(true); }} className="text-xs font-bold text-[#0052cc]">Sửa</button><button onClick={() => handleDelete(item.id)} className="text-xs font-bold text-red-600">Xóa</button></div>])} />}</>}</>; 
+  return <><PageHeading eyebrow="Phân loại nội dung" title="Quản lý chuyên mục bài viết" description="Tạo và chỉnh sửa các danh mục bài viết trên hệ thống." action={<button onClick={() => { setEditingCategory(null); setShowForm(!showForm); }} className="admin-primary"><Plus size={16} /> Thêm chuyên mục</button>} />{showForm && <CategoryForm category={editingCategory} onClose={() => { setShowForm(false); setEditingCategory(null); }} onSave={handleSave} />}{!showForm && <><Toolbar><p className="text-xs text-[#71849b]">Trang {currentPage}</p><SearchBox value={query} onChange={setQuery} placeholder="Tìm chuyên mục..." /></Toolbar>{loading ? <p className="p-5 text-center text-sm text-[#8a9bad]">Đang tải dữ liệu...</p> : <><DataTable headers={['Mã', 'Tên chuyên mục', 'Thứ tự hiển thị', 'Hành động']} rows={categories.map((item: any) => [<span key={`code-${item.id}`} className="text-xs font-mono">{item.code}</span>, <div key={`name-${item.id}`}><p className="font-bold text-sm">{item.name}</p></div>, <span key={`order-${item.id}`} className="text-xs">{item.displayOrder > 0 ? `Vị trí ${item.displayOrder}` : 'Ẩn'}</span>, <div key={`act-${item.id}`} className="flex gap-2"><button onClick={() => { setEditingCategory(item); setShowForm(true); }} className="text-xs font-bold text-[#0052cc]">Sửa</button><button onClick={() => handleDelete(item.id)} className="text-xs font-bold text-red-600">Xóa</button></div>])} /><Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} /></>}</>}</>; 
 }

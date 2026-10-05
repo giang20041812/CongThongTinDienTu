@@ -76,15 +76,18 @@ export type ActiveModal =
 
 export type PageRoute =
   | { view: 'home' }
-  | { view: 'news-list'; id?: string }
-  | { view: 'news-detail'; id: string }
-  | { view: 'announcement-list' }
-  | { view: 'announcement-detail'; id: string }
-  | { view: 'admissions-list' }
-  | { view: 'admission-detail'; id: string }
-  | { view: 'study-abroad-list' }
-  | { view: 'study-abroad-detail'; id: string }
+  | { view: 'category1-list'; id?: string }
+  | { view: 'category1-detail'; id: string }
+  | { view: 'category2-list' }
+  | { view: 'category2-detail'; id: string }
+  | { view: 'category3-list' }
+  | { view: 'category3-detail'; id: string }
+  | { view: 'category4-list' }
+  | { view: 'category4-detail'; id: string }
+  | { view: 'category5-list' }
+  | { view: 'category5-detail'; id: string }
+  | { view: 'category6-list' }
+  | { view: 'category6-detail'; id: string }
   | { view: 'tkb' }
-  | { view: 'calendar' }
-  | { view: 'clubs-list' }
-  | { view: 'club-detail'; id: string };
+  | { view: 'calendar' };
+

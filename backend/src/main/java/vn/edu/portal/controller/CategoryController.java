@@ -15,8 +15,18 @@ public class CategoryController {
     private CategoryRepository repository;
 
     @GetMapping
-    public List<Category> getAll() {
-        return repository.findAll();
+    public org.springframework.data.domain.Page<Category> getAll(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return repository.searchCategories(keyword, org.springframework.data.domain.PageRequest.of(page, size));
+    }
+
+    @GetMapping("/position/{displayOrder}")
+    public ResponseEntity<Category> getByPosition(@PathVariable Integer displayOrder) {
+        return repository.findByDisplayOrder(displayOrder)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{id}")

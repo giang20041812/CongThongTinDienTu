@@ -23,24 +23,24 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   const navItems = [
     { id: 'trang-chu', label: 'TRANG CHỦ' },
     { id: 'thong-bao', label: 'THÔNG BÁO' },
+    { id: 'tkb', label: 'THỜI KHÓA BIỂU' },
+    { id: 'lich-lam-viec', label: 'LỊCH LÀM VIỆC' }
   ];
 
   if (categories && categories.length > 0) {
-    const cat3 = categories.find(c => c.displayOrder === 3);
-    const cat4 = categories.find(c => c.displayOrder === 4);
-    const cat5 = categories.find(c => c.displayOrder === 5);
+    const cats = categories.filter(c => c.displayOrder >= 1 && c.displayOrder <= 6).sort((a, b) => a.displayOrder - b.displayOrder);
     
-    if (cat3) navItems.push({ id: `category-${cat3.name}`, label: cat3.name.toUpperCase() });
-    if (cat4) navItems.push({ id: `category-${cat4.name}`, label: cat4.name.toUpperCase() });
-    if (cat5) navItems.push({ id: `category-${cat5.name}`, label: cat5.name.toUpperCase() });
+    cats.forEach(cat => {
+      navItems.push({ id: `loai-tin-${cat.displayOrder}`, label: cat.name.toUpperCase() });
+    });
   } else if (categoriesLoading === false) {
-    navItems.push({ id: 'tin-tuc', label: 'TIN TỨC - SỰ KIỆN' });
-    navItems.push({ id: 'tuyen-sinh', label: 'TUYỂN SINH' });
-    navItems.push({ id: 'du-hoc', label: 'DU HỌC' });
+    navItems.push({ id: 'loai-tin-1', label: 'LOẠI TIN 1' });
+    navItems.push({ id: 'loai-tin-2', label: 'LOẠI TIN 2' });
+    navItems.push({ id: 'loai-tin-3', label: 'LOẠI TIN 3' });
+    navItems.push({ id: 'loai-tin-4', label: 'LOẠI TIN 4' });
+    navItems.push({ id: 'loai-tin-5', label: 'LOẠI TIN 5' });
+    navItems.push({ id: 'loai-tin-6', label: 'LOẠI TIN 6' });
   }
-
-  navItems.push({ id: 'tkb', label: 'THỜI KHÓA BIỂU' });
-  navItems.push({ id: 'lich-lam-viec', label: 'LỊCH LÀM VIỆC' });
 
   const navContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);

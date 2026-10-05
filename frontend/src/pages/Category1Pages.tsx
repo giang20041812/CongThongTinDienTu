@@ -5,21 +5,53 @@ import { SCHOOL_INFO } from '../data/mockData';
 import { EduImageFrame } from '../components/EduImageFrame';
 import { BackgroundGeometricMesh } from '../components/BackgroundGeometricMesh';
 
-interface NewsListPageProps {
+interface Category1ListPageProps {
   initialCategory?: string;
   onSelectNews: (id: string) => void;
   onGoHome: () => void;
 }
 
-export const NewsListPage: React.FC<NewsListPageProps> = ({ initialCategory, onSelectNews, onGoHome }) => {
+import { fetchPosts } from '../api';
+
+export const Category1ListPage: React.FC<Category1ListPageProps> = ({ initialCategory, onSelectNews, onGoHome }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || 'all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const { data: rawPosts, loading } = usePosts();
   const { data: fetchedCategories } = useCategories();
+  
+  const [rawPosts, setRawPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 6;
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     setSelectedCategory(initialCategory || 'all');
+    setCurrentPage(1);
   }, [initialCategory]);
+
+  useEffect(() => {
+    let active = true;
+    const loadData = async () => {
+      setLoading(true);
+      let catId = undefined;
+      if (selectedCategory !== 'all') {
+        const cat = fetchedCategories?.find((c: any) => c.name.toUpperCase() === selectedCategory.toUpperCase());
+        catId = cat?.id;
+      } else {
+        const cat = fetchedCategories?.find((c: any) => c.displayOrder === 1);
+        catId = cat?.id;
+      }
+      
+      const res = await fetchPosts(currentPage - 1, itemsPerPage, catId, 'PUBLISHED');
+      if (active) {
+        setRawPosts(res.content || []);
+        setTotalPages(res.totalPages || 1);
+        setLoading(false);
+      }
+    };
+    loadData();
+    return () => { active = false; };
+  }, [selectedCategory, currentPage, fetchedCategories]);
 
   const allNews = rawPosts.map((p: any) => ({
     id: p.id,
@@ -32,9 +64,6 @@ export const NewsListPage: React.FC<NewsListPageProps> = ({ initialCategory, onS
     imgUrl: p.imgUrl || p.bannerUrl
   }));
 
-  const itemsPerPage = 6;
-  const [currentPage, setCurrentPage] = useState(1);
-
   const categories = [
     { id: 'all', label: 'TẤT CẢ' },
     ...(fetchedCategories || []).map((c: any) => ({
@@ -43,17 +72,8 @@ export const NewsListPage: React.FC<NewsListPageProps> = ({ initialCategory, onS
     }))
   ];
 
-  const filteredNews = allNews.filter((item) => {
-    const matchesCategory = selectedCategory === 'all' || item.category.toUpperCase() === selectedCategory.toUpperCase();
-    const matchesSearch =
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.summary.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
-
-  const totalPages = Math.ceil(filteredNews.length / itemsPerPage);
-  const paginatedNews = filteredNews.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
+  const paginatedNews = allNews; // It's already paginated by backend!
+  
   const handleCategoryChange = (catId: string) => {
     setSelectedCategory(catId);
     setCurrentPage(1);
@@ -192,13 +212,13 @@ export const NewsListPage: React.FC<NewsListPageProps> = ({ initialCategory, onS
   );
 };
 
-interface NewsDetailPageProps {
+interface Category1DetailPageProps {
   newsId: string;
   onBack: () => void;
   onSelectOtherNews: (id: string) => void;
 }
 
-export const NewsDetailPage: React.FC<NewsDetailPageProps> = ({
+export const Category1DetailPage: React.FC<Category1DetailPageProps> = ({
   newsId,
   onBack,
   onSelectOtherNews,

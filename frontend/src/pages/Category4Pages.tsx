@@ -6,17 +6,17 @@ import { EduImageFrame } from '../components/EduImageFrame';
 import { BackgroundGeometricMesh } from '../components/BackgroundGeometricMesh';
 import { usePosts } from '../api';
 
-interface StudyAbroadListPageProps {
+interface Category4ListPageProps {
   onSelectProgram: (id: string) => void;
   onGoHome: () => void;
 }
 
-export const StudyAbroadListPage: React.FC<StudyAbroadListPageProps> = ({
+export const Category4ListPage: React.FC<Category4ListPageProps> = ({
   onSelectProgram,
   onGoHome,
 }) => {
   const { data: posts, loading } = usePosts();
-  const programsList = posts.filter((p: any) => p.category?.code === 'STUDY_ABROAD').map((p: any) => ({
+  const programsList = posts.filter((p: any) => p.category?.displayOrder === 4).map((p: any) => ({
     id: p.id,
     title: p.title,
     country: p.blocks?.[0]?.content || 'Quốc tế',
@@ -142,12 +142,12 @@ export const StudyAbroadListPage: React.FC<StudyAbroadListPageProps> = ({
   );
 };
 
-interface StudyAbroadDetailPageProps {
+interface Category4DetailPageProps {
   programId: string;
   onBack: () => void;
 }
 
-export const StudyAbroadDetailPage: React.FC<StudyAbroadDetailPageProps> = ({
+export const Category4DetailPage: React.FC<Category4DetailPageProps> = ({
   programId,
   onBack,
 }) => {

@@ -1,5 +1,22 @@
-import { Search } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import React from 'react';
+
+export function Pagination({ currentPage, totalPages, onPageChange }: { currentPage: number, totalPages: number, onPageChange: (page: number) => void }) {
+  if (totalPages <= 1) return null;
+  return (
+    <div className="flex items-center justify-between border-t border-[#e3ebf3] bg-white px-4 py-3 sm:px-6">
+      <div className="flex items-center">
+        <p className="text-sm text-[#71849b]">
+          Trang <span className="font-bold text-[#17324d]">{currentPage}</span> / <span className="font-bold text-[#17324d]">{totalPages}</span>
+        </p>
+      </div>
+      <div className="flex gap-2">
+        <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1} className="admin-secondary disabled:opacity-50 disabled:cursor-not-allowed text-xs py-1 px-3">Trước</button>
+        <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages} className="admin-secondary disabled:opacity-50 disabled:cursor-not-allowed text-xs py-1 px-3">Sau</button>
+      </div>
+    </div>
+  );
+}
 
 export function StatusPill({ children, tone = 'blue' }: { children: React.ReactNode; tone?: 'blue' | 'green' | 'amber' | 'gray' }) {
   const tones = { blue: 'bg-[#e6f2fb] text-[#0052cc]', green: 'bg-[#e4f6eb] text-[#16834c]', amber: 'bg-[#fff4dc] text-[#a76500]', gray: 'bg-[#eef1f4] text-[#6e7f91]' };
@@ -12,6 +29,36 @@ export function PageHeading({ eyebrow, title, description, action }: { eyebrow: 
 
 export function SearchBox({ value, onChange, placeholder = 'Tìm kiếm...' }: { value: string; onChange: (value: string) => void; placeholder?: string }) { 
   return <div className="relative"><Search size={16} className="absolute left-3 top-3 text-[#8da0b3]" /><input value={value} onChange={e => onChange(e.target.value)} className="admin-input pl-9 w-full md:w-64" placeholder={placeholder} /></div>; 
+}
+
+export function ImageUpload({ value, onChange }: { value: string; onChange: (val: string) => void }) {
+  const [loading, setLoading] = React.useState(false);
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLoading(true);
+    try {
+      const { uploadImage } = await import('../../../api');
+      const url = await uploadImage(file);
+      onChange(url);
+    } catch (err) {
+      console.error(err);
+      alert('Lỗi upload ảnh');
+    } finally {
+      setLoading(false);
+    }
+  };
+  return (
+    <div className="flex gap-3 items-center">
+      <input type="text" value={value} onChange={e => onChange(e.target.value)} className="admin-input flex-1" placeholder="https://... hoặc tải ảnh lên" />
+      <div className="relative">
+        <input type="file" accept="image/*" onChange={handleUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+        <button type="button" className="admin-secondary px-4 py-2" disabled={loading}>
+          {loading ? 'Đang tải...' : 'Tải ảnh lên'}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export function Toolbar({ children }: { children: React.ReactNode }) { 
