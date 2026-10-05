@@ -1,34 +1,17 @@
 import React, { useState } from 'react';
 import { X, Calendar, User, Eye, Download, Printer, CheckCircle, Share2, AlertCircle, FileText, Send } from 'lucide-react';
-import { ActiveModal, LostItem } from '../types';
+import { ActiveModal } from '../types';
 import { EduImageFrame } from './EduImageFrame';
 
 interface ModalsProps {
   modal: ActiveModal;
   onClose: () => void;
-  onItemClaimed?: (id: string) => void;
-  onAddNewLostItem?: (item: LostItem) => void;
 }
 
 export const Modals: React.FC<ModalsProps> = ({
   modal,
   onClose,
-  onItemClaimed,
-  onAddNewLostItem,
 }) => {
-  const [claimSuccess, setClaimSuccess] = useState(false);
-  const [reportFormData, setReportFormData] = useState({
-    name: '',
-    studentClass: '',
-    itemTitle: '',
-    itemType: 'Đồ dùng học tập',
-    location: '',
-    date: '05/09/2026',
-    description: '',
-    phone: '',
-  });
-  const [reportSubmitted, setReportSubmitted] = useState(false);
-
   if (!modal) return null;
 
   return (
@@ -43,8 +26,6 @@ export const Modals: React.FC<ModalsProps> = ({
             <span className="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider truncate">
               {modal.type === 'news' && 'BẢN TIN CHI TIẾT'}
               {modal.type === 'announcement' && 'VĂN BẢN THÔNG BÁO CHÍNH THỨC'}
-              {modal.type === 'lostItem' && 'CHI TIẾT VẬT PHẨM THẤT LẠC'}
-              {modal.type === 'reportLost' && 'ĐĂNG KÝ BÁO MẤT ĐỒ'}
               {modal.type === 'tkb' && 'THỜI KHÓA BIỂU HỌC KỲ I'}
               {modal.type === 'calendar' && 'LỊCH LÀM VIỆC TUẦN CỦA BAN GIÁM HIỆU'}
             </span>
@@ -164,234 +145,6 @@ export const Modals: React.FC<ModalsProps> = ({
             </div>
           )}
 
-          {/* ========================================================
-              LOST ITEM DETAIL MODAL
-             ======================================================== */}
-          {modal.type === 'lostItem' && (
-            <div>
-              <div className="flex items-center justify-between text-xs font-mono pb-2 border-b border-[#dbeafe]">
-                <span className="font-bold text-black">
-                  Loại: {modal.data.itemType}
-                </span>
-                <span className="font-semibold text-black">
-                  Ngày nhặt được: {modal.data.dateFound}
-                </span>
-              </div>
-
-              <h2 className="text-lg sm:text-xl font-bold text-black leading-snug uppercase mt-3">
-                {modal.data.title}
-              </h2>
-
-              {/* Two Square Images Side by Side as Drawn in Wireframe */}
-              <div className="grid grid-cols-2 gap-3 mt-4">
-                <EduImageFrame
-                  label="ẢNH ĐỒ 1"
-                  subLabel={modal.data.images[0]}
-                  theme="lost"
-                  aspectRatio="1:1"
-                />
-                <EduImageFrame
-                  label="ẢNH ĐỒ 2"
-                  subLabel={modal.data.images[1]}
-                  theme="lost"
-                  aspectRatio="1:1"
-                />
-              </div>
-
-              <div className="mt-4 p-3.5 bg-transparent border border-[#dbeafe] space-y-2 text-xs sm:text-sm">
-                <div>
-                  <span className="font-semibold text-black">Vị trí phát hiện: </span>
-                  <span className="text-black">{modal.data.locationFound}</span>
-                </div>
-                <div>
-                  <span className="font-semibold text-black">Mô tả đặc điểm: </span>
-                  <span className="text-black">{modal.data.description}</span>
-                </div>
-                <div>
-                  <span className="font-semibold text-black">Đơn vị lưu trữ: </span>
-                  <span className="text-black font-medium">{modal.data.finderDepartment}</span>
-                </div>
-              </div>
-
-              {/* Claim Action */}
-              <div className="mt-5 pt-4 border-t border-[#dbeafe] flex items-center justify-between">
-                {claimSuccess ? (
-                  <div className="flex items-center gap-2 text-emerald-700 font-semibold text-xs bg-emerald-50 p-2.5 border border-emerald-200 w-full">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Yêu cầu nhận lại đã được gửi đến Phòng Quản sinh. Vui lòng mang thẻ học sinh để đối chiếu.</span>
-                  </div>
-                ) : (
-                  <>
-                    <span className="text-xs text-black">
-                      Địa điểm nhận: Phòng Quản sinh (Nhà B, Tầng 1)
-                    </span>
-                    <button
-                      onClick={() => {
-                        setClaimSuccess(true);
-                        if (onItemClaimed) onItemClaimed(modal.data.id);
-                      }}
-                      className="px-4 py-2 bg-[#0052cc] hover:bg-[#0026e6] text-white text-xs font-bold uppercase tracking-wider cursor-pointer shadow-xs"
-                    >
-                      Tôi Muốn Nhận Lại Đồ
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* ========================================================
-              REPORT LOST ITEM MODAL ("Báo Mất Đồ")
-             ======================================================== */}
-          {modal.type === 'reportLost' && (
-            <div>
-              {reportSubmitted ? (
-                <div className="text-center py-8 space-y-3">
-                  <div className="w-12 h-12 bg-emerald-100 text-emerald-700 border-2 border-emerald-600 mx-auto flex items-center justify-center">
-                    <CheckCircle className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-lg font-bold text-black uppercase">
-                    Đã Gửi Báo Cáo Mất Đồ Thành Công!
-                  </h3>
-                  <p className="text-xs sm:text-sm text-black max-w-md mx-auto">
-                    Thông tin vật phẩm đã được chuyển đến Đội Bảo vệ và Đội Thanh niên Tình nguyện trường. Khi có học sinh nhặt được, nhà trường sẽ thông báo tới bạn.
-                  </p>
-                  <button
-                    onClick={onClose}
-                    className="mt-4 px-5 py-2 bg-[#0052cc] text-white text-xs font-bold uppercase cursor-pointer"
-                  >
-                    Hoàn Tất
-                  </button>
-                </div>
-              ) : (
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (onAddNewLostItem) {
-                      onAddNewLostItem({
-                        id: `lost-${Date.now()}`,
-                        title: reportFormData.itemTitle,
-                        itemType: reportFormData.itemType,
-                        dateFound: reportFormData.date,
-                        locationFound: reportFormData.location || 'Khuôn viên trường',
-                        description: `Học sinh ${reportFormData.name} (${reportFormData.studentClass}) báo mất: ${reportFormData.description}. Liên hệ: ${reportFormData.phone}`,
-                        finderDepartment: 'Học sinh báo thất lạc',
-                        status: 'pending',
-                        images: ['VẬT PHẨM BÁO MẤT', 'ẢNH THẺ LIÊN HỆ'],
-                      });
-                    }
-                    setReportSubmitted(true);
-                  }}
-                  className="space-y-4 text-xs"
-                >
-                  <p className="text-black">
-                    Điền thông tin đồ dùng bạn để quên hoặc đánh rơi trong khuôn viên nhà trường để Ban Quản sinh đối chiếu:
-                  </p>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block font-semibold text-black mb-1">
-                        Họ và tên học sinh *
-                      </label>
-                      <input
-                        required
-                        type="text"
-                        value={reportFormData.name}
-                        onChange={(e) => setReportFormData({ ...reportFormData, name: e.target.value })}
-                        placeholder="Nguyễn Văn A"
-                        className="w-full h-9 px-3 border border-[#bfdbfe] focus:border-black focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block font-semibold text-black mb-1">
-                        Lớp học *
-                      </label>
-                      <input
-                        required
-                        type="text"
-                        value={reportFormData.studentClass}
-                        onChange={(e) => setReportFormData({ ...reportFormData, studentClass: e.target.value })}
-                        placeholder="11 Tin / 10 Toán 1"
-                        className="w-full h-9 px-3 border border-[#bfdbfe] focus:border-black focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block font-semibold text-black mb-1">
-                        Tên đồ vật thất lạc *
-                      </label>
-                      <input
-                        required
-                        type="text"
-                        value={reportFormData.itemTitle}
-                        onChange={(e) => setReportFormData({ ...reportFormData, itemTitle: e.target.value })}
-                        placeholder="Thẻ xe, ví tiền, chìa khóa..."
-                        className="w-full h-9 px-3 border border-[#bfdbfe] focus:border-black focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block font-semibold text-black mb-1">
-                        Số điện thoại liên hệ *
-                      </label>
-                      <input
-                        required
-                        type="text"
-                        value={reportFormData.phone}
-                        onChange={(e) => setReportFormData({ ...reportFormData, phone: e.target.value })}
-                        placeholder="0912 345 67x"
-                        className="w-full h-9 px-3 border border-[#bfdbfe] focus:border-black focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold text-black mb-1">
-                      Khu vực nghi để quên
-                    </label>
-                    <input
-                      type="text"
-                      value={reportFormData.location}
-                      onChange={(e) => setReportFormData({ ...reportFormData, location: e.target.value })}
-                      placeholder="Phòng học, nhà đa năng, căng tin..."
-                      className="w-full h-9 px-3 border border-[#bfdbfe] focus:border-black focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold text-black mb-1">
-                      Mô tả đặc điểm nhận dạng
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={reportFormData.description}
-                      onChange={(e) => setReportFormData({ ...reportFormData, description: e.target.value })}
-                      placeholder="Màu sắc, kích thước, móc treo đặc biệt..."
-                      className="w-full p-2 border border-[#bfdbfe] focus:border-black focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="pt-2 flex justify-end gap-2">
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className="px-4 py-2 bg-[#dbeafe] hover:bg-[#bfdbfe] text-black font-semibold cursor-pointer"
-                    >
-                      Hủy
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-5 py-2 bg-[#0052cc] hover:bg-[#0026e6] text-white font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <Send className="w-3.5 h-3.5" />
-                      <span>Gửi Báo Cáo</span>
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
-          )}
 
           {/* ========================================================
               TKB (Thời Khóa Biểu) MODAL

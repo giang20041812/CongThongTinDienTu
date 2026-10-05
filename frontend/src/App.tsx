@@ -153,7 +153,6 @@ export default function App() {
         onOpenQuickModal={(type) => {
           if (type === 'tkb') setCurrentRoute({ view: 'tkb' });
           if (type === 'calendar') setCurrentRoute({ view: 'calendar' });
-          if (type === 'reportLost') setActiveModal({ type: 'reportLost' });
         }}
       />
 
@@ -161,7 +160,6 @@ export default function App() {
       <main className="flex-1">
         {currentRoute.view !== 'home' && (
           <NavigationBar activeTab={getActiveTabId()} onTabChange={handleTabChange} isMobileMenuOpen={isMobileMenuOpen} onToggleMobileMenu={() => setIsMobileMenuOpen(false)} onSearch={handleSearch} onOpenQuickModal={(type) => {
-            if (type === 'reportLost') setActiveModal({ type: 'reportLost' });
           }} />
         )}
         {/* VIEW: HOME DASHBOARD (Direct match with Wireframe) */}
@@ -175,7 +173,6 @@ export default function App() {
             />
 
             <NavigationBar activeTab={getActiveTabId()} onTabChange={handleTabChange} isMobileMenuOpen={isMobileMenuOpen} onToggleMobileMenu={() => setIsMobileMenuOpen(false)} onSearch={handleSearch} onOpenQuickModal={(type) => {
-              if (type === 'reportLost') setActiveModal({ type: 'reportLost' });
             }} />
 
             {/* Điều hướng và điểm tin nằm ngay dưới banner */}
@@ -186,7 +183,6 @@ export default function App() {
               onSelectNews={(item) => setCurrentRoute({ view: 'news-detail', id: item.id })}
               onSelectAnnouncement={(item) => setCurrentRoute({ view: 'announcement-detail', id: item.id })}
               onSearch={handleSearch}
-              onOpenQuickModal={() => setActiveModal({ type: 'reportLost' })}
             />
 
             {/* Section 2 + 3: Multi-category grid (Tin NhàTrường, Thanh Niên, CLB, Thông Báo, Tuyển Sinh, HSG, STEM, Du Học) */}

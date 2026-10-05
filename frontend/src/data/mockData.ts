@@ -5,7 +5,6 @@ import {
   AdmissionItem,
   StudyAbroadItem,
   ClubItem,
-  LostItem,
 } from '../types';
 
 export const SCHOOL_INFO = {
@@ -392,62 +391,3 @@ export const CLUBS_DATA = {
   secondary: [ALL_CLUBS[1], ALL_CLUBS[2]],
 };
 
-export const ALL_LOST_ITEMS: LostItem[] = [
-  {
-    id: 'lost-1',
-    title: 'Thẻ học sinh & Chùm chìa khóa xe',
-    itemType: 'Thẻ & Chìa khóa',
-    dateFound: '05/09/2026',
-    locationFound: 'Sân bóng rổ khu B sau giờ khai giảng',
-    description: 'Sáng ngày 5/9/2026, hòa chung không khí tưng bừng của ngày hội, tổ bảo vệ nhặt được 01 thẻ học sinh mang tên Nguyễn Văn An (Lớp 11 Tin) cùng chùm 3 chìa khóa có móc treo hình máy tính.',
-    finderDepartment: 'Văn phòng Bảo vệ & Đoàn trường',
-    status: 'pending',
-    images: ['THẺ HỌC SINH CVA', 'CHÙM CHÌA KHÓA'],
-  },
-  {
-    id: 'lost-2',
-    title: 'Hộp bút vẽ kỹ thuật & Máy tính cầm tay Casio 580',
-    itemType: 'Đồ dùng học tập',
-    dateFound: '04/09/2026',
-    locationFound: 'Bàn số 4 phòng Lab Tin học 2 nhà A',
-    description: 'Sáng ngày 5/9/2026, hòa chung không khí chuẩn bị phòng thi, thầy phụ trách phòng máy phát hiện để quên 01 máy tính Casio fx-580VN X màu đen và hộp bút chì kim.',
-    finderDepartment: 'Tổ Quản trị Phòng máy',
-    status: 'pending',
-    images: ['MÁY TÍNH CASIO FX', 'HỘP BÚT KỸ THUẬT'],
-  },
-  {
-    id: 'lost-3',
-    title: 'Áo khoác đồng phục & Bình giữ nhiệt kim loại',
-    itemType: 'Trang phục cá nhân',
-    dateFound: '03/09/2026',
-    locationFound: 'Ghế đá gần gốc xà cừ cổ thụ sân trước',
-    description: 'Sáng ngày 5/9/2026, hòa chung không khí tưng bừng tập duyệt nghi thức, học sinh để quên 01 áo khoác đồng phục trường size M và bình nước màu bạc.',
-    finderDepartment: 'Đội Thanh niên Tình nguyện',
-    status: 'claimed',
-    images: ['ÁO ĐỒNG PHỤC SIZE M', 'BÌNH NƯỚC KIM LOẠI'],
-  },
-  {
-    id: 'lost-4',
-    title: 'Tai nghe Bluetooth không dây trong hộp sạc trắng',
-    itemType: 'Thiết bị điện tử',
-    dateFound: '02/09/2026',
-    locationFound: 'Hàng ghế thứ 3 phòng Thư viện số',
-    description: 'Thủ thư nhặt được 01 hộp sạc tai nghe không dây màu trắng có dán sticker hình cờ đỏ sao vàng.',
-    finderDepartment: 'Thư viện Nhà trường',
-    status: 'pending',
-    images: ['HỘP SẠC TAI NGHE', 'STICKER NHẬN DẠNG'],
-  },
-  {
-    id: 'lost-5',
-    title: 'Tập bài tập Toán hình học & Đồng hồ đeo tay Casio',
-    itemType: 'Học tập & Đồng hồ',
-    dateFound: '30/08/2026',
-    locationFound: 'Bục giảng phòng 204 nhà B',
-    description: 'Giáo viên bộ môn Toán tìm thấy tập tài liệu ôn thi HSG chuyên đề hình học phẳng kèm đồng hồ Casio dây kim loại.',
-    finderDepartment: 'Tổ Chuyên môn Toán',
-    status: 'claimed',
-    images: ['TẬP TÀI LIỆU TOÁN', 'ĐỒNG HỒ CASIO'],
-  },
-];
-
-export const LOST_ITEMS_DATA = ALL_LOST_ITEMS.slice(0, 3);

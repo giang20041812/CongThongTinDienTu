@@ -8,15 +8,12 @@ import { motion } from 'motion/react';
 interface NewsAndAnnouncementsSectionProps {
   onSelectNews: (item: any) => void;
   onSelectAnnouncement: (item: any) => void;
-  onSearch: (query: string) => void;
-  onOpenQuickModal: () => void;
 }
 
 export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionProps> = ({
   onSelectNews,
   onSelectAnnouncement,
   onSearch,
-  onOpenQuickModal,
 }) => {
   const [activeNewsCategory, setActiveNewsCategory] = useState<'all' | 'chuyen-mon' | 'hoat-dong'>('all');
   const { data: rawPosts, loading: loadingPosts } = usePosts();
@@ -453,7 +450,7 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
                 <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Tìm kiếm..." className="w-full h-9 pl-3 pr-9 text-xs bg-white border border-[#B8D3E2] text-black placeholder:text-[#7895AD] focus:border-black focus:ring-1 focus:ring-[#0052cc] focus:outline-none" />
                 <button type="submit" aria-label="Tìm kiếm" className="absolute right-0 top-0 bottom-0 px-2.5 text-black hover:bg-[#EAF3F8] cursor-pointer"><Search className="w-4 h-4" /></button>
               </form>
-              <button onClick={onOpenQuickModal} aria-label="Báo mất đồ" className="h-9 px-2.5 bg-[#0052cc] hover:bg-[#0026e6] text-white flex items-center justify-center cursor-pointer"><AlertCircle className="w-4 h-4" /></button>
+
             </div>
             
             {/* Header: Thông báo */}

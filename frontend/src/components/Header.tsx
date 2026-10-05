@@ -111,7 +111,6 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'du-hoc', label: 'Du Học' },
     { id: 'tkb', label: 'TKB' },
     { id: 'lich-lam-viec', label: 'Lịch làm việc' },
-    { id: 'do-that-lac', label: 'Đồ thất lạc' },
   ];
 
   const handleNavItemClick = (item: typeof navItems[0]) => {

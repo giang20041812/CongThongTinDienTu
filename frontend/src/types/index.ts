@@ -66,25 +66,12 @@ export interface ClubItem {
   imageUrl?: string;
 }
 
-export interface LostItem {
-  id: string;
-  title: string;
-  itemType: string;
-  dateFound: string;
-  locationFound: string;
-  description: string;
-  finderDepartment: string;
-  status: 'pending' | 'claimed';
-  images: [string, string];
-}
 
 export type ActiveModal =
   | { type: 'news'; data: NewsItem }
   | { type: 'announcement'; data: AnnouncementItem }
-  | { type: 'lostItem'; data: LostItem }
   | { type: 'tkb' }
   | { type: 'calendar' }
-  | { type: 'reportLost' }
   | null;
 
 export type PageRoute =
@@ -99,7 +86,5 @@ export type PageRoute =
   | { view: 'study-abroad-detail'; id: string }
   | { view: 'tkb' }
   | { view: 'calendar' }
-  | { view: 'lost-found-list' }
-  | { view: 'lost-found-detail'; id: string }
   | { view: 'clubs-list' }
   | { view: 'club-detail'; id: string };
