@@ -135,14 +135,14 @@ export default function App() {
   // Search matching across articles & announcements
   const searchResults = searchQuery
     ? allSearchableItems.filter((item) =>
-        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.summary.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.summary.toLowerCase().includes(searchQuery.toLowerCase())
+    )
     : [];
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-black selection:bg-[#0052cc] selection:text-white">
-      
+
       {/* 1. TOP HEADER & NAVIGATION */}
       <Header
         activeTab={getActiveTabId()}
