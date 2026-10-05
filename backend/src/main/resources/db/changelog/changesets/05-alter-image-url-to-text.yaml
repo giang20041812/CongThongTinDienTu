@@ -1,9 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 05-alter-image-url-to-text
-      author: admin
-      changes:
-        - modifyDataType:
-            tableName: lost_found_reports
-            columnName: image_url
-            newDataType: text

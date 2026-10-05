@@ -189,29 +189,7 @@ databaseChangeLog:
                   name: author_id
                   value: "b7f8c14e-9b2f-4c12-a1b7-e2c8a14b3d7c"
                   
-        # Seed Lost & Found
-        - insert:
-            tableName: lost_found_reports
-            columns:
-              - column:
-                  name: id
-                  value: "f3b80121-7b5f-4a00-8b1a-9f5e3d2c1b01"
-              - column:
-                  name: item_name
-                  value: "Ví da màu đen"
-              - column:
-                  name: description
-                  value: "Bên trong có thẻ học sinh và một số giấy tờ tùy thân"
-              - column:
-                  name: location
-                  value: "Sân trường, khu vực ghế đá"
-              - column:
-                  name: contact_info
-                  value: "Nguyễn Văn A - Lớp 10A1"
-              - column:
-                  name: status
-                  value: "PENDING"
-                  
+
         # Seed Schedules
         - insert:
             tableName: schedules

@@ -9,7 +9,7 @@ import { NavigationBar } from './components/NavigationBar';
 import { HeroSlider } from './components/HeroSlider';
 import { NewsAndAnnouncementsSection } from './components/NewsAndAnnouncementsSection';
 import { MultiCategorySection } from './components/MultiCategorySection';
-import { LostFoundBanner } from './components/LostFoundBanner';
+
 import { QuickLinksSection } from './components/QuickLinksSection';
 import { Footer } from './components/Footer';
 import { Modals } from './components/Modals';
@@ -24,7 +24,7 @@ import { AdmissionsListPage, AdmissionDetailPage } from './pages/AdmissionsPages
 import { StudyAbroadListPage, StudyAbroadDetailPage } from './pages/StudyAbroadPages';
 import { SchedulePage } from './pages/SchedulePage';
 import { WorkCalendarPage } from './pages/WorkCalendarPage';
-import { LostFoundListPage, LostItemDetailPage } from './pages/LostFoundPages';
+
 import { ClubsListPage, ClubDetailPage } from './pages/ClubsPages';
 import { AdminApp } from './pages/AdminPages';
 
@@ -94,9 +94,7 @@ export default function App() {
       case 'lich-lam-viec':
         setCurrentRoute({ view: 'calendar' });
         break;
-      case 'do-that-lac':
-        setCurrentRoute({ view: 'lost-found-list' });
-        break;
+
       default:
         setCurrentRoute({ view: 'home' });
     }
@@ -200,15 +198,11 @@ export default function App() {
                 else if (view === 'admissions-list') setCurrentRoute({ view: 'admissions-list' });
                 else if (view === 'study-abroad-list') setCurrentRoute({ view: 'study-abroad-list' });
                 else if (view === 'clubs-list') setCurrentRoute({ view: 'clubs-list' });
-                else if (view === 'lost-found-list') setCurrentRoute({ view: 'lost-found-list' });
+
               }}
             />
 
-            {/* Section 4: Góc thất lạc - full width horizontal scroll */}
-            <LostFoundBanner
-              onSelectLostItem={(item) => setCurrentRoute({ view: 'lost-found-detail', id: item.id })}
-              onOpenReportLostModal={() => setActiveModal({ type: 'reportLost' })}
-            />
+
           </>
         )}
 
@@ -287,22 +281,7 @@ export default function App() {
           <WorkCalendarPage onGoHome={() => setCurrentRoute({ view: 'home' })} />
         )}
 
-        {/* VIEW: LOST & FOUND LIST */}
-        {currentRoute.view === 'lost-found-list' && (
-          <LostFoundListPage
-            onSelectLostItem={(id) => setCurrentRoute({ view: 'lost-found-detail', id })}
-            onOpenReportModal={() => setActiveModal({ type: 'reportLost' })}
-            onGoHome={() => setCurrentRoute({ view: 'home' })}
-          />
-        )}
 
-        {/* VIEW: LOST ITEM DETAIL */}
-        {currentRoute.view === 'lost-found-detail' && (
-          <LostItemDetailPage
-            lostItemId={currentRoute.id}
-            onBack={() => setCurrentRoute({ view: 'lost-found-list' })}
-          />
-        )}
 
         {/* VIEW: CLUBS LIST */}
         {currentRoute.view === 'clubs-list' && (

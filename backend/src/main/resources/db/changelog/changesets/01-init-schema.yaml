@@ -154,37 +154,6 @@ databaseChangeLog:
                   type: TIMESTAMP
                   defaultValueComputed: CURRENT_TIMESTAMP
         - createTable:
-            tableName: lost_found_reports
-            columns:
-              - column:
-                  name: id
-                  type: UUID
-                  defaultValueComputed: uuid_generate_v4()
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: item_name
-                  type: VARCHAR(255)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: description
-                  type: TEXT
-              - column:
-                  name: location
-                  type: VARCHAR(255)
-              - column:
-                  name: contact_info
-                  type: VARCHAR(255)
-              - column:
-                  name: status
-                  type: VARCHAR(20)
-                  defaultValue: 'PENDING'
-              - column:
-                  name: reported_at
-                  type: TIMESTAMP
-                  defaultValueComputed: CURRENT_TIMESTAMP
-        - createTable:
             tableName: schedules
             columns:
               - column:
