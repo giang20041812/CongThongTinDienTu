@@ -21,7 +21,7 @@ import type { PageRoute } from './types';
 import { CategoryPage } from './pages/CategoryPage';
 import { PostDetailPage } from './pages/PostDetailPage';
 
-// The admin workspace is only downloaded when someone opens /admin.
+// The admin d workspace is only downloaded when someone opens /admin.
 const AdminApp = lazy(() => import('./pages/AdminPages').then((module) => ({ default: module.AdminApp })));
 
 const HomePage: React.FC = () => {
