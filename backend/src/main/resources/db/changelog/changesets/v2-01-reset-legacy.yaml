@@ -1,0 +1,11 @@
+databaseChangeLog:
+  # Schema v2 (menu tree) replaces the Hibernate-generated v1 tables; the old data is
+  # intentionally discarded. Runs once; on an empty database it does nothing.
+  - changeSet:
+      id: v2-01-reset-legacy
+      author: portal
+      changes:
+        - sql:
+            sql: >
+              DROP TABLE IF EXISTS post_attachments, post_blocks, posts, announcements, schedules,
+              feedbacks, site_settings, categories, users CASCADE;

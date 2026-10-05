@@ -1,90 +1,114 @@
-export interface NewsItem {
+/** How a menu entry is rendered (mirrors the backend PageType enum). */
+export type PageType = 'GROUP' | 'PAGE' | 'POST_LIST' | 'DOCUMENT_LIST' | 'SCHEDULE' | 'CONTACT' | 'MAP' | 'FEEDBACK' | 'LINK';
+
+/** A menu entry. Top-level entries have parentId = null; the menu has two levels. */
+export interface Category {
   id: string;
-  title: string;
-  date: string;
-  category: string;
-  imageFallbackTitle: string;
-  summary: string;
-  content: string;
-  author: string;
-  views: number;
-  imageUrl?: string;
+  parentId: string | null;
+  name: string;
+  slug: string;
+  pageType: PageType;
+  sortOrder: number;
+  visible: boolean;
+  showOnHome: boolean;
+  externalUrl?: string | null;
+  description?: string | null;
 }
 
-export interface AnnouncementItem {
-  id: string;
-  title: string;
-  date: string;
-  department: string;
-  isImportant?: boolean;
-  fileAttachment?: string;
-  content: string;
+export interface MenuNode extends Category {
+  children: Category[];
 }
 
-export interface SchoolHighlight {
-  id: string;
-  title: string;
-  date: string;
-  summary: string;
-  tag: string;
-  stats?: { label: string; value: string };
-  content: string;
-  imageUrl?: string;
-}
-
-export interface AdmissionItem {
-  id: string;
-  title: string;
-  date: string;
-  deadline?: string;
-  target: string;
-  quota?: number;
-  description: string;
-  imageUrl?: string;
-}
-
-export interface StudyAbroadItem {
-  id: string;
-  title: string;
-  country: string;
-  date: string;
-  scholarshipRate: string;
-  deadline: string;
-  description: string;
-  imageUrl?: string;
-}
-
-export interface ClubItem {
+export interface CategoryRef {
   id: string;
   name: string;
-  category: string;
-  members: number;
-  description: string;
-  established: string;
-  badgeText: string;
-  recentActivity: string;
-  imageUrl?: string;
+  slug: string;
+  pageType: PageType;
 }
 
+export interface PostSummaryDto {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string | null;
+  coverUrl: string | null;
+  status: string;
+  pinned: boolean;
+  views: number;
+  publishedAt: string | null;
+  category: CategoryRef | null;
+  author: string | null;
+  documentNumber: string | null;
+  issuer: string | null;
+  issuedDate: string | null;
+  attachmentCount: number;
+}
 
-export type ActiveModal =
-  | { type: 'news'; data: NewsItem }
-  | { type: 'announcement'; data: AnnouncementItem }
-  | { type: 'tkb' }
-  | { type: 'calendar' }
-  | null;
+export interface BlockDto {
+  type: 'TEXT' | 'IMAGE';
+  content?: string | null;
+  imageUrl?: string | null;
+}
+
+export interface AttachmentDto {
+  id?: string;
+  name: string;
+  url: string;
+  sizeBytes?: number | null;
+  mimeType?: string | null;
+}
+
+export interface PostDetailDto extends Omit<PostSummaryDto, 'attachmentCount'> {
+  updatedAt: string | null;
+  recipient: string | null;
+  actionRequired: string | null;
+  blocks: BlockDto[];
+  attachments: AttachmentDto[];
+}
+
+export interface PageResponse<T> {
+  items: T[];
+  page: number;
+  size: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface FeedbackDto {
+  id: string;
+  fullName: string;
+  email: string | null;
+  phone: string | null;
+  subject: string | null;
+  content: string;
+  status: 'NEW' | 'IN_PROGRESS' | 'RESOLVED';
+  note: string | null;
+  createdAt: string;
+}
+
+/** Lesson slot; times come from the API as "HH:mm" or "HH:mm:ss". */
+export interface TimetablePeriod {
+  period: number;
+  startTime: string;
+  endTime: string;
+}
+
+/** dayOfWeek uses Vietnamese numbering: 2 = Thứ Hai … 7 = Thứ Bảy, 8 = Chủ nhật. */
+export interface TimetableEntry {
+  className: string;
+  grade: number;
+  dayOfWeek: number;
+  period: number;
+  subject: string;
+  teacher: string | null;
+}
+
+export interface Timetable {
+  periods: TimetablePeriod[];
+  entries: TimetableEntry[];
+}
 
 export type PageRoute =
   | { view: 'home' }
-  | { view: 'news-list' }
-  | { view: 'news-detail'; id: string }
-  | { view: 'announcement-list' }
-  | { view: 'announcement-detail'; id: string }
-  | { view: 'admissions-list' }
-  | { view: 'admission-detail'; id: string }
-  | { view: 'study-abroad-list' }
-  | { view: 'study-abroad-detail'; id: string }
-  | { view: 'tkb' }
-  | { view: 'calendar' }
-  | { view: 'clubs-list' }
-  | { view: 'club-detail'; id: string };
+  | { view: 'category'; slug: string }
+  | { view: 'post'; slug: string };

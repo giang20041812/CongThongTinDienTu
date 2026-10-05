@@ -1,15 +1,9 @@
 databaseChangeLog:
   - include:
-      file: db/changelog/changesets/01-init-schema.yaml
+      file: db/changelog/changesets/v2-01-reset-legacy.yaml
   - include:
-      file: db/changelog/changesets/02-seed-data.yaml
+      file: db/changelog/changesets/v2-02-schema.yaml
   - include:
-      file: db/changelog/changesets/03-add-image-url.yaml
+      file: db/changelog/changesets/v2-03-seed.yaml
   - include:
-      file: db/changelog/changesets/04-add-tracking-fields.yaml
-  - include:
-      file: db/changelog/changesets/05-alter-image-url-to-text.yaml
-  - include:
-      file: db/changelog/changesets/06-add-banner-url.yaml
-  - include:
-      file: db/changelog/changesets/07-add-img-url.yaml
+      file: db/changelog/changesets/v2-04-timetable.yaml

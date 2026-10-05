@@ -5,7 +5,9 @@ import lombok.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "post_blocks")
+@Table(name = "post_blocks", indexes = {
+        @Index(name = "idx_post_blocks_post", columnList = "post_id, order_index")
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,6 +20,8 @@ public class PostBlock {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     @com.fasterxml.jackson.annotation.JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Post post;
 
     @Enumerated(EnumType.STRING)
@@ -27,7 +31,7 @@ public class PostBlock {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    @Column(name = "image_url")
+    @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
 
     @Column(name = "order_index", nullable = false)

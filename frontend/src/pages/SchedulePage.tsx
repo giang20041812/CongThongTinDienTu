@@ -1,193 +1,273 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Clock, Calendar, Download, Printer, Filter, CheckCircle } from 'lucide-react';
-import { SCHOOL_INFO } from '../data/mockData';
-import { BackgroundGeometricMesh } from '../components/BackgroundGeometricMesh';
-import { useSchedules } from '../api';
+import React, { useEffect, useMemo, useState } from 'react';
+import { CalendarClock, Clock, Info, Printer } from 'lucide-react';
+import { useTimetable } from '../api';
+import { splitLines, useSite } from '../lib/site';
+import type { TimetableEntry, TimetablePeriod } from '../types';
+import { SectionHeader, type SectionProps } from '../components/SectionHeader';
+import { Container, EmptyState, ListSkeleton, Reveal, cx, secondaryButton } from '../components/ui';
 
-interface SchedulePageProps {
-  onGoHome: () => void;
-}
+export const DAY_LABELS: Record<number, string> = { 2: 'Thứ Hai', 3: 'Thứ Ba', 4: 'Thứ Tư', 5: 'Thứ Năm', 6: 'Thứ Sáu', 7: 'Thứ Bảy', 8: 'Chủ nhật' };
+/** Periods after this one are the afternoon session. */
+export const LAST_MORNING_PERIOD = 5;
+const HIGHLIGHTED = new Set(['chào cờ', 'sinh hoạt lớp']);
+const CLASS_KEY = 'tkb-class';
 
-export const SchedulePage: React.FC<SchedulePageProps> = ({ onGoHome }) => {
-  const [selectedGrade, setSelectedGrade] = useState<'10' | '11' | '12'>('10');
-  const [selectedClass, setSelectedClass] = useState<string>('10 Tin');
+export const formatPeriodTime = (p?: TimetablePeriod) => (p ? `${p.startTime.slice(0, 5)} – ${p.endTime.slice(0, 5)}` : '');
 
-  const classesByGrade: Record<string, string[]> = {
-    '10': ['10 Tin', '10 Toán 1', '10 Toán 2', '10 Lý', '10 Hóa', '10 Anh 1', '10 Song Bằng'],
-    '11': ['11 Tin', '11 Toán 1', '11 Toán 2', '11 Lý', '11 Anh 1', '11 Văn'],
-    '12': ['12 Tin', '12 Toán 1', '12 Toán 2', '12 Lý', '12 Hóa', '12 Anh 1'],
+/** Natural sort so "10A2" comes before "10A10". */
+export const compareClassNames = (a: string, b: string) => a.localeCompare(b, 'vi', { numeric: true, sensitivity: 'base' });
+
+const todayNumber = () => {
+  const day = new Date().getDay();
+  return day === 0 ? 8 : day + 1;
+};
+
+const readStoredClass = () => {
+  try {
+    return localStorage.getItem(CLASS_KEY);
+  } catch {
+    return null;
+  }
+};
+
+const Cell: React.FC<{ entry?: TimetableEntry }> = ({ entry }) =>
+  entry ? (
+    <div className={cx('inline-flex flex-col rounded-lg px-2.5 py-1 text-center', HIGHLIGHTED.has(entry.subject.toLowerCase()) && 'bg-gold-100')}>
+      <span className={cx('text-[13px] font-semibold leading-snug', HIGHLIGHTED.has(entry.subject.toLowerCase()) ? 'text-gold-700' : 'text-ink')}>{entry.subject}</span>
+      {entry.teacher && <span className="text-[11.5px] text-muted">{entry.teacher}</span>}
+    </div>
+  ) : (
+    <span className="text-[13px] text-line">—</span>
+  );
+
+/** Class timetable from /api/timetable: pick a grade and a class, see the week by session. */
+export const SchedulePage: React.FC<SectionProps> = (props) => {
+  const { data, loading } = useTimetable();
+  const site = useSite();
+  const notes = splitLines(site.timetable_notes);
+
+  const classes = useMemo(() => {
+    const byName = new Map<string, number>();
+    data.entries.forEach((e) => byName.set(e.className, e.grade));
+    return Array.from(byName, ([name, grade]) => ({ name, grade })).sort((a, b) => a.grade - b.grade || compareClassNames(a.name, b.name));
+  }, [data.entries]);
+  const grades = useMemo(() => Array.from(new Set(classes.map((c) => c.grade))), [classes]);
+
+  const [className, setClassName] = useState<string | null>(null);
+  useEffect(() => {
+    if (classes.length === 0) return;
+    if (className && classes.some((c) => c.name === className)) return;
+    const stored = readStoredClass();
+    setClassName(classes.some((c) => c.name === stored) ? stored : classes[0].name);
+  }, [classes]);
+
+  const selectClass = (name: string) => {
+    setClassName(name);
+    try {
+      localStorage.setItem(CLASS_KEY, name);
+    } catch {
+      /* storage unavailable */
+    }
   };
 
-  const { data: dbSchedules, loading } = useSchedules();
+  const current = classes.find((c) => c.name === className);
+  const grade = current?.grade ?? grades[0];
+  const cells = useMemo(() => {
+    const map = new Map<string, TimetableEntry>();
+    data.entries.filter((e) => e.className === className).forEach((e) => map.set(`${e.dayOfWeek}-${e.period}`, e));
+    return map;
+  }, [data.entries, className]);
 
-  const scheduleData = dbSchedules && dbSchedules.length > 0 ? [
-    { period: 'Tiết 1', time: '07:30 - 08:15', mon: dbSchedules[0]?.className || 'Chào Cờ', tue: 'Toán học', wed: 'Tin học', thu: 'Vật lý', fri: 'Hóa học' },
-    { period: 'Tiết 2', time: '08:20 - 09:05', mon: 'Ngữ văn', tue: 'Toán học', wed: 'Tin học', thu: 'Tiếng Anh', fri: 'Sinh học' },
-    { period: 'Tiết 3', time: '09:20 - 10:05', mon: 'Ngữ văn', tue: 'Tiếng Anh', wed: 'Lịch sử', thu: 'Địa lý', fri: 'Tin học' },
-    { period: 'Tiết 4', time: '10:10 - 10:55', mon: 'Vật lý', tue: 'Hóa học', wed: 'Thể dục', thu: 'GDQP-AN', fri: 'Toán học' },
-    { period: 'Tiết 5', time: '11:00 - 11:45', mon: 'Tin học', tue: 'GDCD', wed: 'Công nghệ', thu: 'Tiếng Anh', fri: 'Sinh hoạt lớp' },
-  ] : [
-    { period: 'Tiết 1', time: '07:30 - 08:15', mon: 'Chào Cờ', tue: 'Toán học', wed: 'Tin học', thu: 'Vật lý', fri: 'Hóa học' },
-    { period: 'Tiết 2', time: '08:20 - 09:05', mon: 'Ngữ văn', tue: 'Toán học', wed: 'Tin học', thu: 'Tiếng Anh', fri: 'Sinh học' },
-    { period: 'Tiết 3', time: '09:20 - 10:05', mon: 'Ngữ văn', tue: 'Tiếng Anh', wed: 'Lịch sử', thu: 'Địa lý', fri: 'Tin học' },
-    { period: 'Tiết 4', time: '10:10 - 10:55', mon: 'Vật lý', tue: 'Hóa học', wed: 'Thể dục', thu: 'GDQP-AN', fri: 'Toán học' },
-    { period: 'Tiết 5', time: '11:00 - 11:45', mon: 'Tin học', tue: 'GDCD', wed: 'Công nghệ', thu: 'Tiếng Anh', fri: 'Sinh hoạt lớp' },
-  ];
+  // Weekdays shown: Monday–Friday always, Saturday/Sunday only if the school teaches then.
+  const days = useMemo(() => {
+    const set = new Set([2, 3, 4, 5, 6]);
+    data.entries.forEach((e) => set.add(e.dayOfWeek));
+    return Array.from(set).sort((a, b) => a - b);
+  }, [data.entries]);
 
-  if (loading) return <div className="text-center py-20">Đang tải...</div>;
+  const sessions = useMemo(() => {
+    const used = new Set(Array.from(cells.values()).map((e) => e.period));
+    const morning = data.periods.filter((p) => p.period <= LAST_MORNING_PERIOD && (used.has(p.period) || used.size > 0));
+    const afternoon = data.periods.filter((p) => p.period > LAST_MORNING_PERIOD && used.has(p.period));
+    return [
+      { label: 'Buổi sáng', periods: morning },
+      { label: 'Buổi chiều', periods: afternoon },
+    ].filter((s) => s.periods.length > 0);
+  }, [cells, data.periods]);
+
+  const today = todayNumber();
+  const lessonCount = cells.size;
 
   return (
-    <div className="w-full bg-[#F3F3F3] min-h-screen py-8 sm:py-12 relative">
-      <BackgroundGeometricMesh variant="grid" className="opacity-60" />
-
-      <div className="max-w-7xl mx-auto px-4 relative z-10">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-xs font-mono text-black mb-6">
-          <button onClick={onGoHome} className="hover:text-[#0875B1] transition-colors cursor-pointer">
-            Trang chủ
+    <>
+      <SectionHeader
+        {...props}
+        aside={
+          <button onClick={() => window.print()} className="no-print inline-flex items-center gap-2 rounded-full bg-white/10 px-5 py-2.5 text-sm font-semibold text-white ring-1 ring-white/20 transition-colors hover:bg-white/20">
+            <Printer className="size-4" />
+            In thời khóa biểu
           </button>
-          <span>/</span>
-          <span className="text-[#0875B1] font-bold">Thời Khóa Biểu</span>
-        </nav>
-
-        {/* Page Header */}
-        <div className="border-b-2 border-[#0052cc] pb-4 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <span className="text-[11px] font-mono tracking-widest uppercase text-[#0875B1] font-bold flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5" />
-              LỊCH HỌC TẬP VÀ GIẢNG DẠY CHÍNH KHÓA
-            </span>
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-[#1C1917] tracking-tight uppercase mt-1">
-              Thời Khóa Biểu Học Kỳ I (2026–2027)
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => window.print()}
-              className="px-3.5 py-2 bg-white hover:bg-stone-50 border border-stone-300 text-black text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer shadow-xs"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              <span>In TKB</span>
-            </button>
-            <button
-              onClick={() => alert(`Đang tải tệp PDF Thời Khóa Biểu lớp ${selectedClass}`)}
-              className="px-4 py-2 bg-[#0052cc] hover:bg-[#0026e6] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer shadow-xs"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>Tải PDF TKB</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Filters: Grade & Class */}
-        <div className="bg-white border-2 border-[#0052cc] p-5 mb-8 shadow-xs">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            
-            {/* Grade Selection */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase text-black font-mono">Khối:</span>
-              <div className="flex gap-1">
-                {(['10', '11', '12'] as const).map((grade) => (
-                  <button
-                    key={grade}
-                    onClick={() => {
-                      setSelectedGrade(grade);
-                      setSelectedClass(classesByGrade[grade][0]);
-                    }}
-                    className={`px-3 py-1.5 text-xs font-bold transition-colors cursor-pointer border ${
-                      selectedGrade === grade
-                        ? 'bg-[#0052cc] text-white border-[#0052cc]'
-                        : 'bg-stone-50 text-black border-stone-300 hover:border-stone-400'
-                    }`}
-                  >
-                    Khối {grade}
-                  </button>
-                ))}
+        }
+      />
+      <Container className="py-10 sm:py-12">
+        {loading ? (
+          <ListSkeleton rows={5} />
+        ) : classes.length === 0 ? (
+          <EmptyState title="Chưa có thời khóa biểu" description="Thời khóa biểu sẽ được nhà trường cập nhật tại đây." />
+        ) : (
+          <>
+            <Reveal>
+              <div className="no-print rounded-2xl border border-line bg-white p-5 shadow-card sm:p-6">
+                <div className="flex flex-col gap-5 lg:flex-row lg:items-center">
+                  <div className="flex items-center gap-3">
+                    <span className="text-[12px] font-semibold uppercase tracking-wider text-muted">Khối</span>
+                    <div className="inline-flex rounded-full bg-surface p-1">
+                      {grades.map((g) => (
+                        <button
+                          key={g}
+                          onClick={() => selectClass(classes.find((c) => c.grade === g)!.name)}
+                          className={cx(
+                            'rounded-full px-4 py-1.5 text-[13px] font-semibold transition-all duration-300',
+                            grade === g ? 'bg-brand-600 text-white shadow-sm' : 'text-body hover:text-brand-600',
+                          )}
+                        >
+                          Khối {g}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex min-w-0 items-center gap-3 lg:border-l lg:border-line lg:pl-5">
+                    <span className="shrink-0 text-[12px] font-semibold uppercase tracking-wider text-muted">Lớp</span>
+                    <div className="scrollbar-none flex gap-1.5 overflow-x-auto">
+                      {classes
+                        .filter((c) => c.grade === grade)
+                        .map((c) => (
+                          <button
+                            key={c.name}
+                            onClick={() => selectClass(c.name)}
+                            className={cx(
+                              'shrink-0 rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-all duration-300',
+                              className === c.name ? 'border-gold-400 bg-gold-100 text-gold-700' : 'border-line bg-white text-body hover:border-brand-300 hover:text-brand-600',
+                            )}
+                          >
+                            {c.name}
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            </Reveal>
 
-            {/* Class Selection */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-bold uppercase text-black font-mono">Lớp:</span>
-              <div className="flex flex-wrap gap-1">
-                {classesByGrade[selectedGrade].map((cls) => (
-                  <button
-                    key={cls}
-                    onClick={() => setSelectedClass(cls)}
-                    className={`px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer border ${
-                      selectedClass === cls
-                        ? 'bg-[#0875B1] text-white border-[#0875B1]'
-                        : 'bg-white text-black border-stone-300 hover:border-stone-400'
-                    }`}
-                  >
-                    {cls}
-                  </button>
-                ))}
+            <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-bold">
+                  Lớp <span className="text-brand-600">{className}</span>
+                </h2>
+                {site.timetable_term && (
+                  <p className="mt-1 inline-flex items-center gap-1.5 text-[13px] text-muted">
+                    <CalendarClock className="size-4 text-gold-600" />
+                    {site.timetable_term}
+                  </p>
+                )}
               </div>
+              <p className="inline-flex items-center gap-1.5 text-[13px] text-muted">
+                <Clock className="size-4 text-gold-600" />
+                {lessonCount} tiết / tuần
+              </p>
             </div>
 
-          </div>
+            {sessions.map((session) => (
+              <section key={session.label} className="mt-5">
+                <h3 className="mb-3 text-[14px] font-bold uppercase tracking-wider text-brand-700">{session.label}</h3>
 
-          <div className="mt-4 pt-3 border-t border-stone-200 flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-black">
-            <div>
-              Đang xem lịch lớp: <span className="font-bold text-[#0875B1]">{selectedClass}</span> · Phòng học: <span className="font-bold text-black">Nhà A - Phòng 302</span>
+                {/* Desktop / tablet table */}
+                <Reveal className="hidden md:block">
+                  <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-card">
+                    <table className="w-full border-collapse text-left">
+                      <thead>
+                        <tr className="bg-brand-700 text-white">
+                          <th className="w-20 px-4 py-3.5 text-[12.5px] font-semibold uppercase tracking-wider">Tiết</th>
+                          <th className="w-32 px-3 py-3.5 text-[12.5px] font-semibold uppercase tracking-wider">Thời gian</th>
+                          {days.map((day) => (
+                            <th key={day} className={cx('px-3 py-3.5 text-center text-[12.5px] font-semibold uppercase tracking-wider', day === today && 'bg-brand-500')}>
+                              {DAY_LABELS[day]}
+                              {day === today && <span className="ml-1.5 rounded-full bg-gold-400 px-1.5 py-0.5 text-[10px] text-brand-950">Hôm nay</span>}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-line">
+                        {session.periods.map((p) => (
+                          <tr key={p.period} className="transition-colors hover:bg-brand-50/40">
+                            <td className="px-4 py-3 text-[14px] font-bold text-brand-700">Tiết {p.period}</td>
+                            <td className="px-3 py-3 text-[13px] tabular-nums text-muted">{formatPeriodTime(p)}</td>
+                            {days.map((day) => (
+                              <td key={day} className={cx('px-2 py-2.5 text-center', day === today && 'bg-gold-50/70')}>
+                                <Cell entry={cells.get(`${day}-${p.period}`)} />
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </Reveal>
+
+                {/* Mobile: one card per day */}
+                <div className="grid gap-4 md:hidden">
+                  {days.map((day) => {
+                    const lessons = session.periods.filter((p) => cells.has(`${day}-${p.period}`));
+                    if (lessons.length === 0) return null;
+                    return (
+                      <div key={day} className={cx('overflow-hidden rounded-2xl border bg-white shadow-card', day === today ? 'border-gold-400' : 'border-line')}>
+                        <div className={cx('flex items-center justify-between px-4 py-3 text-white', day === today ? 'bg-brand-600' : 'bg-brand-700')}>
+                          <span className="font-semibold">{DAY_LABELS[day]}</span>
+                          {day === today && <span className="rounded-full bg-gold-400 px-2 py-0.5 text-[11px] font-semibold text-brand-950">Hôm nay</span>}
+                        </div>
+                        <ul className="divide-y divide-line">
+                          {lessons.map((p) => {
+                            const entry = cells.get(`${day}-${p.period}`)!;
+                            return (
+                              <li key={p.period} className="flex items-center gap-3 px-4 py-2.5">
+                                <span className="w-14 shrink-0 text-[13px] font-bold text-brand-700">Tiết {p.period}</span>
+                                <span className="w-24 shrink-0 text-[12px] tabular-nums text-muted">{formatPeriodTime(p)}</span>
+                                <span className="min-w-0">
+                                  <span className="block text-[13.5px] font-semibold text-ink">{entry.subject}</span>
+                                  {entry.teacher && <span className="block text-[12px] text-muted">{entry.teacher}</span>}
+                                </span>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            ))}
+
+            {notes.length > 0 && (
+              <Reveal className="mt-8">
+                <div className="flex gap-4 rounded-2xl border border-brand-100 bg-brand-50/60 p-5">
+                  <Info className="mt-0.5 size-5 shrink-0 text-brand-600" />
+                  <ul className="space-y-1.5 text-[14px] text-body">
+                    {notes.map((note) => (
+                      <li key={note}>{note}</li>
+                    ))}
+                  </ul>
+                </div>
+              </Reveal>
+            )}
+            <div className="no-print mt-6 flex justify-end">
+              <button onClick={() => window.print()} className={secondaryButton}>
+                <Printer className="size-4" />
+                In thời khóa biểu lớp {className}
+              </button>
             </div>
-            <div>Giáo viên chủ nhiệm: <span className="font-bold text-black">ThS. Hoàng Văn Tuấn</span></div>
-          </div>
-        </div>
-
-        {/* Timetable Schedule Grid */}
-        <div className="bg-white border-2 border-[#0052cc] shadow-md overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs sm:text-sm">
-            <thead>
-              <tr className="bg-[#0052cc] text-white font-bold text-center border-b border-[#0026e6]">
-                <th className="p-3 border-r border-[#0026e6] w-20">Tiết</th>
-                <th className="p-3 border-r border-[#0026e6] w-32">Thời gian</th>
-                <th className="p-3 border-r border-[#0026e6]">Thứ Hai</th>
-                <th className="p-3 border-r border-[#0026e6]">Thứ Ba</th>
-                <th className="p-3 border-r border-[#0026e6]">Thứ Tư</th>
-                <th className="p-3 border-r border-[#0026e6]">Thứ Năm</th>
-                <th className="p-3">Thứ Sáu</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-stone-200 font-mono text-center">
-              {scheduleData.map((row) => (
-                <tr key={row.period} className="hover:bg-[#F3F3F3] transition-colors">
-                  <td className="p-3.5 font-bold bg-[#EAF3F8] border-r border-[#B8D3E2] text-[#0875B1]">
-                    {row.period}
-                  </td>
-                  <td className="p-3.5 border-r border-stone-200 text-black text-xs">
-                    {row.time}
-                  </td>
-                  <td className="p-3.5 border-r border-stone-200 font-sans font-semibold text-stone-900">
-                    <span className={row.mon === 'Chào Cờ' ? 'text-[#0875B1] font-bold' : ''}>{row.mon}</span>
-                  </td>
-                  <td className="p-3.5 border-r border-stone-200 font-sans font-semibold text-stone-900">
-                    {row.tue}
-                  </td>
-                  <td className="p-3.5 border-r border-stone-200 font-sans font-semibold text-stone-900">
-                    {row.wed}
-                  </td>
-                  <td className="p-3.5 border-r border-stone-200 font-sans font-semibold text-stone-900">
-                    {row.thu}
-                  </td>
-                  <td className="p-3.5 font-sans font-semibold text-stone-900">
-                    <span className={row.fri === 'Sinh hoạt lớp' ? 'text-[#0875B1] font-bold' : ''}>{row.fri}</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Schedule Footnotes */}
-        <div className="mt-6 p-4 bg-white border border-stone-200 text-xs text-black space-y-1 font-mono">
-          <div>* Tiết học buổi sáng bắt đầu từ 07:30, học sinh có mặt trước giờ truy bài 15 phút.</div>
-          <div>* Các buổi học thực hành Tin học diễn ra tại Phòng máy Lab 1 & 2 tầng 3 nhà A.</div>
-          <div>* Giờ thể dục và giáo dục quốc phòng tập trung tại Sân vận động đa năng khu B.</div>
-        </div>
-      </div>
-    </div>
+          </>
+        )}
+      </Container>
+    </>
   );
 };

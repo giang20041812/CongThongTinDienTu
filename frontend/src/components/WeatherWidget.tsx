@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Cloud, CloudRain, Sun, CloudSun, Wind, Thermometer, CloudLightning } from 'lucide-react';
+import { Cloud, CloudLightning, CloudRain, CloudSun, Snowflake, Sun } from 'lucide-react';
+import { cx } from './ui';
 
 interface WeatherData {
   temperature: number;
@@ -7,85 +8,63 @@ interface WeatherData {
   weathercode: number;
 }
 
-export const WeatherWidget: React.FC = () => {
+const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=21.0245&longitude=105.8412&current_weather=true';
+
+const describe = (code: number) => {
+  if (code <= 1) return { Icon: Sun, label: 'Trời quang', tone: 'text-gold-500' };
+  if (code <= 3) return { Icon: CloudSun, label: 'Ít mây', tone: 'text-gold-500' };
+  if (code <= 48) return { Icon: Cloud, label: 'Sương mù', tone: 'text-muted' };
+  if (code <= 67 || (code >= 80 && code <= 82)) return { Icon: CloudRain, label: 'Có mưa', tone: 'text-brand-500' };
+  if (code <= 77) return { Icon: Snowflake, label: 'Lạnh', tone: 'text-brand-400' };
+  if (code >= 95) return { Icon: CloudLightning, label: 'Dông', tone: 'text-flame-500' };
+  return { Icon: CloudSun, label: 'Nhiều mây', tone: 'text-gold-500' };
+};
+
+/** Hà Nội weather + clock. The clock ticks every 20s (minute precision) instead of every second. */
+export const WeatherWidget: React.FC<{ className?: string }> = ({ className }) => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
+    const timer = window.setInterval(() => setNow(new Date()), 20_000);
+    return () => window.clearInterval(timer);
   }, []);
 
   useEffect(() => {
-    // Fetch real weather for Hanoi using Open-Meteo (free, no auth)
-    const fetchWeather = async () => {
-      try {
-        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=21.0245&longitude=105.8412&current_weather=true');
-        const data = await res.json();
-        setWeather(data.current_weather);
-      } catch (error) {
-        console.error('Failed to fetch weather', error);
-      }
-    };
+    const controller = new AbortController();
+    const fetchWeather = () =>
+      fetch(WEATHER_URL, { signal: controller.signal })
+        .then((res) => res.json())
+        .then((data) => setWeather(data.current_weather ?? null))
+        .catch(() => undefined);
     fetchWeather();
-    // Refresh every 30 minutes
-    const weatherTimer = setInterval(fetchWeather, 30 * 60 * 1000);
-    return () => clearInterval(weatherTimer);
+    const timer = window.setInterval(fetchWeather, 30 * 60 * 1000);
+    return () => {
+      controller.abort();
+      window.clearInterval(timer);
+    };
   }, []);
 
-  // Map WMO Weather codes to icons
-  const getWeatherIcon = (code: number) => {
-    if (code === 0 || code === 1) return <Sun className="w-5 h-5 text-[#ff9900]" />;
-    if (code === 2 || code === 3) return <CloudSun className="w-5 h-5 text-[#ff9900]" />;
-    if (code >= 45 && code <= 48) return <Cloud className="w-5 h-5 text-gray-400" />;
-    if (code >= 51 && code <= 67) return <CloudRain className="w-5 h-5 text-blue-400" />;
-    if (code >= 71 && code <= 77) return <Cloud className="w-5 h-5 text-blue-200" />;
-    if (code >= 95 && code <= 99) return <CloudLightning className="w-5 h-5 text-purple-500" />;
-    return <CloudSun className="w-5 h-5 text-orange-400" />;
-  };
+  const info = weather ? describe(weather.weathercode) : null;
+  const Icon = info?.Icon ?? CloudSun;
 
   return (
-    <div className="relative group cursor-default flex flex-col text-black text-[11px] font-bold shrink-0 border-r border-black/20 pr-3 sm:pr-4 justify-center gap-1">
-      <div className="flex items-center gap-2">
-        <span className="text-[#0052cc] font-black tracking-wide">HÀ NỘI</span>
-        <div className="w-1 h-1 rounded-full bg-gray-300"></div>
-        <div className="flex items-center gap-1.5">
-          {weather ? (
-            <>
-              <span className="text-[#e63946] font-black text-xs">{Math.round(weather.temperature)}°C</span>
-              {getWeatherIcon(weather.weathercode)}
-            </>
-          ) : (
-            <>
-              <span className="text-gray-500 animate-pulse text-xs">--°C</span>
-              <CloudSun className="w-5 h-5 text-gray-300" />
-            </>
-          )}
+    <div
+      className={cx('shrink-0 items-center gap-3 border-line pr-5 text-[13px] lg:border-r', className)}
+      title={weather ? `${info?.label} · Gió ${weather.windspeed} km/h` : undefined}
+    >
+      <span className={cx('grid size-9 place-items-center rounded-full bg-surface', info?.tone ?? 'text-muted')}>
+        <Icon className="size-[18px]" aria-hidden="true" />
+      </span>
+      <div className="leading-tight">
+        <div className="font-semibold text-ink">
+          Hà Nội <span className="ml-1 text-flame-600">{weather ? `${Math.round(weather.temperature)}°C` : '--°C'}</span>
+        </div>
+        <div className="text-[12px] text-muted tabular-nums">
+          {now.toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' })} ·{' '}
+          {now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false })}
         </div>
       </div>
-      <div className="flex items-center justify-between text-[10px] text-gray-600 font-mono font-medium">
-        <span>{currentTime.toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' })}</span>
-        <div className="w-1 h-1 rounded-full bg-gray-200 mx-1"></div>
-        <span className="text-black font-bold">{currentTime.toLocaleTimeString('vi-VN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
-      </div>
-      
-      {/* Tooltip for extra info on hover */}
-      {weather && (
-        <div className="absolute top-[120%] left-0 w-48 bg-white border border-[#0052cc] shadow-[0_10px_30px_rgba(0,48,135,0.15)] p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] rounded-sm transform translate-y-2 group-hover:translate-y-0">
-          <div className="absolute -top-2 left-4 w-4 h-4 bg-white border-l border-t border-[#0052cc] rotate-45"></div>
-          <h4 className="text-[10px] font-black text-[#0052cc] mb-2 border-b border-gray-100 pb-1.5 uppercase tracking-wider relative z-10">Thời tiết hiện tại</h4>
-          <div className="flex flex-col gap-2 text-xs font-medium relative z-10">
-            <div className="flex justify-between items-center">
-              <span className="flex items-center gap-1.5 text-gray-600"><Thermometer className="w-3.5 h-3.5 text-red-500" /> Nhiệt độ</span>
-              <span className="font-bold text-black">{weather.temperature}°C</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="flex items-center gap-1.5 text-gray-600"><Wind className="w-3.5 h-3.5 text-blue-500" /> Sức gió</span>
-              <span className="font-bold text-black">{weather.windspeed} km/h</span>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

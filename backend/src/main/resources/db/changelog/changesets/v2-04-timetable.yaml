@@ -1,0 +1,50 @@
+databaseChangeLog:
+  # The work calendar ("Lịch làm việc") was removed; the class timetable gets its own model
+  # (period times + one row per class/weekday/period) instead of hard-coded front-end data.
+  - changeSet:
+      id: v2-04-timetable
+      author: portal
+      changes:
+        - sql:
+            sql: |
+              DROP TABLE IF EXISTS public.schedules;
+
+              CREATE TABLE timetable_periods (
+                  period     INTEGER PRIMARY KEY,
+                  start_time TIME NOT NULL,
+                  end_time   TIME NOT NULL
+              );
+
+              CREATE TABLE timetable_entries (
+                  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                  class_name  VARCHAR(30)  NOT NULL,
+                  grade       INTEGER      NOT NULL,
+                  day_of_week INTEGER      NOT NULL,
+                  period      INTEGER      NOT NULL REFERENCES timetable_periods(period),
+                  subject     VARCHAR(100) NOT NULL,
+                  teacher     VARCHAR(100),
+                  CONSTRAINT uq_timetable_slot UNIQUE (class_name, day_of_week, period)
+              );
+              CREATE INDEX idx_timetable_class ON timetable_entries (grade, class_name);
+
+              INSERT INTO timetable_periods (period, start_time, end_time) VALUES
+                  (1, '07:30', '08:15'),
+                  (2, '08:20', '09:05'),
+                  (3, '09:20', '10:05'),
+                  (4, '10:10', '10:55'),
+                  (5, '11:00', '11:45'),
+                  (6, '13:30', '14:15'),
+                  (7, '14:20', '15:05'),
+                  (8, '15:20', '16:05'),
+                  (9, '16:10', '16:55'),
+                  (10, '17:00', '17:45');
+
+              -- Former front-end constants, now editable: footer links (one "Name | URL" per line),
+              -- the timetable's term label and its notes (one per line).
+              INSERT INTO site_settings (setting_key, setting_value) VALUES
+                  ('useful_links', 'Bộ Giáo dục và Đào tạo | https://moet.gov.vn
+              Sở GD&ĐT Hà Nội | https://hanoi.edu.vn
+              Cổng dịch vụ công quốc gia | https://dichvucong.gov.vn'),
+                  ('timetable_term', ''),
+                  ('timetable_notes', '')
+              ON CONFLICT (setting_key) DO NOTHING;

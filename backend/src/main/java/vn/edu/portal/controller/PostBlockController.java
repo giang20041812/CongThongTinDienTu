@@ -7,9 +7,9 @@ import vn.edu.portal.repository.PostBlockRepository;
 import java.util.List;
 import java.util.UUID;
 
+/** Low-level block CRUD, admin-only (enforced by AdminAuthInterceptor). */
 @RestController
 @RequestMapping("/api/post-blocks")
-@CrossOrigin(origins = "*")
 public class PostBlockController {
     @Autowired
     private PostBlockRepository repository;
