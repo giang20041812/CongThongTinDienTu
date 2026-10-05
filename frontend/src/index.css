@@ -15,7 +15,7 @@
   }
 
   body {
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
     color: #17324D;
     background-color: #F3F3F3;
     overflow-x: hidden;
@@ -164,11 +164,13 @@ header > .header-nav-accent {
 .admin-select:focus { border-color: #0052cc; box-shadow: 0 0 0 3px rgba(11,120,181,.1); }
 .admin-input-icon { position: absolute; left: .75rem; top: .72rem; color: #8da0b3; }
 .label-admin { display: block; color: #536b80; font-weight: 700; font-size: .7rem; margin-bottom: .4rem; }
-.admin-primary { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; background: #0052cc; color: #fff; padding: .7rem 1rem; font-size: .75rem; font-weight: 800; transition: background .15s ease; }
-.admin-primary:hover { background: #0026e6; }
-.admin-secondary { display: inline-flex; align-items: center; gap: .4rem; padding: .7rem 1rem; font-size: .75rem; font-weight: 800; color: #536b80; background: #eef3f7; }
-.filter-chip { border: 1px solid #e0e8ef; color: #71849b; padding: .45rem .7rem; font-size: .7rem; font-weight: 700; background: #fff; }
-.filter-chip:hover, .filter-chip.active { color: #0052cc; border-color: #8fc7e4; background: #eaf5fb; }
+.admin-primary { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; background: #0052cc; color: #fff; padding: .7rem 1rem; font-size: .75rem; font-weight: 800; border-radius: 4px !important; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+.admin-primary:hover { background: #003db3; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0, 82, 204, 0.25); }
+.admin-primary:active { transform: translateY(0); box-shadow: none; }
+.admin-secondary { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; padding: .7rem 1rem; font-size: .75rem; font-weight: 800; color: #536b80; background: #eef3f7; border-radius: 4px !important; transition: all 0.2s ease; }
+.admin-secondary:hover { background: #e0e8ef; color: #17324d; transform: translateY(-1px); }
+.filter-chip { border: 1px solid #e0e8ef; color: #71849b; padding: .45rem .7rem; font-size: .7rem; font-weight: 700; background: #fff; border-radius: 99px !important; transition: all 0.2s ease; }
+.filter-chip:hover, .filter-chip.active { color: #0052cc; border-color: #8fc7e4; background: #eaf5fb; transform: translateY(-1px); }
 .lost-found-header-actions > button:nth-child(1),
 .lost-found-header-actions > button:nth-child(2) { display: none; }
 @media (max-width: 767px) {

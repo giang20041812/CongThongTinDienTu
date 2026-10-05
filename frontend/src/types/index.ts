@@ -76,7 +76,7 @@ export type ActiveModal =
 
 export type PageRoute =
   | { view: 'home' }
-  | { view: 'news-list' }
+  | { view: 'news-list'; id?: string }
   | { view: 'news-detail'; id: string }
   | { view: 'announcement-list' }
   | { view: 'announcement-detail'; id: string }

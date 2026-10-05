@@ -6,4 +6,5 @@ import java.util.UUID;
 @Repository
 public interface PostRepository extends JpaRepository<Post, UUID> {
     java.util.List<Post> findByStatus(String status);
+    java.util.List<Post> findTop5ByCategoryIdAndStatusOrderByCreatedAtDesc(UUID categoryId, String status);
 }

@@ -121,6 +121,50 @@ export const fetchCategories = async () => {
   }
 };
 
+export const createCategory = async (data: any) => {
+  try {
+    const res = await fetch(`${API_BASE}/categories`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('Failed to create category');
+    return await res.json();
+  } catch (err) {
+    console.error('Error creating category:', err);
+    throw err;
+  }
+};
+
+export const updateCategory = async (id: string, data: any) => {
+  try {
+    const res = await fetch(`${API_BASE}/categories/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('Failed to update category');
+    return await res.json();
+  } catch (err) {
+    console.error('Error updating category:', err);
+    throw err;
+  }
+};
+
+export const deleteCategory = async (id: string) => {
+  try {
+    const res = await fetch(`${API_BASE}/categories/${id}`, {
+      method: 'DELETE'
+    });
+    if (!res.ok) throw new Error('Failed to delete category');
+    return true;
+  } catch (err) {
+    console.error('Error deleting category:', err);
+    throw err;
+  }
+};
+
+
 export const fetchLostItems = async () => {
   try {
     const res = await fetch(`${API_BASE}/lost-found-reports`);
@@ -163,6 +207,25 @@ export const usePosts = () => {
   return { data, loading, refetch };
 };
 
+export const useCategories = () => {
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  const refetch = async () => {
+    setLoading(true);
+    const res = await fetchCategories();
+    setData(res);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    refetch();
+  }, []);
+  
+  return { data, loading, refetch };
+};
+
+
 export const useAnnouncements = () => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -196,6 +259,32 @@ export const useSchedules = () => {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     fetchSchedules().then(res => { setData(res); setLoading(false); });
+  }, []);
+  return { data, loading };
+};
+
+export const fetchHomepageData = async () => {
+  try {
+    console.log(`[fetchHomepageData] Fetching from ${API_BASE}/posts/homepage`);
+    const res = await fetch(`${API_BASE}/posts/homepage`);
+    if (!res.ok) {
+      console.error(`[fetchHomepageData] HTTP Error: ${res.status}`);
+      throw new Error(`Failed to fetch homepage data: ${res.status}`);
+    }
+    const data = await res.json();
+    console.log(`[fetchHomepageData] Success! Data received:`, data);
+    return data;
+  } catch (err) {
+    console.error('[fetchHomepageData] Caught error:', err);
+    return { topSections: [], bottomSections: [] };
+  }
+};
+
+export const useHomepageData = () => {
+  const [data, setData] = useState<any>({ topSections: [], bottomSections: [] });
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    fetchHomepageData().then(res => { setData(res); setLoading(false); });
   }, []);
   return { data, loading };
 };

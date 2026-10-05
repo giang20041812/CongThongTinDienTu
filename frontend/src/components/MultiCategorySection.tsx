@@ -5,6 +5,7 @@ import { usePosts, useAnnouncements } from '../api';
 import { motion } from 'motion/react';
 
 interface MultiCategorySectionProps {
+  bottomSections: any[];
   onSelectNews?: (id: string) => void;
   onNavigate?: (view: string) => void;
 }
@@ -100,154 +101,70 @@ const CategoryColumn: React.FC<CategoryColumnProps> = ({
 );
 
 export const MultiCategorySection: React.FC<MultiCategorySectionProps> = ({
+  bottomSections,
   onSelectNews,
   onNavigate,
 }) => {
-  const { data: posts, loading: loadingPosts } = usePosts();
-  const { data: announcements, loading: loadingAnnouncements } = useAnnouncements();
-
-  if (loadingPosts || loadingAnnouncements) {
-    return <div className="py-20 text-center text-gray-500">Đang tải dữ liệu...</div>;
+  if (!bottomSections || bottomSections.length === 0) {
+    return <div className="py-20 text-center text-gray-500">Đang tải dữ liệu hoặc chưa có chuyên mục nào được cấu hình...</div>;
   }
 
-  // Parse API data with robust category fallbacks
-  const schoolNews = posts.filter((p: any) => p.category?.code === 'NEWS' || p.category?.code === 'TIN_TUC').slice(0, 3);
-  const youthActivities = posts.filter((p: any) => p.category?.code === 'YOUTH' || p.category?.code === 'ACTIVITIES' || p.category?.code === 'PHONG_TRAO').slice(0, 3);
-  const clubItems = posts.filter((p: any) => p.category?.code === 'CLUB').slice(0, 3);
-  const adminAnnouncements = announcements.slice(0, 3);
-  
-  const admissions = posts.filter((p: any) => p.category?.code === 'ADMISSION').slice(0, 3);
-  const competitions = posts.filter((p: any) => p.category?.code === 'COMPETITION' || p.category?.code === 'CHUYEN_MON' || p.category?.code === 'ACADEMIC').slice(0, 3);
-  const science = posts.filter((p: any) => p.category?.code === 'SCIENCE' || p.category?.code === 'THUC_NGHIEM').slice(0, 3);
-  const studyAbroad = posts.filter((p: any) => p.category?.code === 'STUDY_ABROAD').slice(0, 3);
-
-  // Fallbacks if data empty
   const fallbackItem = { id: '', title: 'Đang cập nhật...', summary: '' };
 
-  return (
-    <>
-      {/* ──────────────── ROW 1 ─── */}
-      <section className="w-full bg-[#f8f9fa] border-b border-gray-200 py-6 sm:py-8 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            variants={{
-              hidden: { opacity: 0 },
-              visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
-            }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5"
-          >
-            <CategoryColumn
-              headerLabel="TIN NHÀ TRƯỜNG"
-              featuredImage={{ label: 'TIN TỨC', subLabel: 'Nhà Trường', theme: 'campus', imageUrl: schoolNews[0]?.imgUrl || schoolNews[0]?.imageUrl }}
-              featuredTitle={schoolNews[0]?.title || fallbackItem.title}
-              subItems={schoolNews.slice(1).map((n: any) => ({ title: n.title, id: n.id }))}
-              onClickFeatured={() => onSelectNews?.(schoolNews[0]?.id)}
-              onSelectItem={(id) => onSelectNews?.(id)}
-              onClickMore={() => onNavigate?.('news-list')}
-              accentColorClass="text-blue-600"
-              accentBgClass="bg-gradient-brand"
-            />
-            <CategoryColumn
-              headerLabel="HOẠT ĐỘNG ĐOÀN"
-              featuredImage={{ label: 'ĐOÀN HỘI', subLabel: 'Thanh Niên', theme: 'ceremony', imageUrl: youthActivities[0]?.imgUrl || youthActivities[0]?.imageUrl }}
-              featuredTitle={youthActivities[0]?.title || fallbackItem.title}
-              subItems={youthActivities.slice(1).map((n: any) => ({ title: n.title, id: n.id }))}
-              onClickFeatured={() => onSelectNews?.(youthActivities[0]?.id)}
-              onSelectItem={(id) => onSelectNews?.(id)}
-              onClickMore={() => onNavigate?.('news-list')}
-              accentColorClass="text-green-600"
-              accentBgClass="bg-gradient-success"
-            />
-            <CategoryColumn
-              headerLabel="CÂU LẠC BỘ"
-              featuredImage={{ label: 'NGOẠI KHÓA', subLabel: 'CLB Trường', theme: 'club', imageUrl: clubItems[0]?.imgUrl || clubItems[0]?.imageUrl }}
-              featuredTitle={clubItems[0]?.title || fallbackItem.title}
-              subItems={clubItems.slice(1).map((n: any) => ({ title: n.title, id: n.id }))}
-              onClickFeatured={() => onNavigate?.('clubs-list')}
-              onSelectItem={() => onNavigate?.('clubs-list')}
-              onClickMore={() => onNavigate?.('clubs-list')}
-              accentColorClass="text-purple-600"
-              accentBgClass="bg-gradient-purple"
-            />
-            <CategoryColumn
-              headerLabel="THÔNG BÁO"
-              featuredImage={{ label: 'THÔNG BÁO', subLabel: 'Nhà Trường', theme: 'exam', imageUrl: adminAnnouncements[0]?.imgUrl || adminAnnouncements[0]?.imageUrl }}
-              featuredTitle={adminAnnouncements[0]?.title || fallbackItem.title}
-              subItems={adminAnnouncements.slice(1).map((n: any) => ({ title: n.title, id: n.id }))}
-              onClickFeatured={() => onNavigate?.('announcement-list')}
-              onSelectItem={() => onNavigate?.('announcement-list')}
-              onClickMore={() => onNavigate?.('announcement-list')}
-              accentColorClass="text-red-600"
-              accentBgClass="bg-gradient-to-r from-red-500 to-rose-600"
-            />
-          </motion.div>
-        </div>
-      </section>
+  const colorThemes = [
+    { accentColorClass: "text-blue-600", accentBgClass: "bg-gradient-brand", theme: 'campus' },
+    { accentColorClass: "text-green-600", accentBgClass: "bg-gradient-success", theme: 'ceremony' },
+    { accentColorClass: "text-purple-600", accentBgClass: "bg-gradient-purple", theme: 'club' },
+    { accentColorClass: "text-red-600", accentBgClass: "bg-gradient-to-r from-red-500 to-rose-600", theme: 'exam' },
+    { accentColorClass: "text-orange-500", accentBgClass: "bg-gradient-accent", theme: 'exam' },
+    { accentColorClass: "text-teal-600", accentBgClass: "bg-gradient-to-r from-teal-500 to-emerald-500", theme: 'exam' },
+    { accentColorClass: "text-pink-500", accentBgClass: "bg-gradient-pink", theme: 'lab' },
+    { accentColorClass: "text-indigo-600", accentBgClass: "bg-gradient-to-r from-indigo-500 to-blue-500", theme: 'campus' }
+  ];
 
-      {/* ──────────────── ROW 2 ─── */}
-      <section className="w-full bg-[#f8f9fa] border-b border-gray-200 py-6 sm:py-8 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            variants={{
-              hidden: { opacity: 0 },
-              visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
-            }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5"
-          >
-            <CategoryColumn
-              headerLabel="TUYỂN SINH"
-              featuredImage={{ label: 'TUYỂN SINH', subLabel: 'Tuyển Sinh', theme: 'exam', imageUrl: admissions[0]?.imgUrl || admissions[0]?.imageUrl }}
-              featuredTitle={admissions[0]?.title || fallbackItem.title}
-              subItems={admissions.slice(1).map((n: any) => ({ title: n.title, id: n.id }))}
-              onClickFeatured={() => onNavigate?.('admissions-list')}
-              onSelectItem={() => onNavigate?.('admissions-list')}
-              onClickMore={() => onNavigate?.('admissions-list')}
-              accentColorClass="text-orange-500"
-              accentBgClass="bg-gradient-accent"
-            />
-            <CategoryColumn
-              headerLabel="KỲ THI HSG"
-              featuredImage={{ label: 'KỲ THI', subLabel: 'Học sinh giỏi', theme: 'exam', imageUrl: competitions[0]?.imgUrl || competitions[0]?.imageUrl }}
-              featuredTitle={competitions[0]?.title || fallbackItem.title}
-              subItems={competitions.slice(1).map((n: any) => ({ title: n.title, id: n.id }))}
-              onClickFeatured={() => onSelectNews?.(competitions[0]?.id)}
-              onSelectItem={(id) => onSelectNews?.(id)}
-              onClickMore={() => onNavigate?.('news-list')}
-              accentColorClass="text-teal-600"
-              accentBgClass="bg-gradient-to-r from-teal-500 to-emerald-500"
-            />
-            <CategoryColumn
-              headerLabel="NGHIÊN CỨU STEM"
-              featuredImage={{ label: 'KHOA HỌC', subLabel: 'STEM', theme: 'lab', imageUrl: science[0]?.imgUrl || science[0]?.imageUrl }}
-              featuredTitle={science[0]?.title || fallbackItem.title}
-              subItems={science.slice(1).map((n: any) => ({ title: n.title, id: n.id }))}
-              onClickFeatured={() => onSelectNews?.(science[0]?.id)}
-              onSelectItem={(id) => onSelectNews?.(id)}
-              onClickMore={() => onNavigate?.('news-list')}
-              accentColorClass="text-pink-500"
-              accentBgClass="bg-gradient-pink"
-            />
-            <CategoryColumn
-              headerLabel="DU HỌC"
-              featuredImage={{ label: 'DU HỌC', subLabel: 'Quốc Tế', theme: 'campus', imageUrl: studyAbroad[0]?.imgUrl || studyAbroad[0]?.imageUrl }}
-              featuredTitle={studyAbroad[0]?.title || fallbackItem.title}
-              subItems={studyAbroad.slice(1).map((n: any) => ({ title: n.title, id: n.id }))}
-              onClickFeatured={() => onNavigate?.('study-abroad-list')}
-              onSelectItem={() => onNavigate?.('study-abroad-list')}
-              onClickMore={() => onNavigate?.('study-abroad-list')}
-              accentColorClass="text-indigo-600"
-              accentBgClass="bg-gradient-to-r from-indigo-500 to-blue-500"
-            />
-          </motion.div>
-        </div>
-      </section>
-    </>
+  return (
+    <section className="w-full bg-[#f8f9fa] border-b border-gray-200 py-6 sm:py-8 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={{
+            hidden: { opacity: 0 },
+            visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
+          }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5"
+        >
+          {bottomSections.map((section, idx) => {
+            const cat = section.category;
+            const posts = section.posts || [];
+            const featuredPost = posts[0];
+            const subItems = posts.slice(1).map((n: any) => ({ title: n.title, id: n.id }));
+            const colorTheme = colorThemes[idx % colorThemes.length];
+
+            return (
+              <CategoryColumn
+                key={cat.id || idx}
+                headerLabel={cat.name}
+                featuredImage={{ 
+                  label: cat.name, 
+                  subLabel: 'Mới nhất', 
+                  theme: colorTheme.theme as any, 
+                  imageUrl: featuredPost?.imgUrl || featuredPost?.imageUrl 
+                }}
+                featuredTitle={featuredPost?.title || fallbackItem.title}
+                subItems={subItems}
+                onClickFeatured={() => onSelectNews?.(featuredPost?.id)}
+                onSelectItem={(id) => onSelectNews?.(id)}
+                onClickMore={() => onNavigate?.('news-list')}
+                accentColorClass={colorTheme.accentColorClass}
+                accentBgClass={colorTheme.accentBgClass}
+              />
+            );
+          })}
+        </motion.div>
+      </div>
+    </section>
   );
 };
 

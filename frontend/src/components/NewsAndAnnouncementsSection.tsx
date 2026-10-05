@@ -6,18 +6,27 @@ import { BackgroundGeometricMesh } from './BackgroundGeometricMesh';
 import { motion } from 'motion/react';
 
 interface NewsAndAnnouncementsSectionProps {
+  topSections: any[];
   onSelectNews: (item: any) => void;
   onSelectAnnouncement: (item: any) => void;
+  onSearch: (query: string) => void;
 }
 
 export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionProps> = ({
+  topSections,
   onSelectNews,
   onSelectAnnouncement,
   onSearch,
 }) => {
   const [activeNewsCategory, setActiveNewsCategory] = useState<'all' | 'chuyen-mon' | 'hoat-dong'>('all');
-  const { data: rawPosts, loading: loadingPosts } = usePosts();
-  const { data: rawAnnouncements, loading: loadingAnnouncements } = useAnnouncements();
+  
+  const { data: rawAnnouncements } = useAnnouncements();
+
+  // topSections[0] -> News
+  const rawPosts = topSections[0]?.posts || [];
+  
+  const newsCategoryName = topSections[0]?.category?.name || 'Tin tức - Sự Kiện';
+  const announcementCategoryName = 'Thông báo';
 
   // Process Posts
   const allNewsList = rawPosts.map((p: any) => ({
@@ -135,7 +144,7 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
     if (searchQuery.trim()) onSearch(searchQuery.trim());
   };
 
-  if (loadingPosts || loadingAnnouncements) {
+  if (!topSections || topSections.length === 0) {
     return <div className="py-20 text-center text-gray-500">Đang tải dữ liệu...</div>;
   }
 
@@ -164,7 +173,7 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
                   BẢN TIN NHÀ TRƯỜNG
                 </span>
                 <h2 className="text-2xl sm:text-3xl font-extrabold text-gradient tracking-tight uppercase">
-                  Tin tức - Sự Kiện
+                  {newsCategoryName}
                 </h2>
               </div>
 
@@ -460,7 +469,7 @@ export const NewsAndAnnouncementsSection: React.FC<NewsAndAnnouncementsSectionPr
                 VĂN BẢN CHỈ ĐẠO
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#e63946] to-[#b5179e] tracking-tight uppercase mt-1">
-                Thông báo
+                {announcementCategoryName}
               </h2>
             </div>
 

@@ -13,8 +13,8 @@ import { MultiCategorySection } from './components/MultiCategorySection';
 import { QuickLinksSection } from './components/QuickLinksSection';
 import { Footer } from './components/Footer';
 import { Modals } from './components/Modals';
-import { ActiveModal, PageRoute, NewsItem, AnnouncementItem, LostItem } from './types';
-import { fetchPosts, fetchAnnouncements } from './api';
+import { ActiveModal, PageRoute, NewsItem, AnnouncementItem } from './types';
+import { fetchPosts, fetchAnnouncements, useHomepageData, useCategories } from './api';
 import { Search, X } from 'lucide-react';
 
 // Dedicated Full Pages
@@ -26,8 +26,7 @@ import { SchedulePage } from './pages/SchedulePage';
 import { WorkCalendarPage } from './pages/WorkCalendarPage';
 
 import { ClubsListPage, ClubDetailPage } from './pages/ClubsPages';
-import { AdminApp } from './pages/AdminPages';
-
+import { AdminApp } from './pages/admin';
 export default function App() {
   if (window.location.pathname === '/admin' || window.location.pathname === '/admin/login') {
     return <AdminApp />;
@@ -38,6 +37,9 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  const { data: homepageData, loading: homepageLoading } = useHomepageData();
+  const { data: categories, loading: categoriesLoading } = useCategories();
 
   // Sync scroll on route change
   useEffect(() => {
@@ -72,6 +74,12 @@ export default function App() {
 
   // Tab navigation routing handler
   const handleTabChange = (tabId: string) => {
+    if (tabId.startsWith('category-')) {
+      const categoryName = tabId.replace('category-', '');
+      setCurrentRoute({ view: 'news-list', id: categoryName });
+      return;
+    }
+    
     switch (tabId) {
       case 'trang-chu':
         setCurrentRoute({ view: 'home' });
@@ -102,6 +110,9 @@ export default function App() {
 
   // Determine active tab ID for header indicator
   const getActiveTabId = (): string => {
+    if (currentRoute.view === 'news-list' && currentRoute.id && currentRoute.id !== 'all') {
+      return `category-${currentRoute.id}`;
+    }
     switch (currentRoute.view) {
       case 'home':
         return 'trang-chu';
@@ -160,7 +171,7 @@ export default function App() {
       <main className="flex-1">
         {currentRoute.view !== 'home' && (
           <NavigationBar activeTab={getActiveTabId()} onTabChange={handleTabChange} isMobileMenuOpen={isMobileMenuOpen} onToggleMobileMenu={() => setIsMobileMenuOpen(false)} onSearch={handleSearch} onOpenQuickModal={(type) => {
-          }} />
+          }} categories={categories} categoriesLoading={categoriesLoading} />
         )}
         {/* VIEW: HOME DASHBOARD (Direct match with Wireframe) */}
         {currentRoute.view === 'home' && (
@@ -173,28 +184,26 @@ export default function App() {
             />
 
             <NavigationBar activeTab={getActiveTabId()} onTabChange={handleTabChange} isMobileMenuOpen={isMobileMenuOpen} onToggleMobileMenu={() => setIsMobileMenuOpen(false)} onSearch={handleSearch} onOpenQuickModal={(type) => {
-            }} />
+            }} categories={categories} categoriesLoading={categoriesLoading} />
 
-            {/* Điều hướng và điểm tin nằm ngay dưới banner */}
             {/* Section 1: Tin tức - Sự kiện & Thông báo */}
-            {/* Quick Links Section */}
-            {/* QuickLinksSection removed */}
             <NewsAndAnnouncementsSection
-              onSelectNews={(item) => setCurrentRoute({ view: 'news-detail', id: item.id })}
-              onSelectAnnouncement={(item) => setCurrentRoute({ view: 'announcement-detail', id: item.id })}
+              topSections={homepageData?.topSections || []}
+              onSelectNews={(item: any) => setCurrentRoute({ view: 'news-detail', id: item.id })}
+              onSelectAnnouncement={(item: any) => setCurrentRoute({ view: 'announcement-detail', id: item.id })}
               onSearch={handleSearch}
             />
 
-            {/* Section 2 + 3: Multi-category grid (Tin NhàTrường, Thanh Niên, CLB, Thông Báo, Tuyển Sinh, HSG, STEM, Du Học) */}
+            {/* Section 2 + 3: Multi-category grid */}
             <MultiCategorySection
-              onSelectNews={(id) => setCurrentRoute({ view: 'news-detail', id })}
-              onNavigate={(view) => {
+              bottomSections={homepageData?.bottomSections || []}
+              onSelectNews={(id: string) => setCurrentRoute({ view: 'news-detail', id })}
+              onNavigate={(view: string) => {
                 if (view === 'news-list') setCurrentRoute({ view: 'news-list' });
                 else if (view === 'announcement-list') setCurrentRoute({ view: 'announcement-list' });
                 else if (view === 'admissions-list') setCurrentRoute({ view: 'admissions-list' });
                 else if (view === 'study-abroad-list') setCurrentRoute({ view: 'study-abroad-list' });
                 else if (view === 'clubs-list') setCurrentRoute({ view: 'clubs-list' });
-
               }}
             />
 
@@ -205,6 +214,7 @@ export default function App() {
         {/* VIEW: NEWS LIST */}
         {currentRoute.view === 'news-list' && (
           <NewsListPage
+            initialCategory={currentRoute.id}
             onSelectNews={(id) => setCurrentRoute({ view: 'news-detail', id })}
             onGoHome={() => setCurrentRoute({ view: 'home' })}
           />

@@ -2,10 +2,14 @@ spring:
   config:
     import: optional:file:.env[.properties], optional:file:backend/.env[.properties], optional:file:CongThongTinDienTu/backend/.env[.properties]
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:portal_db}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:portal_db}?prepareThreshold=0
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      keepaliveTime: 30000
+      maxLifetime: 60000
+      connectionTimeout: 10000
   jpa:
     hibernate:
       ddl-auto: update

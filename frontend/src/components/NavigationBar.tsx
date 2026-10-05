@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Search, ChevronDown, Calendar, Clock, CloudSun } from 'lucide-react';
 import { WeatherWidget } from './WeatherWidget';
+import { useCategories } from '../api';
 
 interface NavigationBarProps {
   activeTab: string;
@@ -9,19 +10,38 @@ interface NavigationBarProps {
   onToggleMobileMenu: () => void;
   onSearch: (query: string) => void;
   onOpenQuickModal: (type: 'tkb' | 'calendar' | 'reportLost') => void;
+  categories?: any[];
+  categoriesLoading?: boolean;
 }
 
-const navItems = [
-  { id: 'trang-chu', label: 'TRANG CHỦ' },
-  { id: 'tin-tuc', label: 'TIN TỨC - SỰ KIỆN' },
-  { id: 'thong-bao', label: 'THÔNG BÁO' },
-  { id: 'tkb', label: 'THỜI KHÓA BIỂU' },
-  { id: 'lich-lam-viec', label: 'LỊCH LÀM VIỆC' },
-  { id: 'du-hoc', label: 'DU HỌC' },
-  { id: 'tuyen-sinh', label: 'TUYỂN SINH' },
-];
 
-export const NavigationBar: React.FC<NavigationBarProps> = ({ activeTab, onTabChange, isMobileMenuOpen, onToggleMobileMenu, onSearch, onOpenQuickModal }) => {
+
+export const NavigationBar: React.FC<NavigationBarProps> = ({ 
+  activeTab, onTabChange, isMobileMenuOpen, onToggleMobileMenu, onSearch, onOpenQuickModal,
+  categories, categoriesLoading
+}) => {
+  const navItems = [
+    { id: 'trang-chu', label: 'TRANG CHỦ' },
+    { id: 'thong-bao', label: 'THÔNG BÁO' },
+  ];
+
+  if (categories && categories.length > 0) {
+    const cat3 = categories.find(c => c.displayOrder === 3);
+    const cat4 = categories.find(c => c.displayOrder === 4);
+    const cat5 = categories.find(c => c.displayOrder === 5);
+    
+    if (cat3) navItems.push({ id: `category-${cat3.name}`, label: cat3.name.toUpperCase() });
+    if (cat4) navItems.push({ id: `category-${cat4.name}`, label: cat4.name.toUpperCase() });
+    if (cat5) navItems.push({ id: `category-${cat5.name}`, label: cat5.name.toUpperCase() });
+  } else if (categoriesLoading === false) {
+    navItems.push({ id: 'tin-tuc', label: 'TIN TỨC - SỰ KIỆN' });
+    navItems.push({ id: 'tuyen-sinh', label: 'TUYỂN SINH' });
+    navItems.push({ id: 'du-hoc', label: 'DU HỌC' });
+  }
+
+  navItems.push({ id: 'tkb', label: 'THỜI KHÓA BIỂU' });
+  navItems.push({ id: 'lich-lam-viec', label: 'LỊCH LÀM VIỆC' });
+
   const navContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);

@@ -1,19 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Calendar, User, Eye, Share2, Printer, ChevronRight, Bookmark, Tag } from 'lucide-react';
-import { usePosts } from '../api';
+import { usePosts, useCategories } from '../api';
 import { SCHOOL_INFO } from '../data/mockData';
 import { EduImageFrame } from '../components/EduImageFrame';
 import { BackgroundGeometricMesh } from '../components/BackgroundGeometricMesh';
 
 interface NewsListPageProps {
+  initialCategory?: string;
   onSelectNews: (id: string) => void;
   onGoHome: () => void;
 }
 
-export const NewsListPage: React.FC<NewsListPageProps> = ({ onSelectNews, onGoHome }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+export const NewsListPage: React.FC<NewsListPageProps> = ({ initialCategory, onSelectNews, onGoHome }) => {
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || 'all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const { data: rawPosts, loading } = usePosts();
+  const { data: fetchedCategories } = useCategories();
+
+  useEffect(() => {
+    setSelectedCategory(initialCategory || 'all');
+  }, [initialCategory]);
 
   const allNews = rawPosts.map((p: any) => ({
     id: p.id,
@@ -31,15 +37,14 @@ export const NewsListPage: React.FC<NewsListPageProps> = ({ onSelectNews, onGoHo
 
   const categories = [
     { id: 'all', label: 'TẤT CẢ' },
-    { id: 'CHUYÊN MÔN', label: 'CHUYÊN MÔN' },
-    { id: 'HỌC THUẬT', label: 'HỌC THUẬT' },
-    { id: 'THỰC NGHIỆM', label: 'THỰC NGHIỆM' },
-    { id: 'HỢP TÁC', label: 'HỢP TÁC' },
-    { id: 'PHONG TRÀO', label: 'PHONG TRÀO' },
+    ...(fetchedCategories || []).map((c: any) => ({
+      id: c.name,
+      label: c.name.toUpperCase()
+    }))
   ];
 
   const filteredNews = allNews.filter((item) => {
-    const matchesCategory = selectedCategory === 'all' || item.category.toUpperCase() === selectedCategory;
+    const matchesCategory = selectedCategory === 'all' || item.category.toUpperCase() === selectedCategory.toUpperCase();
     const matchesSearch =
       item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.summary.toLowerCase().includes(searchQuery.toLowerCase());
@@ -80,7 +85,7 @@ export const NewsListPage: React.FC<NewsListPageProps> = ({ onSelectNews, onGoHo
               CỔNG THÔNG TIN BÁO CHÍ & TRUYỀN THÔNG
             </span>
             <h1 className="text-2xl sm:text-4xl font-extrabold text-black tracking-tight uppercase mt-1">
-              Tin tức - Sự kiện
+              {selectedCategory === 'all' ? 'Tin tức - Sự kiện' : selectedCategory}
             </h1>
           </div>
 
@@ -97,22 +102,7 @@ export const NewsListPage: React.FC<NewsListPageProps> = ({ onSelectNews, onGoHo
           </div>
         </div>
 
-        {/* Filter Categories */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-4 mb-8 scrollbar-none">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => handleCategoryChange(cat.id)}
-              className={`px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border shrink-0 ${
-                selectedCategory === cat.id
-                  ? 'bg-[#0052cc] text-white border-[#0052cc]'
-                  : 'bg-white text-black border-[#bfdbfe] hover:border-[#93c5fd]'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
+        {/* Filter Categories Removed as per user request */}
 
         {/* News Grid (Sharp architectural boxes) */}
         {loading ? (
