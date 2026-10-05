@@ -110,15 +110,15 @@ export const MultiCategorySection: React.FC<MultiCategorySectionProps> = ({
     return <div className="py-20 text-center text-gray-500">Đang tải dữ liệu...</div>;
   }
 
-  // Parse API data
-  const schoolNews = posts.filter((p: any) => p.category?.code === 'NEWS').slice(0, 3);
-  const youthActivities = posts.filter((p: any) => p.category?.code === 'YOUTH').slice(0, 3);
+  // Parse API data with robust category fallbacks
+  const schoolNews = posts.filter((p: any) => p.category?.code === 'NEWS' || p.category?.code === 'TIN_TUC').slice(0, 3);
+  const youthActivities = posts.filter((p: any) => p.category?.code === 'YOUTH' || p.category?.code === 'ACTIVITIES' || p.category?.code === 'PHONG_TRAO').slice(0, 3);
   const clubItems = posts.filter((p: any) => p.category?.code === 'CLUB').slice(0, 3);
   const adminAnnouncements = announcements.slice(0, 3);
   
   const admissions = posts.filter((p: any) => p.category?.code === 'ADMISSION').slice(0, 3);
-  const competitions = posts.filter((p: any) => p.category?.code === 'COMPETITION').slice(0, 3);
-  const science = posts.filter((p: any) => p.category?.code === 'SCIENCE').slice(0, 3);
+  const competitions = posts.filter((p: any) => p.category?.code === 'COMPETITION' || p.category?.code === 'CHUYEN_MON' || p.category?.code === 'ACADEMIC').slice(0, 3);
+  const science = posts.filter((p: any) => p.category?.code === 'SCIENCE' || p.category?.code === 'THUC_NGHIEM').slice(0, 3);
   const studyAbroad = posts.filter((p: any) => p.category?.code === 'STUDY_ABROAD').slice(0, 3);
 
   // Fallbacks if data empty

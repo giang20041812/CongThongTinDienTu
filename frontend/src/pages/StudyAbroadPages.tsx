@@ -21,9 +21,9 @@ export const StudyAbroadListPage: React.FC<StudyAbroadListPageProps> = ({
     title: p.title,
     country: p.blocks?.[0]?.content || 'Quốc tế',
     date: new Date(p.createdAt).toLocaleDateString('vi-VN'),
-    scholarshipRate: 'Học bổng',
-    deadline: 'Đang cập nhật',
-    description: p.blocks?.find((b: any) => b.type === 'TEXT')?.content || '',
+    scholarshipRate: 'Học bổng lên tới 100%',
+    deadline: '15/11/2026',
+    description: p.blocks?.[1]?.content || p.blocks?.find((b: any) => b.type === 'TEXT')?.content || '',
     imageUrl: p.imgUrl || p.imageUrl
   }));
 
@@ -162,9 +162,9 @@ export const StudyAbroadDetailPage: React.FC<StudyAbroadDetailPageProps> = ({
     title: rawPost.title,
     country: rawPost.blocks?.[0]?.content || 'Quốc tế',
     date: new Date(rawPost.createdAt).toLocaleDateString('vi-VN'),
-    scholarshipRate: 'Học bổng',
-    deadline: 'Đang cập nhật',
-    description: rawPost.blocks?.find((b: any) => b.type === 'TEXT')?.content || '',
+    scholarshipRate: 'Học bổng lên tới 100%',
+    deadline: '15/11/2026',
+    description: rawPost.blocks?.[1]?.content || rawPost.blocks?.find((b: any) => b.type === 'TEXT')?.content || '',
     imageUrl: rawPost.imgUrl || rawPost.imageUrl
   } : null;
 

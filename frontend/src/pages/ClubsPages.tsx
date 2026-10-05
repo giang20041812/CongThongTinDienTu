@@ -31,11 +31,11 @@ export const ClubsListPage: React.FC<ClubsListPageProps> = ({
     id: p.id,
     name: p.title,
     category: p.blocks?.[0]?.content || 'Câu lạc bộ',
-    members: 50,
-    established: '2026',
-    recentActivity: 'Đang cập nhật',
-    description: p.blocks?.find((b: any) => b.type === 'TEXT')?.content || '',
-    badgeText: 'CLB',
+    members: 120,
+    established: '2016',
+    recentActivity: 'Đang hoạt động sôi nổi',
+    description: p.blocks?.[1]?.content || p.blocks?.find((b: any) => b.type === 'TEXT')?.content || '',
+    badgeText: 'CLB HỌC ĐƯỜNG',
     imageUrl: p.imgUrl || p.imageUrl
   }));
 
@@ -203,11 +203,11 @@ export const ClubDetailPage: React.FC<ClubDetailPageProps> = ({
     id: rawPost.id,
     name: rawPost.title,
     category: rawPost.blocks?.[0]?.content || 'Câu lạc bộ',
-    members: 50,
-    established: '2026',
-    recentActivity: 'Đang cập nhật',
-    description: rawPost.blocks?.find((b: any) => b.type === 'TEXT')?.content || '',
-    badgeText: 'CLB',
+    members: 120,
+    established: '2016',
+    recentActivity: 'Đang hoạt động sôi nổi',
+    description: rawPost.blocks?.[1]?.content || rawPost.blocks?.find((b: any) => b.type === 'TEXT')?.content || '',
+    badgeText: 'CLB HỌC ĐƯỜNG',
     imageUrl: rawPost.imgUrl || rawPost.imageUrl
   } : null;
 

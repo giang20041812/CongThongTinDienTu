@@ -22,8 +22,8 @@ export const AdmissionsListPage: React.FC<AdmissionsListPageProps> = ({
     date: new Date(p.createdAt).toLocaleDateString('vi-VN'),
     deadline: 'Đang cập nhật',
     target: p.blocks?.[0]?.content || 'Khối 10',
-    quota: 0,
-    description: p.blocks?.find((b: any) => b.type === 'TEXT')?.content || '',
+    quota: 35,
+    description: p.blocks?.[1]?.content || p.blocks?.find((b: any) => b.type === 'TEXT')?.content || '',
     imageUrl: p.imgUrl || p.imageUrl
   }));
 
@@ -178,8 +178,8 @@ export const AdmissionDetailPage: React.FC<AdmissionDetailPageProps> = ({
     date: new Date(rawPost.createdAt).toLocaleDateString('vi-VN'),
     deadline: 'Đang cập nhật',
     target: rawPost.blocks?.[0]?.content || 'Khối 10',
-    quota: 0,
-    description: rawPost.blocks?.find((b: any) => b.type === 'TEXT')?.content || '',
+    quota: 35,
+    description: rawPost.blocks?.[1]?.content || rawPost.blocks?.find((b: any) => b.type === 'TEXT')?.content || '',
     imageUrl: rawPost.imgUrl || rawPost.imageUrl
   } : null;
 
