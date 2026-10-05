@@ -49,14 +49,21 @@ export function ImageUpload({ value, onChange }: { value: string; onChange: (val
     }
   };
   return (
-    <div className="flex gap-3 items-center">
-      <input type="text" value={value} onChange={e => onChange(e.target.value)} className="admin-input flex-1" placeholder="https://... hoặc tải ảnh lên" />
-      <div className="relative">
-        <input type="file" accept="image/*" onChange={handleUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-        <button type="button" className="admin-secondary px-4 py-2" disabled={loading}>
-          {loading ? 'Đang tải...' : 'Tải ảnh lên'}
-        </button>
+    <div className="flex flex-col gap-3">
+      <div className="flex gap-3 items-center">
+        <input type="text" value={value} onChange={e => onChange(e.target.value)} className="admin-input flex-1" placeholder="https://... hoặc tải ảnh lên" />
+        <div className="relative">
+          <input type="file" accept="image/*" onChange={handleUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+          <button type="button" className="admin-secondary px-4 py-2" disabled={loading}>
+            {loading ? 'Đang tải...' : 'Tải ảnh lên'}
+          </button>
+        </div>
       </div>
+      {value && (
+        <div className="w-full md:w-1/2 lg:w-1/3 aspect-video bg-gray-50 border border-gray-200 rounded overflow-hidden relative">
+          <img src={value} alt="Preview" className="w-full h-full object-cover" />
+        </div>
+      )}
     </div>
   );
 }

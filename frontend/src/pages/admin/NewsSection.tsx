@@ -8,7 +8,11 @@ function NewsForm({ post, onClose, onSave }: any) {
   const [slug, setSlug] = useState(post?.slug || '');
   const [categoryId, setCategoryId] = useState(post?.category?.id || '');
   const [bannerUrl, setBannerUrl] = useState(post?.bannerUrl || '');
-  const [content, setContent] = useState(post?.blocks?.[0]?.content || '');
+  const [blocks, setBlocks] = useState<any[]>(
+    post?.blocks?.length 
+      ? post.blocks 
+      : [{ type: 'TEXT', content: '', orderIndex: 0 }]
+  );
   const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
@@ -17,6 +21,20 @@ function NewsForm({ post, onClose, onSave }: any) {
     });
   }, []);
 
+  const handleAddBlock = (type: 'TEXT' | 'IMAGE') => {
+    setBlocks([...blocks, { type, content: '', imageUrl: '', orderIndex: blocks.length }]);
+  };
+
+  const handleUpdateBlock = (index: number, updates: any) => {
+    const newBlocks = [...blocks];
+    newBlocks[index] = { ...newBlocks[index], ...updates };
+    setBlocks(newBlocks);
+  };
+
+  const handleRemoveBlock = (index: number) => {
+    setBlocks(blocks.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = () => {
     const data = {
       title,
@@ -24,9 +42,7 @@ function NewsForm({ post, onClose, onSave }: any) {
       category: { id: categoryId },
       bannerUrl,
       status: 'PUBLISHED',
-      blocks: [
-        { type: 'text', content: content, orderIndex: 0 }
-      ]
+      blocks: blocks.map((b, index) => ({ ...b, orderIndex: index }))
     };
     onSave(data);
   };
@@ -43,7 +59,41 @@ function NewsForm({ post, onClose, onSave }: any) {
         </select>
       </label>
       <label className="block"><span className="label-admin">Ảnh bìa (URL)</span><ImageUpload value={bannerUrl} onChange={setBannerUrl} /></label>
-      <label className="block"><span className="label-admin">Nội dung</span><textarea value={content} onChange={e => setContent(e.target.value)} className="admin-input min-h-24" placeholder="Nhập nội dung" /></label>
+      
+      <div className="block">
+        <span className="label-admin">Nội dung bài viết (Các đoạn)</span>
+        <div className="flex flex-col gap-4 mt-2">
+          {blocks.map((block, index) => (
+            <div key={index} className="border border-[#e3ebf3] p-4 relative bg-[#f8fafc] rounded">
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-[11px] font-extrabold text-[#71849b] uppercase tracking-wider">
+                  Đoạn {index + 1}: {block.type === 'TEXT' ? 'Văn bản' : 'Hình ảnh'}
+                </span>
+                <button type="button" onClick={() => handleRemoveBlock(index)} className="text-red-500 hover:text-red-700 text-xs font-bold flex items-center gap-1"><X size={14} /> Xóa đoạn</button>
+              </div>
+              {block.type === 'TEXT' ? (
+                <textarea 
+                  value={block.content || ''} 
+                  onChange={e => handleUpdateBlock(index, { content: e.target.value })} 
+                  className="admin-input min-h-32 w-full bg-white" 
+                  placeholder="Nhập nội dung văn bản..." 
+                />
+              ) : (
+                <div className="bg-white p-3 border border-[#e3ebf3] rounded">
+                  <ImageUpload 
+                    value={block.imageUrl || ''} 
+                    onChange={val => handleUpdateBlock(index, { imageUrl: val })} 
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+          <div className="flex gap-2 mt-1">
+            <button type="button" onClick={() => handleAddBlock('TEXT')} className="admin-secondary text-xs flex items-center gap-1 py-1.5"><Plus size={14} /> Thêm đoạn Văn bản</button>
+            <button type="button" onClick={() => handleAddBlock('IMAGE')} className="admin-secondary text-xs flex items-center gap-1 py-1.5"><Plus size={14} /> Thêm đoạn Hình ảnh</button>
+          </div>
+        </div>
+      </div>
     </div>
     <div className="flex justify-end gap-2 mt-5"><button onClick={onClose} className="admin-secondary">Hủy</button><button onClick={handleSubmit} className="admin-primary"><Check size={15} /> Lưu nội dung</button></div>
   </div>;

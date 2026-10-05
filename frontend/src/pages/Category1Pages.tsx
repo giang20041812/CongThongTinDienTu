@@ -237,11 +237,12 @@ export const Category1DetailPage: React.FC<Category1DetailPageProps> = ({
     views: p.views || 0,
     author: p.author?.username || 'Ban biên tập',
     imageFallbackTitle: 'TIN TỨC',
-    imgUrl: p.imgUrl || p.bannerUrl
+    imgUrl: p.imgUrl || p.bannerUrl,
+    blocks: p.blocks || []
   }));
   
   const news = allNews.find((item: any) => item.id === newsId) || allNews[0] || {
-    id: '', title: 'Bài viết không tồn tại', category: '', date: '', author: '', views: 0, content: '', summary: ''
+    id: '', title: 'Bài viết không tồn tại', category: '', date: '', author: '', views: 0, content: '', summary: '', blocks: []
   };
   const relatedNews = allNews.filter((item: any) => item.id !== news.id).slice(0, 3);
 
@@ -319,8 +320,23 @@ export const Category1DetailPage: React.FC<Category1DetailPageProps> = ({
           </div>
 
           {/* Article Body Content */}
-          <div className="text-sm sm:text-base text-black leading-loose space-y-4 whitespace-pre-line font-normal">
-            {news.content}
+          <div className="text-sm sm:text-base text-black leading-loose space-y-4 font-normal">
+            {news.blocks && news.blocks.length > 0 ? (
+              news.blocks.map((block: any, idx: number) => (
+                <div key={idx}>
+                  {block.type === 'TEXT' && (
+                    <div className="whitespace-pre-line">{block.content}</div>
+                  )}
+                  {block.type === 'IMAGE' && block.imageUrl && (
+                    <div className="my-4 flex justify-center">
+                      <img src={block.imageUrl} alt={`Ảnh minh họa ${idx + 1}`} className="w-full max-w-4xl object-cover shadow-sm border border-gray-100" />
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className="whitespace-pre-line">{news.content}</div>
+            )}
           </div>
 
           {/* Signature Block */}
