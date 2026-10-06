@@ -15,7 +15,7 @@ Dự án được chia thành hai module chính nằm song song: `frontend/` và
 - **Mọi nội dung là `posts`** gắn 1 `category_id` (tin, trang giới thiệu, thông báo, văn bản, tài liệu). Trường văn bản (`document_number`, `issuer`, `issued_date`, `recipient`, `action_required`) chỉ dùng cho `DOCUMENT_LIST`. Tệp đính kèm ở `post_attachments`. Không còn bảng `announcements`.
 - Đổi tên / sắp xếp / chuyển nhóm / đổi kiểu trang chỉ là sửa `categories` – bài viết đi theo, **không có mã đầu mục nào viết cứng trong code** (đừng thêm lại kiểu `categoryCode === 'X'`).
 - Khác: `feedbacks` (form Góp ý), `site_settings` (key/value: thông tin trường, `useful_links` – liên kết chân trang mỗi dòng `Tên | URL`, `timetable_term`, `timetable_notes`), `timetable_periods` + `timetable_entries` (thời khóa biểu: giờ các tiết; mỗi dòng = lớp × thứ (2–8) × tiết, khối suy ra từ tên lớp), `users`.
-- **Không còn dữ liệu tĩnh ở frontend**: TKB, slider trang chủ (= bài được ghim có ảnh bìa), liên kết chân trang, gợi ý tìm kiếm (= tên đầu mục), tiêu đề trang (= tên trường trong cài đặt) đều lấy từ API.
+- **Không còn dữ liệu tĩnh ở frontend**: TKB, liên kết chân trang, gợi ý tìm kiếm (= tên đầu mục), tiêu đề trang (= tên trường trong cài đặt) đều lấy từ API.
 
 ### 2.1 FRONTEND (`/frontend`)
 - **`src/lib/router.tsx`**: URL sinh từ dữ liệu: `/` · `/{slug-đầu-mục}` · `/bai-viet/{slug-bài}` (URL bài không chứa đầu mục nên chuyển mục không hỏng link). Slug dành riêng: `admin`, `api`, `bai-viet`, `tim-kiem`, `assets`, `uploads`.
@@ -24,7 +24,7 @@ Dự án được chia thành hai module chính nằm song song: `frontend/` và
 - **`src/api.ts`**: cache dùng chung (gộp request, TTL 60s). Request công khai **không** gửi token (admin xem web như khách); lỗi chỉ được giữ 5s rồi thử lại. `usePostPage({category, type, q, pinned, page, size})`, `usePost(slug)`, `useTimetable()`, `adminApi.*` cho trang quản trị.
 - **`src/lib/content.ts`**: `toPostView`, định dạng ngày/tệp, `optimizeImage`. **`src/lib/site.ts`**: `useSite()` đọc `/api/settings`, `usePageTitle()`, `SETTING_FIELDS` (form “Thông tin trường”).
 - **`src/components/ui.tsx`**, **`PostParts.tsx`**, **`SectionHeader.tsx`**: UI dùng chung – trang mới phải dùng lại.
-- Trang chủ: slider = bài ghim có ảnh (`pinned=true`), tin mới (`type=POST_LIST`), thông báo – văn bản (`type=DOCUMENT_LIST`), cột “Chuyên mục nổi bật” = đầu mục có `showOnHome`.
+- Trang chủ: banner = 3 ảnh cố định trong `src/assets` (bannger, banner2, banner3), tin mới (`type=POST_LIST`), thông báo – văn bản (`type=DOCUMENT_LIST`), cột “Chuyên mục nổi bật” = đầu mục có `showOnHome`.
 - **`src/pages/AdminPages.tsx`**: Tổng quan · Đầu mục & menu · Bài viết & văn bản · Thời khóa biểu (lưới nhập theo lớp, giờ tiết, ghi chú) · Góp ý · Thông tin trường. Token lưu `sessionStorage` (`portal-admin-token`).
 - **Thiết kế**: token màu theo logo trong `src/index.css` (`brand` #0A4AA0, `gold` #F8C108, `flame` #E8192A); font Be Vietnam Pro.
 

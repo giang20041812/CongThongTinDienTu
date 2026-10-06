@@ -63,8 +63,6 @@
   --animate-orbit: orbit 30s linear infinite;
   --animate-ring: ring 3.2s ease-in-out infinite;
   --animate-twinkle: twinkle 2.4s ease-in-out infinite;
-  --animate-pulse-ring: pulse-ring 2.2s var(--ease-soft) infinite;
-  --animate-gradient-pan: gradient-pan 9s linear infinite;
 }
 
 @keyframes marquee {
@@ -115,15 +113,7 @@
   0%, 100% { transform: scale(1) rotate(0); opacity: 1; }
   50% { transform: scale(0.72) rotate(45deg); opacity: 0.7; }
 }
-@keyframes pulse-ring {
-  from { transform: scale(1); opacity: 0.6; }
-  to { transform: scale(1.9); opacity: 0; }
-}
-/* Pans a gradient whose first and last colours match, so the loop is seamless */
-@keyframes gradient-pan {
-  from { background-position: 0% 50%; }
-  to { background-position: 200% 50%; }
-}
+
 
 @layer base {
   html {

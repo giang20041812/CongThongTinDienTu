@@ -263,7 +263,7 @@ const NewsTicker: React.FC<{ query: string; setQuery: (q: string) => void; onSub
         <WeatherWidget className="hidden md:flex" />
 
         <div className="flex min-w-0 flex-1 items-center gap-3">
-          <span className="inline-flex shrink-0 items-center gap-2 rounded-full bg-gradient-to-r from-flame-500 to-orange-500 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-white shadow-md shadow-flame-500/25">
+          <span className="inline-flex shrink-0 items-center gap-2 rounded-full bg-flame-500 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-white">
             <span className="relative flex size-1.5" aria-hidden="true">
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-white opacity-75" />
               <span className="relative inline-flex size-1.5 rounded-full bg-white" />
