@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { Suspense, lazy, useEffect, useState } from 'react';
-import { ArrowUp } from 'lucide-react';
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
+import { ArrowUp } from './components/icons';
 import { Header } from './components/Header';
 import { NavigationBar } from './components/NavigationBar';
 import { HeroSection } from './components/HeroSection';
@@ -53,13 +53,23 @@ const RouteView: React.FC<{ route: PageRoute | null }> = ({ route }) => {
   }
 };
 
+/** Circumference of the scroll-progress ring (r = 21 in a 48-unit box). */
+const RING_LENGTH = 2 * Math.PI * 21;
+
 const BackToTop: React.FC = () => {
   const [visible, setVisible] = useState(false);
+  const ringRef = useRef<SVGCircleElement>(null);
   useEffect(() => {
     let frame = 0;
     const onScroll = () => {
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => setVisible(window.scrollY > 700));
+      frame = requestAnimationFrame(() => {
+        setVisible(window.scrollY > 700);
+        // The ring is drawn straight on the element: no re-render per scrolled frame.
+        const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = scrollable > 0 ? Math.min(1, window.scrollY / scrollable) : 0;
+        ringRef.current?.setAttribute('stroke-dashoffset', String(RING_LENGTH * (1 - progress)));
+      });
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
@@ -73,11 +83,26 @@ const BackToTop: React.FC = () => {
       aria-label="Lên đầu trang"
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       className={cx(
-        'no-print fixed bottom-5 right-5 z-40 grid size-11 place-items-center rounded-full bg-brand-600 text-white shadow-nav transition-all duration-500 ease-(--ease-soft) hover:bg-brand-500 sm:bottom-7 sm:right-7',
+        'group no-print fixed bottom-5 right-5 z-40 grid size-12 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-nav transition-all duration-500 ease-(--ease-soft) hover:-translate-y-1 sm:bottom-7 sm:right-7',
         visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0',
       )}
     >
-      <ArrowUp className="size-5" />
+      <svg viewBox="0 0 48 48" className="absolute inset-0 -rotate-90" aria-hidden="true">
+        <circle cx="24" cy="24" r="21" fill="none" stroke="rgb(255 255 255 / 0.2)" strokeWidth="3" />
+        <circle
+          ref={ringRef}
+          cx="24"
+          cy="24"
+          r="21"
+          fill="none"
+          stroke="#f8c108"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeDasharray={RING_LENGTH}
+          strokeDashoffset={RING_LENGTH}
+        />
+      </svg>
+      <ArrowUp className="relative size-5 transition-transform duration-300 group-hover:-translate-y-0.5" />
     </button>
   );
 };

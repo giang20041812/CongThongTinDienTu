@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Cloud, CloudLightning, CloudRain, CloudSun, Snowflake, Sun } from 'lucide-react';
+import { CloudFog, CloudLightning, CloudRain, CloudSun, Snowflake, Sun } from './icons';
 import { cx } from './ui';
 
 interface WeatherData {
@@ -13,7 +13,7 @@ const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=21.0245&lon
 const describe = (code: number) => {
   if (code <= 1) return { Icon: Sun, label: 'Trời quang', tone: 'text-gold-500' };
   if (code <= 3) return { Icon: CloudSun, label: 'Ít mây', tone: 'text-gold-500' };
-  if (code <= 48) return { Icon: Cloud, label: 'Sương mù', tone: 'text-muted' };
+  if (code <= 48) return { Icon: CloudFog, label: 'Sương mù', tone: 'text-muted' };
   if (code <= 67 || (code >= 80 && code <= 82)) return { Icon: CloudRain, label: 'Có mưa', tone: 'text-brand-500' };
   if (code <= 77) return { Icon: Snowflake, label: 'Lạnh', tone: 'text-brand-400' };
   if (code >= 95) return { Icon: CloudLightning, label: 'Dông', tone: 'text-flame-500' };

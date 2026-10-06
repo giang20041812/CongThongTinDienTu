@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowRight, CornerDownLeft, FileText, FolderOpen, Search, X } from 'lucide-react';
+import { ArrowElbowDownLeft, ArrowRight, FileText, FolderOpen, MagnifyingGlass, X } from './icons';
 import { usePostPage } from '../api';
 import { useRouter } from '../lib/router';
 import { categoryRoute, isExternal, useMenu } from '../lib/menu';
@@ -120,7 +120,7 @@ export const SearchDialog: React.FC<{ open: boolean; initialQuery: string; onClo
       <button type="button" aria-label="Đóng tìm kiếm" onClick={onClose} className="absolute inset-0 cursor-default bg-brand-950/55 backdrop-blur-sm" />
       <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl" style={{ animation: 'dialog-in 0.25s var(--ease-soft) both' }}>
         <div className="flex items-center gap-3 border-b border-line px-5">
-          <Search className="size-5 shrink-0 text-brand-600" />
+          <MagnifyingGlass className="size-5 shrink-0 text-brand-600" />
           <input
             ref={inputRef}
             value={query}
@@ -186,7 +186,7 @@ export const SearchDialog: React.FC<{ open: boolean; initialQuery: string; onClo
                       <span className="mt-0.5 line-clamp-2 block text-[14px] font-semibold leading-snug text-ink">{result.title}</span>
                       {result.excerpt && <span className="mt-0.5 line-clamp-1 block text-[12.5px] text-muted">{result.excerpt}</span>}
                     </span>
-                    {i === activeIndex ? <CornerDownLeft className="mt-2 size-4 shrink-0 text-brand-400" /> : <ArrowRight className="mt-2 size-4 shrink-0 text-line" />}
+                    {i === activeIndex ? <ArrowElbowDownLeft className="mt-2 size-4 shrink-0 text-brand-400" /> : <ArrowRight className="mt-2 size-4 shrink-0 text-line" />}
                   </button>
                 </li>
               ))}

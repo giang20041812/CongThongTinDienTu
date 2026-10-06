@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle2, Clock, Globe, Mail, MapPin, Phone, Send, Share2 } from 'lucide-react';
+import { CheckCircle, Clock, EnvelopeSimple, GlobeHemisphereEast, MapPin, PaperPlaneTilt, Phone, ShareNetwork } from '../components/icons';
 import { submitFeedback } from '../api';
 import { mapEmbedUrl, telHref, useSite } from '../lib/site';
 import { useMenu, MenuLink } from '../lib/menu';
@@ -53,7 +53,7 @@ export const ContactPage: React.FC<SectionProps> = (props) => {
                 </ContactLine>
               )}
               {site.email && (
-                <ContactLine icon={Mail} label="Email">
+                <ContactLine icon={EnvelopeSimple} label="Email">
                   <a href={`mailto:${site.email}`} className="hover:text-brand-600">{site.email}</a>
                   {site.official_email && (
                     <a href={`mailto:${site.official_email}`} className="mt-1 block text-[14px] font-medium text-body hover:text-brand-600">{site.official_email}</a>
@@ -61,16 +61,16 @@ export const ContactPage: React.FC<SectionProps> = (props) => {
                 </ContactLine>
               )}
               {site.working_hours && <ContactLine icon={Clock} label="Giờ làm việc">{site.working_hours}</ContactLine>}
-              {site.website && <ContactLine icon={Globe} label="Website">{site.website}</ContactLine>}
+              {site.website && <ContactLine icon={GlobeHemisphereEast} label="Website">{site.website}</ContactLine>}
               {site.facebook_url && (
-                <ContactLine icon={Share2} label="Facebook">
+                <ContactLine icon={ShareNetwork} label="Facebook">
                   <a href={site.facebook_url} target="_blank" rel="noopener noreferrer" className="hover:text-brand-600">{site.facebook_url.replace(/^https?:\/\//, '')}</a>
                 </ContactLine>
               )}
             </ul>
             {feedbackEntry && (
               <MenuLink category={feedbackEntry} className={cx(primaryButton, 'mt-4 w-full')}>
-                <Send className="size-4" />
+                <PaperPlaneTilt className="size-4" />
                 Gửi góp ý cho nhà trường
               </MenuLink>
             )}
@@ -135,7 +135,7 @@ export const FeedbackPage: React.FC<SectionProps> = (props) => {
         <div className="mx-auto max-w-3xl rounded-2xl border border-line bg-white p-6 shadow-card sm:p-9">
           {state.status === 'sent' ? (
             <div className="flex flex-col items-center py-8 text-center">
-              <CheckCircle2 className="size-14 text-green-600" />
+              <CheckCircle className="size-14 text-green-600" />
               <h2 className="mt-4 text-xl font-bold">Cảm ơn bạn đã gửi góp ý!</h2>
               <p className="mt-2 max-w-md text-sm text-muted">Nhà trường đã tiếp nhận và sẽ phản hồi qua thông tin liên hệ bạn cung cấp (nếu cần).</p>
               <button onClick={() => setState({ status: 'idle' })} className={cx(primaryButton, 'mt-6')}>
@@ -172,7 +172,7 @@ export const FeedbackPage: React.FC<SectionProps> = (props) => {
               {state.error && <p className="text-sm font-medium text-flame-600 sm:col-span-2">{state.error}</p>}
               <div className="sm:col-span-2">
                 <button type="submit" disabled={state.status === 'sending'} className={cx(primaryButton, 'w-full disabled:opacity-60 sm:w-auto')}>
-                  <Send className="size-4" />
+                  <PaperPlaneTilt className="size-4" />
                   {state.status === 'sending' ? 'Đang gửi...' : 'Gửi góp ý'}
                 </button>
               </div>

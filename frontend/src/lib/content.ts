@@ -44,6 +44,9 @@ export const formatTime = (date: Date | null) =>
 
 export const formatNumber = (value: number) => value.toLocaleString('vi-VN');
 
+/** Published within the last `days` days – flagged "Mới" on the home page. */
+export const isRecent = (date: Date | null, days = 7) => !!date && Date.now() - date.getTime() < days * 86_400_000;
+
 export const formatFileSize = (bytes?: number | null) => {
   if (!bytes) return '';
   if (bytes < 1024) return `${bytes} B`;

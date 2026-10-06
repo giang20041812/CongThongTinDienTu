@@ -57,6 +57,14 @@
   --animate-marquee: marquee var(--marquee-duration, 40s) linear infinite;
   --animate-shimmer: shimmer 1.6s ease-in-out infinite;
   --animate-fade-up: fade-up 0.5s var(--ease-soft) both;
+  --animate-rise: rise 0.7s var(--ease-soft) both;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-drift: drift 22s ease-in-out infinite;
+  --animate-orbit: orbit 30s linear infinite;
+  --animate-ring: ring 3.2s ease-in-out infinite;
+  --animate-twinkle: twinkle 2.4s ease-in-out infinite;
+  --animate-pulse-ring: pulse-ring 2.2s var(--ease-soft) infinite;
+  --animate-gradient-pan: gradient-pan 9s linear infinite;
 }
 
 @keyframes marquee {
@@ -79,6 +87,42 @@
 @keyframes dialog-in {
   from { opacity: 0; transform: translateY(-8px) scale(0.98); }
   to { opacity: 1; transform: none; }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+/* Slow wander of the soft colour blobs behind sections */
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(6%, -8%) scale(1.08); }
+  66% { transform: translate(-6%, 5%) scale(0.94); }
+}
+@keyframes orbit {
+  to { transform: rotate(360deg); }
+}
+/* A phone that rings twice, then rests */
+@keyframes ring {
+  0%, 36%, 100% { transform: rotate(0); }
+  4%, 12%, 20%, 28% { transform: rotate(-14deg); }
+  8%, 16%, 24%, 32% { transform: rotate(14deg); }
+}
+@keyframes twinkle {
+  0%, 100% { transform: scale(1) rotate(0); opacity: 1; }
+  50% { transform: scale(0.72) rotate(45deg); opacity: 0.7; }
+}
+@keyframes pulse-ring {
+  from { transform: scale(1); opacity: 0.6; }
+  to { transform: scale(1.9); opacity: 0; }
+}
+/* Pans a gradient whose first and last colours match, so the loop is seamless */
+@keyframes gradient-pan {
+  from { background-position: 0% 50%; }
+  to { background-position: 200% 50%; }
 }
 
 @layer base {
@@ -160,6 +204,108 @@
   background-size: 200% 100%;
   animation: var(--animate-shimmer);
 }
+
+/* Soft multi-colour wash (sky · violet · gold · rose) for feature bands */
+@utility bg-aurora {
+  background-color: #f7faff;
+  background-image:
+    radial-gradient(38% 55% at 6% 10%, rgb(56 189 248 / 0.2), transparent 70%),
+    radial-gradient(32% 50% at 94% 6%, rgb(167 139 250 / 0.22), transparent 70%),
+    radial-gradient(40% 55% at 88% 96%, rgb(251 191 36 / 0.2), transparent 70%),
+    radial-gradient(34% 45% at 10% 94%, rgb(244 63 94 / 0.13), transparent 70%);
+}
+
+/* Coloured drop shadow in the element's tone (see lib/tones.ts) */
+@utility tone-glow {
+  box-shadow: 0 10px 22px -8px color-mix(in oklab, var(--tone, #3b82f6) 65%, transparent);
+}
+
+/* Glow that follows the pointer inside a card, in the card's tone; position from trackPointer() */
+@utility spotlight {
+  isolation: isolate;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), color-mix(in oklab, var(--tone, #3b82f6) 15%, transparent), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.5s var(--ease-soft);
+    pointer-events: none;
+  }
+  &:hover::before { opacity: 1; }
+}
+
+/* 3D tilt towards the pointer – mouse/trackpad only, never on touch or with reduced motion */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .tilt:hover {
+    transform: perspective(900px) rotateX(calc((0.5 - var(--py, 0.5)) * 7deg)) rotateY(calc((var(--px, 0.5) - 0.5) * 9deg));
+  }
+}
+
+/* Light sweep across an image (SmartImage wrapper) when its card or link is hovered */
+.shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.38) 48%, rgb(255 255 255 / 0.38) 52%, transparent 70%);
+  transform: translateX(-110%);
+  pointer-events: none;
+}
+.spotlight:hover .shine::after,
+a:hover .shine::after {
+  transform: translateX(110%);
+  transition: transform 1s var(--ease-soft);
+}
+
+/* Gradient underline of section headings: draws in when its Reveal wrapper appears */
+.heading-bar {
+  transform-origin: left;
+  transition: transform 0.9s var(--ease-soft) 0.25s;
+}
+.reveal:not(.is-visible) .heading-bar { transform: scaleX(0); }
+
+/* ---------------------------------------------------------------------
+   3D coverflow carousel (components/Coverflow.tsx). Slides share one
+   grid cell, so the deck is as tall as its tallest card. Each slide is
+   placed by --o (its distance from the centre card, set by React) minus
+   --drag (the live swipe distance): side cards turn towards the centre,
+   sink back and fade; cards further out are invisible.
+   --------------------------------------------------------------------- */
+.coverflow {
+  --cf-width: 72%;
+  --cf-step: 74%;
+  --cf-speed: 0.75s;
+  --drag: 0;
+  display: grid;
+  perspective: 1100px;
+  touch-action: pan-y pinch-zoom;
+}
+@media (min-width: 640px) {
+  .coverflow { --cf-width: 52%; --cf-step: 78%; }
+}
+@media (min-width: 768px) {
+  .coverflow { --cf-width: 42%; --cf-step: 84%; perspective: 1400px; }
+}
+.coverflow[data-jumping] { --cf-speed: 0.3s; }
+
+.coverflow-slide {
+  --d: clamp(-2.5, calc(var(--o) - var(--drag)), 2.5);
+  --far: max(var(--d), calc(var(--d) * -1));
+  position: relative;
+  /* Nearest card on top – it also swaps mid-swipe, once the incoming card passes halfway */
+  z-index: calc(100 - var(--far) * 20);
+  grid-area: 1 / 1;
+  justify-self: center;
+  width: var(--cf-width);
+  transform: translate3d(calc(var(--d) * var(--cf-step)), 0, calc(var(--far) * -170px)) rotateY(calc(var(--d) * -32deg));
+  /* centre 1 · side cards 0.55 · anything further 0 */
+  opacity: clamp(0, calc(1.45 - var(--far) * 0.9), 1);
+  transition: transform var(--cf-speed) var(--ease-soft), opacity var(--cf-speed) var(--ease-soft);
+}
+.coverflow[data-dragging] .coverflow-slide { transition: none; }
+.coverflow-slide[data-pos='far'] { pointer-events: none; }
 
 /* Scroll-reveal: elements fade up once when they enter the viewport */
 .reveal {

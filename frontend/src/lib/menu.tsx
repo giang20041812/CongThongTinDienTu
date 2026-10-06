@@ -1,18 +1,41 @@
 import React, { useMemo } from 'react';
 import {
-  BookOpen,
-  CalendarClock,
-  ExternalLink,
+  ArrowSquareOut,
+  BookOpenText,
+  Books,
+  Buildings,
+  CalendarCheck,
+  ChalkboardTeacher,
+  ChartBar,
+  ChatCircleDots,
+  ClipboardText,
+  Compass,
+  EnvelopeSimple,
+  Exam,
   FileText,
+  Flag,
   FolderOpen,
-  LayoutGrid,
-  Mail,
+  GraduationCap,
+  HandHeart,
+  IdentificationCard,
+  Laptop,
   MapPin,
-  MessageSquare,
+  Medal,
+  MegaphoneSimple,
   Newspaper,
-} from 'lucide-react';
+  Scroll,
+  SealCheck,
+  SquaresFour,
+  Student,
+  Tent,
+  TreeStructure,
+  Trophy,
+  UsersThree,
+  type IconComponent,
+} from '../components/icons';
 import { CATEGORIES_PATH, useResource } from '../api';
 import type { Category, MenuNode, PageRoute, PageType } from '../types';
+import { normalizeSearch } from './content';
 import { Link } from './router';
 
 const EMPTY: Category[] = [];
@@ -72,19 +95,52 @@ export const PAGE_TYPE_LABELS: Record<PageType, string> = {
   LINK: 'Liên kết ngoài',
 };
 
-export const PAGE_TYPE_ICONS: Record<PageType, React.ComponentType<{ className?: string }>> = {
-  GROUP: LayoutGrid,
-  PAGE: BookOpen,
+export const PAGE_TYPE_ICONS: Record<PageType, IconComponent> = {
+  GROUP: SquaresFour,
+  PAGE: BookOpenText,
   POST_LIST: Newspaper,
   DOCUMENT_LIST: FileText,
-  SCHEDULE: CalendarClock,
-  CONTACT: Mail,
+  SCHEDULE: CalendarCheck,
+  CONTACT: EnvelopeSimple,
   MAP: MapPin,
-  FEEDBACK: MessageSquare,
-  LINK: ExternalLink,
+  FEEDBACK: ChatCircleDots,
+  LINK: ArrowSquareOut,
 };
 
 export const iconFor = (type: PageType) => PAGE_TYPE_ICONS[type] ?? FolderOpen;
+
+/**
+ * School vocabulary → icon, matched against the accent-free entry name (first match wins).
+ * Purely cosmetic: an entry that matches nothing – or is renamed – falls back to its page-type icon.
+ */
+const NAME_ICONS: [RegExp, IconComponent][] = [
+  [/thanh tich|khen thuong|giai thuong/, Trophy],
+  [/tuyen sinh/, GraduationCap],
+  [/huong nghiep/, Compass],
+  [/truc tuyen|dien tu|e-learning/, Laptop],
+  [/\bthi\b|kiem tra|on tap/, Exam],
+  [/cau lac bo|\bclb\b/, UsersThree],
+  [/doan thanh nien|doan truong|doi thieu nien/, Flag],
+  [/ngoai khoa|trai nghiem|da ngoai/, Tent],
+  [/chuyen mon|giao vien/, ChalkboardTeacher],
+  [/tam ly|tu van/, HandHeart],
+  [/tieu bieu|guong mat|vinh danh/, Medal],
+  [/hoc sinh/, Student],
+  [/thong bao/, MegaphoneSimple],
+  [/tai lieu|hoc lieu|thu vien/, Books],
+  [/lich su|truyen thong/, Scroll],
+  [/co so vat chat/, Buildings],
+  [/co cau|to chuc/, TreeStructure],
+  [/ban giam hieu|lanh dao/, IdentificationCard],
+  [/ke hoach/, ClipboardText],
+  [/bao cao|thong ke/, ChartBar],
+  [/cong khai/, SealCheck],
+];
+
+export const categoryIcon = (category: Pick<Category, 'name' | 'pageType'>): IconComponent => {
+  const name = normalizeSearch(category.name);
+  return NAME_ICONS.find(([pattern]) => pattern.test(name))?.[1] ?? iconFor(category.pageType);
+};
 
 interface MenuLinkProps extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> {
   category: Category;

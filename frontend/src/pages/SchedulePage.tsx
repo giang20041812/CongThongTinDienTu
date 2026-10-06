@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { CalendarClock, Clock, Info, Printer } from 'lucide-react';
+import { CalendarCheck, Clock, Info, Printer } from '../components/icons';
 import { useTimetable } from '../api';
 import { splitLines, useSite } from '../lib/site';
 import type { TimetableEntry, TimetablePeriod } from '../types';
@@ -166,7 +166,7 @@ export const SchedulePage: React.FC<SectionProps> = (props) => {
                 </h2>
                 {site.timetable_term && (
                   <p className="mt-1 inline-flex items-center gap-1.5 text-[13px] text-muted">
-                    <CalendarClock className="size-4 text-gold-600" />
+                    <CalendarCheck className="size-4 text-gold-600" />
                     {site.timetable_term}
                   </p>
                 )}

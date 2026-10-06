@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDown, ChevronRight, ExternalLink, Menu, Search, X } from 'lucide-react';
+import { ArrowSquareOut, CaretDown, CaretRight, List, MagnifyingGlass, X } from './icons';
 import schoolLogo from '../assets/logo.jpg';
 import { usePost, usePostPage } from '../api';
 import { Link, useRouter } from '../lib/router';
 import { MenuLink, rootOf, useMenu } from '../lib/menu';
 import { postRoute, toPostView } from '../lib/content';
+import { toneAt } from '../lib/tones';
 import type { MenuNode } from '../types';
 import { WeatherWidget } from './WeatherWidget';
 import { Container, cx } from './ui';
@@ -35,7 +36,7 @@ const DesktopItem: React.FC<{ node: MenuNode; active: boolean }> = ({ node, acti
     <MenuLink category={node} aria-current={active ? 'page' : undefined} aria-haspopup={node.children.length > 0 || undefined} className={tabClass(active)}>
       {active && <span className="absolute inset-x-3 top-0 h-[3px] rounded-b-full bg-gold-400" aria-hidden="true" />}
       {node.name}
-      {node.children.length > 0 && <ChevronDown className="size-3.5 opacity-70 transition-transform duration-300 group-hover/nav:rotate-180" />}
+      {node.children.length > 0 && <CaretDown className="size-3.5 opacity-70 transition-transform duration-300 group-hover/nav:rotate-180" />}
     </MenuLink>
     {node.children.length > 0 && (
       <div className="invisible absolute left-0 top-full z-50 min-w-64 translate-y-1 pt-1 opacity-0 transition-all duration-200 ease-(--ease-soft) group-focus-within/nav:visible group-focus-within/nav:translate-y-0 group-focus-within/nav:opacity-100 group-hover/nav:visible group-hover/nav:translate-y-0 group-hover/nav:opacity-100">
@@ -47,7 +48,7 @@ const DesktopItem: React.FC<{ node: MenuNode; active: boolean }> = ({ node, acti
                 className="flex items-center justify-between gap-3 px-4 py-2.5 text-[13.5px] font-medium text-body transition-colors hover:bg-brand-50 hover:text-brand-600"
               >
                 {child.name}
-                {child.pageType === 'LINK' && <ExternalLink className="size-3.5 text-muted" />}
+                {child.pageType === 'LINK' && <ArrowSquareOut className="size-3.5 text-muted" />}
               </MenuLink>
             </li>
           ))}
@@ -72,7 +73,7 @@ const MobileItem: React.FC<{ node: MenuNode; active: boolean; open: boolean; onT
           aria-label={`${open ? 'Thu gọn' : 'Mở'} ${node.name}`}
           className="grid size-11 place-items-center"
         >
-          <ChevronDown className={cx('size-4 transition-transform duration-300', open && 'rotate-180', active ? 'text-gold-300' : 'text-muted')} />
+          <CaretDown className={cx('size-4 transition-transform duration-300', open && 'rotate-180', active ? 'text-gold-300' : 'text-muted')} />
         </button>
       )}
     </div>
@@ -82,7 +83,7 @@ const MobileItem: React.FC<{ node: MenuNode; active: boolean; open: boolean; onT
           <li key={child.id}>
             <MenuLink category={child} className="flex items-center justify-between rounded-lg px-3 py-2.5 text-[14px] text-body hover:bg-brand-50 hover:text-brand-600">
               {child.name}
-              <ChevronRight className="size-4 text-muted" />
+              <CaretRight className="size-4 text-muted" />
             </MenuLink>
           </li>
         ))}
@@ -174,7 +175,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ onOpenSearch }) =>
             aria-controls="mobile-menu"
             className="flex items-center gap-2 self-center rounded-xl px-2.5 py-2 transition-colors hover:bg-brand-500 lg:hidden"
           >
-            {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+            {menuOpen ? <X className="size-5" /> : <List className="size-5" />}
             <span className="text-[13px] font-semibold uppercase tracking-wider">Danh mục</span>
           </button>
           {activeLabel && <span className="min-w-0 self-center truncate text-[13px] text-white/70 lg:hidden">/ {activeLabel}</span>}
@@ -186,7 +187,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ onOpenSearch }) =>
             title="Tìm kiếm (Ctrl + K)"
             className="ml-auto grid size-10 shrink-0 place-items-center self-center rounded-full transition-colors duration-300 hover:bg-brand-500"
           >
-            <Search className="size-[18px]" />
+            <MagnifyingGlass className="size-[18px]" />
           </button>
 
           {/* Mobile / tablet menu */}
@@ -199,7 +200,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ onOpenSearch }) =>
           >
             <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6">
               <form onSubmit={submitSearch} className="relative mb-3">
-                <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted" />
+                <MagnifyingGlass className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted" />
                 <input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
@@ -262,7 +263,7 @@ const NewsTicker: React.FC<{ query: string; setQuery: (q: string) => void; onSub
         <WeatherWidget className="hidden md:flex" />
 
         <div className="flex min-w-0 flex-1 items-center gap-3">
-          <span className="inline-flex shrink-0 items-center gap-2 rounded-full bg-flame-500 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-white shadow-sm">
+          <span className="inline-flex shrink-0 items-center gap-2 rounded-full bg-gradient-to-r from-flame-500 to-orange-500 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-white shadow-md shadow-flame-500/25">
             <span className="relative flex size-1.5" aria-hidden="true">
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-white opacity-75" />
               <span className="relative inline-flex size-1.5 rounded-full bg-white" />
@@ -284,7 +285,7 @@ const NewsTicker: React.FC<{ query: string; setQuery: (q: string) => void; onSub
                       aria-hidden={duplicate || undefined}
                       className="mr-10 inline-flex items-center gap-2.5 whitespace-nowrap text-[13px] font-medium text-body transition-colors hover:text-brand-600"
                     >
-                      <span className="size-1.5 rounded-full bg-gold-400" aria-hidden="true" />
+                      <span className="size-1.5 rounded-full" style={{ background: toneAt(index % items.length).from }} aria-hidden="true" />
                       {item.title}
                     </Link>
                   );
@@ -303,7 +304,7 @@ const NewsTicker: React.FC<{ query: string; setQuery: (q: string) => void; onSub
             className="h-10 w-full rounded-full border border-line bg-surface pl-4 pr-11 text-[13px] text-ink outline-none transition-all duration-300 placeholder:text-muted focus:border-brand-300 focus:bg-white focus:ring-4 focus:ring-brand-100"
           />
           <button type="submit" aria-label="Tìm kiếm" className="absolute right-1 top-1 grid size-8 place-items-center rounded-full bg-brand-600 text-white transition-colors hover:bg-brand-500">
-            <Search className="size-3.5" />
+            <MagnifyingGlass className="size-3.5" />
           </button>
         </form>
       </Container>

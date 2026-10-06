@@ -1,0 +1,162 @@
+/**
+ * Icon set of the public site: Phosphor glyphs, solid ("fill") for objects and bold for arrows and
+ * marks, whose filled variants are boxed shapes. Pages import icons from here – never from the
+ * library – so the site keeps one visual language and only the glyphs in use are bundled.
+ */
+import React from 'react';
+import type { Icon as Glyph, IconProps, IconWeight } from '@phosphor-icons/react';
+import { ArrowElbowDownLeft as ArrowElbowDownLeftGlyph } from '@phosphor-icons/react/dist/csr/ArrowElbowDownLeft';
+import { ArrowRight as ArrowRightGlyph } from '@phosphor-icons/react/dist/csr/ArrowRight';
+import { ArrowSquareOut as ArrowSquareOutGlyph } from '@phosphor-icons/react/dist/csr/ArrowSquareOut';
+import { ArrowUp as ArrowUpGlyph } from '@phosphor-icons/react/dist/csr/ArrowUp';
+import { BookOpenText as BookOpenTextGlyph } from '@phosphor-icons/react/dist/csr/BookOpenText';
+import { Books as BooksGlyph } from '@phosphor-icons/react/dist/csr/Books';
+import { Buildings as BuildingsGlyph } from '@phosphor-icons/react/dist/csr/Buildings';
+import { CalendarCheck as CalendarCheckGlyph } from '@phosphor-icons/react/dist/csr/CalendarCheck';
+import { CalendarDots as CalendarDotsGlyph } from '@phosphor-icons/react/dist/csr/CalendarDots';
+import { CaretDown as CaretDownGlyph } from '@phosphor-icons/react/dist/csr/CaretDown';
+import { CaretLeft as CaretLeftGlyph } from '@phosphor-icons/react/dist/csr/CaretLeft';
+import { CaretRight as CaretRightGlyph } from '@phosphor-icons/react/dist/csr/CaretRight';
+import { ChalkboardTeacher as ChalkboardTeacherGlyph } from '@phosphor-icons/react/dist/csr/ChalkboardTeacher';
+import { ChartBar as ChartBarGlyph } from '@phosphor-icons/react/dist/csr/ChartBar';
+import { ChatCircleDots as ChatCircleDotsGlyph } from '@phosphor-icons/react/dist/csr/ChatCircleDots';
+import { Check as CheckGlyph } from '@phosphor-icons/react/dist/csr/Check';
+import { CheckCircle as CheckCircleGlyph } from '@phosphor-icons/react/dist/csr/CheckCircle';
+import { ClipboardText as ClipboardTextGlyph } from '@phosphor-icons/react/dist/csr/ClipboardText';
+import { Clock as ClockGlyph } from '@phosphor-icons/react/dist/csr/Clock';
+import { Cloud as CloudGlyph } from '@phosphor-icons/react/dist/csr/Cloud';
+import { CloudFog as CloudFogGlyph } from '@phosphor-icons/react/dist/csr/CloudFog';
+import { CloudLightning as CloudLightningGlyph } from '@phosphor-icons/react/dist/csr/CloudLightning';
+import { CloudRain as CloudRainGlyph } from '@phosphor-icons/react/dist/csr/CloudRain';
+import { CloudSun as CloudSunGlyph } from '@phosphor-icons/react/dist/csr/CloudSun';
+import { Compass as CompassGlyph } from '@phosphor-icons/react/dist/csr/Compass';
+import { DownloadSimple as DownloadSimpleGlyph } from '@phosphor-icons/react/dist/csr/DownloadSimple';
+import { EnvelopeSimple as EnvelopeSimpleGlyph } from '@phosphor-icons/react/dist/csr/EnvelopeSimple';
+import { Exam as ExamGlyph } from '@phosphor-icons/react/dist/csr/Exam';
+import { Eye as EyeGlyph } from '@phosphor-icons/react/dist/csr/Eye';
+import { FileMagnifyingGlass as FileMagnifyingGlassGlyph } from '@phosphor-icons/react/dist/csr/FileMagnifyingGlass';
+import { FileText as FileTextGlyph } from '@phosphor-icons/react/dist/csr/FileText';
+import { Flag as FlagGlyph } from '@phosphor-icons/react/dist/csr/Flag';
+import { FolderOpen as FolderOpenGlyph } from '@phosphor-icons/react/dist/csr/FolderOpen';
+import { GlobeHemisphereEast as GlobeHemisphereEastGlyph } from '@phosphor-icons/react/dist/csr/GlobeHemisphereEast';
+import { GraduationCap as GraduationCapGlyph } from '@phosphor-icons/react/dist/csr/GraduationCap';
+import { HandHeart as HandHeartGlyph } from '@phosphor-icons/react/dist/csr/HandHeart';
+import { IdentificationCard as IdentificationCardGlyph } from '@phosphor-icons/react/dist/csr/IdentificationCard';
+import { Image as ImageGlyph } from '@phosphor-icons/react/dist/csr/Image';
+import { Info as InfoGlyph } from '@phosphor-icons/react/dist/csr/Info';
+import { Laptop as LaptopGlyph } from '@phosphor-icons/react/dist/csr/Laptop';
+import { LinkSimple as LinkSimpleGlyph } from '@phosphor-icons/react/dist/csr/LinkSimple';
+import { List as ListGlyph } from '@phosphor-icons/react/dist/csr/List';
+import { MagnifyingGlass as MagnifyingGlassGlyph } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
+import { MapPin as MapPinGlyph } from '@phosphor-icons/react/dist/csr/MapPin';
+import { Medal as MedalGlyph } from '@phosphor-icons/react/dist/csr/Medal';
+import { MegaphoneSimple as MegaphoneSimpleGlyph } from '@phosphor-icons/react/dist/csr/MegaphoneSimple';
+import { Newspaper as NewspaperGlyph } from '@phosphor-icons/react/dist/csr/Newspaper';
+import { PaperPlaneTilt as PaperPlaneTiltGlyph } from '@phosphor-icons/react/dist/csr/PaperPlaneTilt';
+import { Paperclip as PaperclipGlyph } from '@phosphor-icons/react/dist/csr/Paperclip';
+import { Pause as PauseGlyph } from '@phosphor-icons/react/dist/csr/Pause';
+import { Phone as PhoneGlyph } from '@phosphor-icons/react/dist/csr/Phone';
+import { PhoneCall as PhoneCallGlyph } from '@phosphor-icons/react/dist/csr/PhoneCall';
+import { Play as PlayGlyph } from '@phosphor-icons/react/dist/csr/Play';
+import { Printer as PrinterGlyph } from '@phosphor-icons/react/dist/csr/Printer';
+import { PushPin as PushPinGlyph } from '@phosphor-icons/react/dist/csr/PushPin';
+import { Scroll as ScrollGlyph } from '@phosphor-icons/react/dist/csr/Scroll';
+import { SealCheck as SealCheckGlyph } from '@phosphor-icons/react/dist/csr/SealCheck';
+import { ShareNetwork as ShareNetworkGlyph } from '@phosphor-icons/react/dist/csr/ShareNetwork';
+import { Snowflake as SnowflakeGlyph } from '@phosphor-icons/react/dist/csr/Snowflake';
+import { Sparkle as SparkleGlyph } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { SquaresFour as SquaresFourGlyph } from '@phosphor-icons/react/dist/csr/SquaresFour';
+import { Student as StudentGlyph } from '@phosphor-icons/react/dist/csr/Student';
+import { Sun as SunGlyph } from '@phosphor-icons/react/dist/csr/Sun';
+import { Tent as TentGlyph } from '@phosphor-icons/react/dist/csr/Tent';
+import { TreeStructure as TreeStructureGlyph } from '@phosphor-icons/react/dist/csr/TreeStructure';
+import { Trophy as TrophyGlyph } from '@phosphor-icons/react/dist/csr/Trophy';
+import { UserCircle as UserCircleGlyph } from '@phosphor-icons/react/dist/csr/UserCircle';
+import { UsersThree as UsersThreeGlyph } from '@phosphor-icons/react/dist/csr/UsersThree';
+import { X as XGlyph } from '@phosphor-icons/react/dist/csr/X';
+
+export type IconComponent = React.FC<IconProps>;
+
+const withWeight = (Source: Glyph, weight: IconWeight): IconComponent => {
+  // Decorative by default; pass aria-hidden={false} plus alt="…" for an icon that carries meaning alone.
+  const Icon: IconComponent = (props) => <Source weight={weight} aria-hidden="true" {...props} />;
+  Icon.displayName = Source.displayName;
+  return Icon;
+};
+const solid = (Source: Glyph) => withWeight(Source, 'fill');
+const bold = (Source: Glyph) => withWeight(Source, 'bold');
+
+// Arrows and marks
+export const ArrowElbowDownLeft = bold(ArrowElbowDownLeftGlyph);
+export const ArrowRight = bold(ArrowRightGlyph);
+export const ArrowUp = bold(ArrowUpGlyph);
+export const CaretDown = bold(CaretDownGlyph);
+export const CaretLeft = bold(CaretLeftGlyph);
+export const CaretRight = bold(CaretRightGlyph);
+export const Check = bold(CheckGlyph);
+export const DownloadSimple = bold(DownloadSimpleGlyph);
+export const LinkSimple = bold(LinkSimpleGlyph);
+export const List = bold(ListGlyph);
+export const MagnifyingGlass = bold(MagnifyingGlassGlyph);
+export const Paperclip = bold(PaperclipGlyph);
+export const X = bold(XGlyph);
+
+// Objects
+export const ArrowSquareOut = solid(ArrowSquareOutGlyph);
+export const BookOpenText = solid(BookOpenTextGlyph);
+export const Books = solid(BooksGlyph);
+export const Buildings = solid(BuildingsGlyph);
+export const CalendarCheck = solid(CalendarCheckGlyph);
+export const CalendarDots = solid(CalendarDotsGlyph);
+export const ChalkboardTeacher = solid(ChalkboardTeacherGlyph);
+export const ChartBar = solid(ChartBarGlyph);
+export const ChatCircleDots = solid(ChatCircleDotsGlyph);
+export const CheckCircle = solid(CheckCircleGlyph);
+export const ClipboardText = solid(ClipboardTextGlyph);
+export const Clock = solid(ClockGlyph);
+export const Compass = solid(CompassGlyph);
+export const EnvelopeSimple = solid(EnvelopeSimpleGlyph);
+export const Exam = solid(ExamGlyph);
+export const Eye = solid(EyeGlyph);
+export const FileMagnifyingGlass = solid(FileMagnifyingGlassGlyph);
+export const FileText = solid(FileTextGlyph);
+export const Flag = solid(FlagGlyph);
+export const FolderOpen = solid(FolderOpenGlyph);
+export const GlobeHemisphereEast = solid(GlobeHemisphereEastGlyph);
+export const GraduationCap = solid(GraduationCapGlyph);
+export const HandHeart = solid(HandHeartGlyph);
+export const IdentificationCard = solid(IdentificationCardGlyph);
+export const ImageIcon = solid(ImageGlyph);
+export const Info = solid(InfoGlyph);
+export const Laptop = solid(LaptopGlyph);
+export const MapPin = solid(MapPinGlyph);
+export const Medal = solid(MedalGlyph);
+export const MegaphoneSimple = solid(MegaphoneSimpleGlyph);
+export const Newspaper = solid(NewspaperGlyph);
+export const PaperPlaneTilt = solid(PaperPlaneTiltGlyph);
+export const Pause = solid(PauseGlyph);
+export const Phone = solid(PhoneGlyph);
+export const PhoneCall = solid(PhoneCallGlyph);
+export const Play = solid(PlayGlyph);
+export const Printer = solid(PrinterGlyph);
+export const PushPin = solid(PushPinGlyph);
+export const Scroll = solid(ScrollGlyph);
+export const SealCheck = solid(SealCheckGlyph);
+export const ShareNetwork = solid(ShareNetworkGlyph);
+export const Sparkle = solid(SparkleGlyph);
+export const SquaresFour = solid(SquaresFourGlyph);
+export const Student = solid(StudentGlyph);
+export const Tent = solid(TentGlyph);
+export const TreeStructure = solid(TreeStructureGlyph);
+export const Trophy = solid(TrophyGlyph);
+export const UserCircle = solid(UserCircleGlyph);
+export const UsersThree = solid(UsersThreeGlyph);
+
+// Weather
+export const Cloud = solid(CloudGlyph);
+export const CloudFog = solid(CloudFogGlyph);
+export const CloudLightning = solid(CloudLightningGlyph);
+export const CloudRain = solid(CloudRainGlyph);
+export const CloudSun = solid(CloudSunGlyph);
+export const Snowflake = solid(SnowflakeGlyph);
+export const Sun = solid(SunGlyph);

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { ArrowRight, CalendarDays, Eye, UserRound } from 'lucide-react';
+import { ArrowRight, CalendarDots, Eye, UserCircle } from '../components/icons';
 import { registerPostView, usePost, usePostPage } from '../api';
 import { categoryRoute, useMenu } from '../lib/menu';
 import { formatDate, formatNumber, toPostView, type PostView } from '../lib/content';
@@ -106,11 +106,11 @@ const ArticleView: React.FC<{ post: PostView }> = ({ post }) => {
       <h1 className="mt-4 text-[1.6rem] font-bold leading-tight sm:text-[2.1rem]">{post.title}</h1>
       <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-line pb-5 text-[13px] text-muted">
         <span className="inline-flex items-center gap-1.5">
-          <CalendarDays className="size-4 text-gold-600" />
+          <CalendarDots className="size-4 text-gold-600" />
           {post.publishedAt?.toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' })}
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <UserRound className="size-4 text-gold-600" />
+          <UserCircle className="size-4 text-gold-600" />
           {post.author}
         </span>
         <span className="inline-flex items-center gap-1.5">

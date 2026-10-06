@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, CalendarDays, ExternalLink, Paperclip, Search } from 'lucide-react';
+import { ArrowRight, ArrowSquareOut, CalendarDots, MagnifyingGlass, Paperclip } from '../components/icons';
 import { usePost, usePostPage } from '../api';
 import { Link } from '../lib/router';
-import { categoryRoute, iconFor, MenuLink, PAGE_TYPE_LABELS, useMenu } from '../lib/menu';
+import { categoryIcon, categoryRoute, MenuLink, PAGE_TYPE_LABELS, useMenu } from '../lib/menu';
 import { formatDate, postRoute, toPostView } from '../lib/content';
 import { usePageTitle } from '../lib/site';
 import type { Category } from '../types';
@@ -83,7 +83,7 @@ const useDebounced = <T,>(value: T, delay = 350) => {
 
 const SearchField: React.FC<{ value: string; onChange: (value: string) => void; placeholder: string }> = ({ value, onChange, placeholder }) => (
   <div className="relative w-full sm:w-80">
-    <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted" />
+    <MagnifyingGlass className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted" />
     <input
       value={value}
       onChange={(event) => onChange(event.target.value)}
@@ -167,7 +167,7 @@ const DocumentListPage: React.FC<SectionProps> = (props) => {
                     >
                       <div className="flex items-center gap-2 md:col-span-2 md:flex-col md:items-start md:gap-1">
                         <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-brand-700">
-                          <CalendarDays className="size-3.5 text-gold-600" />
+                          <CalendarDots className="size-3.5 text-gold-600" />
                           {formatDate(item.issuedDate ?? item.publishedAt)}
                         </span>
                         {item.documentNumber && <span className="text-[12px] text-muted">Số: {item.documentNumber}</span>}
@@ -261,7 +261,7 @@ const GroupPage: React.FC<SectionProps> = (props) => {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {section.map((child, index) => {
-              const Icon = iconFor(child.pageType);
+              const Icon = categoryIcon(child);
               return (
                 <Reveal key={child.id} delay={(index % 3) * 60} className="h-full">
                   <MenuLink category={child} className={cx(cardClass, 'h-full flex-row items-start gap-4 p-5')}>
@@ -271,7 +271,7 @@ const GroupPage: React.FC<SectionProps> = (props) => {
                     <span className="min-w-0">
                       <span className="flex items-center gap-1.5 text-[15.5px] font-bold text-ink transition-colors group-hover:text-brand-600">
                         {child.name}
-                        {child.pageType === 'LINK' && <ExternalLink className="size-3.5 text-muted" />}
+                        {child.pageType === 'LINK' && <ArrowSquareOut className="size-3.5 text-muted" />}
                       </span>
                       <span className="mt-1 line-clamp-2 block text-[13px] text-muted">{child.description || PAGE_TYPE_LABELS[child.pageType]}</span>
                     </span>
@@ -310,7 +310,7 @@ const LinkPage: React.FC<SectionProps> = (props) => (
         action={
           props.category.externalUrl ? (
             <a href={props.category.externalUrl} target="_blank" rel="noopener noreferrer" className={primaryButton}>
-              <ExternalLink className="size-4" />
+              <ArrowSquareOut className="size-4" />
               Mở liên kết
             </a>
           ) : undefined

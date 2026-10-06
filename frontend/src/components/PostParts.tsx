@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { ArrowRight, CalendarDays, Check, Download, Eye, FileText, Link2, Paperclip, Pin, Printer } from 'lucide-react';
 import { Link } from '../lib/router';
 import { formatFileSize, formatNumber, postRoute, splitParagraphs, type PostView } from '../lib/content';
+import { TONES, toneStyle, type Tone } from '../lib/tones';
 import type { AttachmentDto } from '../types';
+import { ArrowRight, CalendarDots, Check, DownloadSimple, Eye, FileText, LinkSimple, Paperclip, Printer, PushPin } from './icons';
 import { CategoryBadge, Reveal, SmartImage, cardClass, cx, secondaryButton } from './ui';
 
 /** Card for article listings. */
@@ -22,7 +23,7 @@ export const PostCard: React.FC<{ post: PostView; index?: number; showCategory?:
           {showCategory && post.categoryName && <CategoryBadge tone="light">{post.categoryName}</CategoryBadge>}
           {post.pinned && (
             <CategoryBadge tone="gold" className="gap-1">
-              <Pin className="size-3" /> Nổi bật
+              <PushPin className="size-3" /> Nổi bật
             </CategoryBadge>
           )}
         </div>
@@ -30,7 +31,7 @@ export const PostCard: React.FC<{ post: PostView; index?: number; showCategory?:
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-center gap-3 text-[12.5px] text-muted">
           <span className="inline-flex items-center gap-1.5">
-            <CalendarDays className="size-3.5 text-gold-600" />
+            <CalendarDots className="size-3.5 text-gold-600" />
             {post.date}
           </span>
           <span className="inline-flex items-center gap-1.5">
@@ -94,7 +95,7 @@ export const AttachmentList: React.FC<{ items: AttachmentDto[]; className?: stri
                 <span className="block truncate text-[14px] font-semibold text-ink group-hover:text-brand-600">{file.name}</span>
                 {file.sizeBytes ? <span className="text-[12px] text-muted">{formatFileSize(file.sizeBytes)}</span> : null}
               </span>
-              <Download className="size-4 shrink-0 text-brand-500" />
+              <DownloadSimple className="size-4 shrink-0 text-brand-500" />
             </a>
           </li>
         ))}
@@ -116,7 +117,7 @@ export const ArticleActions: React.FC = () => {
   return (
     <div className="no-print flex flex-wrap gap-2">
       <button onClick={copyLink} className={cx(secondaryButton, 'px-4 py-2 text-[13px]')}>
-        {copied ? <Check className="size-4 text-green-600" /> : <Link2 className="size-4" />}
+        {copied ? <Check className="size-4 text-green-600" /> : <LinkSimple className="size-4" />}
         {copied ? 'Đã sao chép' : 'Sao chép liên kết'}
       </button>
       <button onClick={() => window.print()} className={cx(secondaryButton, 'px-4 py-2 text-[13px]')}>
@@ -150,21 +151,29 @@ export const SidebarPostList: React.FC<{ title: string; posts: PostView[] }> = (
     </div>
   );
 
-/** Compact row for notices/documents (home page and sidebars). */
-export const DocumentRow: React.FC<{ post: PostView }> = ({ post }) => {
+/** Compact row for notices/documents (home page and sidebars); the date tile takes the row's tone. */
+export const DocumentRow: React.FC<{ post: PostView; tone?: Tone }> = ({ post, tone = TONES[0] }) => {
   const date = post.issuedDate ?? post.publishedAt;
   const day = date ? String(date.getDate()).padStart(2, '0') : '--';
   const month = date ? `Th${date.getMonth() + 1}` : '';
   return (
-    <Link to={postRoute(post)} className="group flex gap-4 p-4 transition-colors duration-300 hover:bg-surface">
-      <div className="flex w-14 shrink-0 flex-col items-center justify-center rounded-xl border border-brand-100 bg-brand-50 py-1.5 transition-colors duration-300 group-hover:border-brand-600 group-hover:bg-brand-600">
-        <span className="text-lg font-bold leading-none text-brand-700 transition-colors group-hover:text-white">{day}</span>
-        <span className="mt-1 text-[10.5px] font-medium uppercase text-muted transition-colors group-hover:text-white/80">{month}</span>
+    <Link to={postRoute(post)} style={toneStyle(tone)} className="group relative flex gap-4 p-4 transition-colors duration-300 hover:bg-(--tone)/5">
+      <span
+        className="absolute inset-y-0 left-0 w-1 scale-y-0 bg-gradient-to-b from-(--tone) to-(--tone-2) transition-transform duration-300 ease-(--ease-soft) group-hover:scale-y-100"
+        aria-hidden="true"
+      />
+      <div className="relative flex w-14 shrink-0 flex-col items-center justify-center overflow-hidden rounded-2xl bg-(--tone)/10 py-1.5 text-(--tone-ink) transition-all duration-300 ease-(--ease-soft) group-hover:-translate-y-0.5 group-hover:text-white group-hover:shadow-lg">
+        <span
+          className="absolute inset-0 bg-gradient-to-br from-(--tone) to-(--tone-2) opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          aria-hidden="true"
+        />
+        <span className="relative text-lg font-bold leading-none">{day}</span>
+        <span className="relative mt-1 text-[10.5px] font-semibold uppercase opacity-75">{month}</span>
       </div>
       <div className="min-w-0">
-        <h3 className="line-clamp-2 text-[14px] font-semibold leading-snug text-ink transition-colors duration-300 group-hover:text-brand-600">
+        <h3 className="line-clamp-2 text-[14px] font-semibold leading-snug text-ink transition-colors duration-300 group-hover:text-(--tone-ink)">
           {post.pinned && (
-            <span className="mr-1.5 inline-flex -translate-y-px rounded-md bg-flame-500 px-1.5 py-0.5 align-middle text-[10px] font-bold uppercase text-white">
+            <span className="mr-1.5 inline-flex -translate-y-px rounded-md bg-gradient-to-r from-flame-500 to-orange-500 px-1.5 py-0.5 align-middle text-[10px] font-bold uppercase text-white">
               Quan trọng
             </span>
           )}

@@ -1,10 +1,26 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight, ChevronLeft, ChevronRight, ImageIcon, SearchX } from 'lucide-react';
+import { ArrowRight, CaretLeft, CaretRight, FileMagnifyingGlass, ImageIcon, type IconComponent } from './icons';
 import { Link } from '../lib/router';
 import { optimizeImage } from '../lib/content';
 import type { PageRoute } from '../types';
 
 export const cx = (...classes: Array<string | false | null | undefined>) => classes.filter(Boolean).join(' ');
+
+/**
+ * Pointer handler for cards with the `spotlight` glow (--mx/--my, in px) and/or the `tilt`
+ * effect (--px/--py, 0–1). Mouse only: touch has no hover to light up.
+ */
+export const trackPointer = (event: React.PointerEvent<HTMLElement>) => {
+  if (event.pointerType !== 'mouse') return;
+  const element = event.currentTarget;
+  const box = element.getBoundingClientRect();
+  const x = event.clientX - box.left;
+  const y = event.clientY - box.top;
+  element.style.setProperty('--mx', `${x}px`);
+  element.style.setProperty('--my', `${y}px`);
+  element.style.setProperty('--px', (x / box.width).toFixed(3));
+  element.style.setProperty('--py', (y / box.height).toFixed(3));
+};
 
 export const Container: React.FC<{ className?: string; children: React.ReactNode }> = ({ className, children }) => (
   <div className={cx('mx-auto w-full max-w-7xl px-4 sm:px-6', className)}>{children}</div>
@@ -67,7 +83,7 @@ export const ImagePlaceholder: React.FC<{ label?: string; className?: string }> 
   >
     <div className="absolute inset-0 bg-dots opacity-70" />
     <div className="absolute -bottom-10 -right-10 size-32 rounded-full bg-gold-400/20 blur-2xl" />
-    <ImageIcon className="relative size-7 text-gold-300" strokeWidth={1.6} />
+    <ImageIcon className="relative size-7 text-gold-300" />
     {label && <span className="relative px-3 text-center text-xs font-semibold uppercase tracking-[0.14em]">{label}</span>}
   </div>
 );
@@ -147,7 +163,7 @@ export const Eyebrow: React.FC<{ children: React.ReactNode; tone?: 'gold' | 'fla
     )}
   >
     <span
-      className={cx('h-[3px] w-6 rounded-full', tone === 'flame' ? 'bg-flame-500' : 'bg-gold-400')}
+      className={cx('h-[3px] w-6 rounded-full bg-gradient-to-r', tone === 'flame' ? 'from-flame-500 to-gold-400' : 'from-gold-400 to-flame-500')}
       aria-hidden="true"
     />
     {children}
@@ -158,22 +174,49 @@ interface SectionHeadingProps {
   eyebrow: string;
   title: string;
   tone?: 'gold' | 'flame';
+  /** Shown in a gradient tile before the title. */
+  icon?: IconComponent;
+  description?: string;
   action?: { to: PageRoute; label: string };
   className?: string;
 }
 
-export const SectionHeading: React.FC<SectionHeadingProps> = ({ eyebrow, title, tone = 'gold', action, className }) => (
-  <div className={cx('mb-5 flex items-end justify-between gap-4', className)}>
-    <div className="min-w-0">
-      <Eyebrow tone={tone}>{eyebrow}</Eyebrow>
-      <h2 className="mt-1.5 text-[1.375rem] font-bold leading-tight sm:text-[1.625rem]">{title}</h2>
+export const SectionHeading: React.FC<SectionHeadingProps> = ({ eyebrow, title, tone = 'gold', icon: Icon, description, action, className }) => (
+  <div className={cx('mb-6 flex items-end justify-between gap-4', className)}>
+    <div className="flex min-w-0 items-center gap-3.5 sm:gap-4">
+      {Icon && (
+        <span
+          className={cx(
+            'relative grid size-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br text-white shadow-lg sm:size-14',
+            tone === 'flame' ? 'from-flame-400 via-flame-500 to-orange-500 shadow-flame-500/30' : 'from-brand-400 via-brand-600 to-violet-600 shadow-brand-600/30',
+          )}
+          aria-hidden="true"
+        >
+          <Icon className="size-6 sm:size-7" />
+          <span className="absolute -right-1 -top-1 size-3.5 rounded-full border-2 border-white bg-gold-400" />
+        </span>
+      )}
+      <div className="min-w-0">
+        <Eyebrow tone={tone}>{eyebrow}</Eyebrow>
+        <h2 className="mt-1.5 text-[1.375rem] font-extrabold leading-tight sm:text-[1.75rem]">{title}</h2>
+        <span
+          className={cx(
+            'heading-bar mt-2.5 block h-1 w-20 rounded-full bg-gradient-to-r',
+            tone === 'flame' ? 'from-flame-500 via-orange-400 to-gold-400' : 'from-brand-600 via-sky-400 to-gold-400',
+          )}
+          aria-hidden="true"
+        />
+        {description && <p className="mt-3 max-w-2xl text-[14.5px] leading-relaxed text-muted">{description}</p>}
+      </div>
     </div>
     {action && (
+      // A round arrow on phones, so the title keeps the width; the label shows from `sm` up.
       <Link
         to={action.to}
-        className="group hidden shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold text-brand-600 transition-colors hover:bg-brand-50 sm:inline-flex"
+        aria-label={action.label}
+        className="group grid size-10 shrink-0 place-items-center rounded-full border border-brand-100 bg-white text-sm font-semibold text-brand-600 shadow-sm transition-all duration-300 hover:border-brand-600 hover:bg-brand-600 hover:text-white sm:flex sm:size-auto sm:gap-1.5 sm:px-4 sm:py-2"
       >
-        {action.label}
+        <span className="hidden sm:inline">{action.label}</span>
         <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
       </Link>
     )}
@@ -195,7 +238,7 @@ export const Breadcrumb: React.FC<{ items: Crumb[]; light?: boolean }> = ({ item
       </li>
       {items.map((item, index) => (
         <li key={`${item.label}-${index}`} className="flex min-w-0 items-center gap-1.5">
-          <ChevronRight className="size-3.5 shrink-0 opacity-60" aria-hidden="true" />
+          <CaretRight className="size-3 shrink-0 opacity-60" />
           {item.to ? (
             <Link to={item.to} className={cx('transition-colors', light ? 'hover:text-white' : 'hover:text-brand-600')}>
               {item.label}
@@ -312,7 +355,7 @@ export const Pagination: React.FC<{ page: number; totalPages: number; onChange: 
   return (
     <nav aria-label="Phân trang" className="mt-10 flex items-center justify-center gap-1.5">
       <button onClick={() => go(page - 1)} disabled={page === 1} className={cx(button, 'border border-line bg-white text-body hover:border-brand-300 hover:text-brand-600')} aria-label="Trang trước">
-        <ChevronLeft className="size-4" />
+        <CaretLeft className="size-4" />
       </button>
       {pages.map((p, i) => (
         <React.Fragment key={p}>
@@ -327,7 +370,7 @@ export const Pagination: React.FC<{ page: number; totalPages: number; onChange: 
         </React.Fragment>
       ))}
       <button onClick={() => go(page + 1)} disabled={page === totalPages} className={cx(button, 'border border-line bg-white text-body hover:border-brand-300 hover:text-brand-600')} aria-label="Trang sau">
-        <ChevronRight className="size-4" />
+        <CaretRight className="size-4" />
       </button>
     </nav>
   );
@@ -335,8 +378,8 @@ export const Pagination: React.FC<{ page: number; totalPages: number; onChange: 
 
 export const EmptyState: React.FC<{ title: string; description?: string; action?: React.ReactNode }> = ({ title, description, action }) => (
   <div className="flex flex-col items-center rounded-2xl border border-dashed border-brand-200 bg-white px-6 py-14 text-center">
-    <div className="grid size-14 place-items-center rounded-full bg-brand-50 text-brand-600">
-      <SearchX className="size-6" />
+    <div className="grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-brand-400 to-violet-600 text-white shadow-lg shadow-brand-600/25">
+      <FileMagnifyingGlass className="size-7" />
     </div>
     <h3 className="mt-4 text-base font-semibold">{title}</h3>
     {description && <p className="mt-1.5 max-w-md text-sm text-muted">{description}</p>}
@@ -381,7 +424,7 @@ export const NotFound: React.FC<{ title?: string; description?: string; back?: {
       description={description}
       action={
         <Link to={back.to} className="inline-flex items-center gap-2 rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-500">
-          <ChevronLeft className="size-4" />
+          <CaretLeft className="size-4" />
           {back.label}
         </Link>
       }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, MapPin, Phone } from 'lucide-react';
+import { EnvelopeSimple, MapPin, Phone } from './icons';
 import { telHref, useSite } from '../lib/site';
 import schoolLogo from '../assets/logo.jpg';
 import { Link } from '../lib/router';
@@ -43,7 +43,7 @@ export const Header: React.FC = () => {
           )}
           {site.email && (
             <a href={`mailto:${site.email}`} className="hidden items-center gap-1.5 transition-colors hover:text-white sm:flex">
-              <Mail className="size-3.5 text-gold-300" aria-hidden="true" />
+              <EnvelopeSimple className="size-3.5 text-gold-300" aria-hidden="true" />
               {site.email}
             </a>
           )}
@@ -89,8 +89,8 @@ export const Header: React.FC = () => {
         <div className="ml-auto hidden shrink-0 items-center gap-3 lg:flex">
           {site.hotline && (
           <div className="flex items-center gap-3 rounded-2xl border border-line bg-white/80 px-4 py-2.5 backdrop-blur">
-            <span className="grid size-10 place-items-center rounded-full bg-gold-100 text-gold-700">
-              <Phone className="size-[18px]" aria-hidden="true" />
+            <span className="grid size-10 place-items-center rounded-full bg-gradient-to-br from-gold-300 to-orange-500 text-white shadow-md shadow-gold-500/30">
+              <Phone className="size-[18px]" />
             </span>
             <div className="leading-tight">
               <div className="text-[11px] font-medium uppercase tracking-wider text-muted">Đường dây nóng</div>
@@ -102,8 +102,8 @@ export const Header: React.FC = () => {
           )}
           {site.official_email && (
           <div className="flex items-center gap-3 rounded-2xl border border-line bg-white/80 px-4 py-2.5 backdrop-blur">
-            <span className="grid size-10 place-items-center rounded-full bg-brand-50 text-brand-600">
-              <Mail className="size-[18px]" aria-hidden="true" />
+            <span className="grid size-10 place-items-center rounded-full bg-gradient-to-br from-brand-400 to-violet-600 text-white shadow-md shadow-brand-600/30">
+              <EnvelopeSimple className="size-[18px]" />
             </span>
             <div className="leading-tight">
               <div className="text-[11px] font-medium uppercase tracking-wider text-muted">Thư điện tử</div>

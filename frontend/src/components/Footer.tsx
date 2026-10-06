@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, Globe, Mail, MapPin, Phone } from 'lucide-react';
+import { ArrowSquareOut, EnvelopeSimple, GlobeHemisphereEast, MapPin, Phone } from './icons';
 import schoolLogo from '../assets/logo.jpg';
 import { Link } from '../lib/router';
 import { MenuLink, useMenu } from '../lib/menu';
@@ -48,13 +48,13 @@ export const Footer: React.FC = () => {
             )}
             {site.email && (
               <li className="flex items-center gap-3">
-                <Mail className="size-4 shrink-0 text-gold-300" />
+                <EnvelopeSimple className="size-4 shrink-0 text-gold-300" />
                 <a href={`mailto:${site.email}`} className="break-all transition-colors hover:text-white">{site.email}</a>
               </li>
             )}
             {site.website && (
               <li className="flex items-center gap-3">
-                <Globe className="size-4 shrink-0 text-gold-300" />
+                <GlobeHemisphereEast className="size-4 shrink-0 text-gold-300" />
                 {site.website}
               </li>
             )}
@@ -63,7 +63,7 @@ export const Footer: React.FC = () => {
 
         <div className="lg:col-span-2">
           <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-white">Danh mục</h2>
-          <span className="mt-2 block h-[3px] w-8 rounded-full bg-gold-400" aria-hidden="true" />
+          <span className="mt-2 block h-[3px] w-8 rounded-full bg-gradient-to-r from-gold-400 to-flame-500" aria-hidden="true" />
           <ul className="mt-4 space-y-2.5 text-[14px]">
             {tree.map((item) => (
               <li key={item.id}>
@@ -77,13 +77,13 @@ export const Footer: React.FC = () => {
 
         {usefulLinks.length > 0 && <div className="lg:col-span-2">
           <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-white">Liên kết</h2>
-          <span className="mt-2 block h-[3px] w-8 rounded-full bg-gold-400" aria-hidden="true" />
+          <span className="mt-2 block h-[3px] w-8 rounded-full bg-gradient-to-r from-gold-400 to-flame-500" aria-hidden="true" />
           <ul className="mt-4 space-y-2.5 text-[14px]">
             {usefulLinks.map((link) => (
               <li key={link.href}>
                 <a href={link.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 transition-colors duration-300 hover:text-gold-300">
                   {link.label}
-                  <ExternalLink className="size-3 opacity-60" />
+                  <ArrowSquareOut className="size-3 opacity-60" />
                 </a>
               </li>
             ))}
@@ -92,7 +92,7 @@ export const Footer: React.FC = () => {
 
         <div className="sm:col-span-2 lg:col-span-4">
           <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-white">Bản đồ</h2>
-          <span className="mt-2 block h-[3px] w-8 rounded-full bg-gold-400" aria-hidden="true" />
+          <span className="mt-2 block h-[3px] w-8 rounded-full bg-gradient-to-r from-gold-400 to-flame-500" aria-hidden="true" />
           <div className="mt-4 h-52 overflow-hidden rounded-2xl border border-white/10 bg-brand-900">
             <iframe
               title={`Bản đồ Trường ${site.school_name}`}
