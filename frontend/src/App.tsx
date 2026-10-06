@@ -6,7 +6,7 @@
 import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { ArrowUp } from './components/icons';
 import { Header } from './components/Header';
-import { NavigationBar } from './components/NavigationBar';
+import { NavigationBar, NewsTicker } from './components/NavigationBar';
 import { HeroSection } from './components/HeroSection';
 import { NewsAndAnnouncementsSection } from './components/NewsAndAnnouncementsSection';
 import { MultiCategorySection } from './components/MultiCategorySection';
@@ -135,8 +135,11 @@ const PublicSite: React.FC = () => {
       >
         Bỏ qua điều hướng
       </a>
-      <Header />
-      <NavigationBar onOpenSearch={(query) => setSearch({ open: true, query: query ?? '' })} />
+      <div className="sticky top-0 z-50 w-full bg-white shadow-nav flex flex-col">
+        <Header />
+        <NavigationBar onOpenSearch={(query) => setSearch({ open: true, query: query ?? '' })} />
+      </div>
+      <NewsTicker onOpenSearch={(query) => setSearch({ open: true, query: query ?? '' })} />
       <main id="main" key={route ? routeToPath(route) : '404'} className="flex-1 animate-fade-up">
         <RouteView route={route} />
       </main>

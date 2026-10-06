@@ -105,7 +105,7 @@ export const MultiCategorySection: React.FC = () => {
   if (featured.length === 0) return null;
 
   return (
-    <section className="relative isolate overflow-hidden py-14 sm:py-20">
+    <section className="relative isolate overflow-hidden pt-14 pb-6 sm:pt-20 sm:pb-10">
       {/* Colour wash, dot grid and slowly floating shapes */}
       <div className="bg-aurora absolute inset-0 -z-10" aria-hidden="true" />
       <div className="bg-dots-brand absolute inset-0 -z-10 [mask-image:linear-gradient(180deg,transparent,#000_30%,#000_70%,transparent)]" aria-hidden="true" />

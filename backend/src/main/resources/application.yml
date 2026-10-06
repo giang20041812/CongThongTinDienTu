@@ -5,7 +5,9 @@ spring:
     # prepareThreshold=0: the Supabase pooler (transaction mode, port 6543) cannot keep server-side
     # prepared statements, which caused random 500s ("prepared statement S_1 already exists").
     # A direct PostgreSQL connection may set DB_PREPARE_THRESHOLD=5 (driver default).
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:portal_db}?prepareThreshold=${DB_PREPARE_THRESHOLD:0}
+    # ApplicationName labels these connections in pg_stat_activity, so the portal can be told apart
+    # from other clients of the same database.
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:portal_db}?prepareThreshold=${DB_PREPARE_THRESHOLD:0}&ApplicationName=${DB_APP_NAME:portal}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver

@@ -141,7 +141,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ onOpenSearch }) =>
       <div ref={sentinelRef} className="h-px" aria-hidden="true" />
       <nav
         aria-label="Điều hướng chính"
-        className={cx('no-print sticky top-0 z-40 bg-brand-600 text-white transition-shadow duration-500', stuck && 'shadow-nav')}
+        className={cx('no-print relative z-40 bg-brand-600 text-white transition-shadow duration-500', stuck && 'shadow-nav')}
       >
         <Container className="relative flex h-14 items-end gap-1">
           <Link
@@ -242,17 +242,17 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ onOpenSearch }) =>
           className="fixed inset-0 z-30 bg-brand-950/30 backdrop-blur-[2px] lg:hidden"
         />
       )}
-
-      <NewsTicker query={query} setQuery={setQuery} onSubmit={submitSearch} />
     </>
   );
 };
 
-const NewsTicker: React.FC<{ query: string; setQuery: (q: string) => void; onSubmit: (e: React.FormEvent) => void }> = ({
-  query,
-  setQuery,
-  onSubmit,
-}) => {
+export const NewsTicker: React.FC<{ onOpenSearch: (q?: string) => void }> = ({ onOpenSearch }) => {
+  const [query, setQuery] = useState('');
+  const onSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    onOpenSearch(query.trim());
+  };
+
   const { data } = usePostPage({ type: ['POST_LIST', 'DOCUMENT_LIST'], size: 6 });
   const items = useMemo(() => data.items.map(toPostView), [data]);
   const duration = Math.max(28, items.reduce((sum, item) => sum + item.title.length, 0) * 0.16);

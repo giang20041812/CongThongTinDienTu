@@ -19,10 +19,10 @@ export const Footer: React.FC = () => {
       <div className="absolute -left-24 top-10 size-80 rounded-full bg-brand-600/30 blur-3xl" aria-hidden="true" />
       <div className="absolute -right-24 bottom-0 size-72 rounded-full bg-gold-400/10 blur-3xl" aria-hidden="true" />
 
-      <Container className="relative grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-12 lg:py-14">
+      <Container className="relative grid gap-8 py-8 sm:grid-cols-2 lg:grid-cols-12 lg:gap-6 lg:py-10">
         <div className="lg:col-span-4">
           <Link to={{ view: 'home' }} className="flex items-center gap-3">
-            <span className="grid size-16 shrink-0 place-items-center rounded-2xl bg-white p-1.5 shadow-lg">
+            <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-white p-1.5 shadow-lg">
               <img src={schoolLogo} alt={`Logo Trường ${site.school_name}`} className="h-full w-full object-contain" loading="lazy" />
             </span>
             <span>
@@ -93,7 +93,7 @@ export const Footer: React.FC = () => {
         <div className="sm:col-span-2 lg:col-span-4">
           <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-white">Bản đồ</h2>
           <span className="mt-2 block h-[3px] w-8 rounded-full bg-gradient-to-r from-gold-400 to-flame-500" aria-hidden="true" />
-          <div className="mt-4 h-52 overflow-hidden rounded-2xl border border-white/10 bg-brand-900">
+          <div className="mt-4 h-40 overflow-hidden rounded-2xl border border-white/10 bg-brand-900">
             <iframe
               title={`Bản đồ Trường ${site.school_name}`}
               src={mapEmbedUrl(site)}
@@ -106,7 +106,7 @@ export const Footer: React.FC = () => {
       </Container>
 
       <div className="relative border-t border-white/10">
-        <Container className="flex flex-col items-center justify-between gap-2 py-5 text-center text-[12.5px] text-white/55 sm:flex-row sm:text-left">
+        <Container className="flex flex-col items-center justify-between gap-2 py-4 text-center text-[12.5px] text-white/55 sm:flex-row sm:text-left">
           <p>© {year} Trường {site.school_name}. Bảo lưu mọi quyền.</p>
           <p>Ghi rõ nguồn khi phát hành lại thông tin từ website này.</p>
         </Container>

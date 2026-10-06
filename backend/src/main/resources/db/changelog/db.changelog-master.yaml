@@ -7,3 +7,5 @@ databaseChangeLog:
       file: db/changelog/changesets/v2-03-seed.yaml
   - include:
       file: db/changelog/changesets/v2-04-timetable.yaml
+  - include:
+      file: db/changelog/changesets/v2-05-update-categories-order.yaml
