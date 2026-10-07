@@ -1,5 +1,5 @@
 import { useEffect, useReducer } from 'react';
-import type { AttachmentDto, Category, FeedbackDto, PageResponse, PageType, PostDetailDto, PostSummaryDto, Timetable, TimetablePeriod } from './types';
+import type { AttachmentDto, Category, FeedbackDto, PageResponse, PageType, PhotoDto, PostDetailDto, PostSummaryDto, Timetable, TimetablePeriod } from './types';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 const TOKEN_KEY = 'portal-admin-token';
@@ -146,6 +146,17 @@ export const invalidateCache = () => {
   });
 };
 
+// A tab left open keeps what it first loaded. When the visitor comes back to it, the resources on screen
+// that are older than the TTL are reloaded (load() skips fresh ones), so edits made meanwhile show up.
+const revalidateOnReturn = () => {
+  if (document.visibilityState !== 'visible') return;
+  cache.forEach((entry, path) => {
+    if (entry.listeners.size > 0) void load(path);
+  });
+};
+window.addEventListener('focus', revalidateOnReturn);
+document.addEventListener('visibilitychange', revalidateOnReturn);
+
 export interface Resource<T> {
   data: T;
   loading: boolean;
@@ -217,6 +228,10 @@ export const usePostPage = (params: PostListParams | null) =>
 
 export const usePost = (slug: string | null) =>
   useResource<PostDetailDto | null>(slug ? `/posts/by-slug/${encodeURIComponent(slug)}` : null, null);
+
+const NO_PHOTOS: PhotoDto[] = [];
+/** Newest photos of published posts (at most two per post), for the home gallery. */
+export const usePhotos = (limit: number) => useResource<PhotoDto[]>(`/posts/photos?limit=${limit}`, NO_PHOTOS);
 
 export const useSettingsResource = () => useResource<Record<string, string>>(SETTINGS_PATH, {});
 

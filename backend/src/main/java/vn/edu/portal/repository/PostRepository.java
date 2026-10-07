@@ -13,6 +13,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.portal.entity.Post;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,4 +50,26 @@ public interface PostRepository extends JpaRepository<Post, UUID>, JpaSpecificat
     @Transactional
     @Query("update Post p set p.views = coalesce(p.views, 0) + 1 where p.id = :id and p.status = :status")
     int incrementViews(@Param("id") UUID id, @Param("status") String status);
+
+    interface PhotoRow {
+        String getUrl();
+        String getTitle();
+        String getSlug();
+    }
+
+    /** Covers and body images of the given posts, newest post first, each post's photos in reading order – one round trip. */
+    @Query(value = """
+            select x.url as url, x.title as title, x.slug as slug from (
+                select p.cover_url as url, p.title, p.slug, p.published_at, p.created_at, -1 as ord
+                from posts p
+                where p.cover_url is not null and p.status = :status and p.category_id in (:categoryIds)
+                union all
+                select b.image_url, p.title, p.slug, p.published_at, p.created_at, b.order_index
+                from post_blocks b join posts p on p.id = b.post_id
+                where b.type = 'IMAGE' and b.image_url is not null and p.status = :status and p.category_id in (:categoryIds)
+            ) x
+            order by x.published_at desc, x.created_at desc, x.slug, x.ord
+            limit :limit""", nativeQuery = true)
+    List<PhotoRow> findPhotos(@Param("status") String status, @Param("categoryIds") Collection<UUID> categoryIds,
+                              @Param("limit") int limit);
 }

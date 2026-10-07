@@ -44,6 +44,13 @@ export interface PostSummaryDto {
   attachmentCount: number;
 }
 
+/** A home-gallery photo (post cover or body image) and the post it belongs to. */
+export interface PhotoDto {
+  url: string;
+  title: string;
+  slug: string;
+}
+
 export interface BlockDto {
   type: 'TEXT' | 'IMAGE';
   content?: string | null;

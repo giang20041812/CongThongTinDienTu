@@ -23,6 +23,11 @@ import java.util.concurrent.ThreadLocalRandom;
 public class PostService {
     private static final int MAX_PAGE_SIZE = 50;
     private static final int SUMMARY_LENGTH = 220;
+    private static final int MAX_PHOTOS = 24;
+    /** The gallery shows a few photos of each event rather than one album filling it. */
+    private static final int PHOTOS_PER_POST = 2;
+    /** Rows scanned to pick the gallery from (duplicates and extra photos per post are skipped). */
+    private static final int PHOTO_SCAN = 400;
 
     /**
      * @param category    category slug; a GROUP (or {@code descendants=true}) also covers its children
@@ -68,6 +73,25 @@ public class PostService {
     @Transactional(readOnly = true)
     public Optional<PostDetail> findAny(UUID id) {
         return posts.findWithDetailsById(id).map(PostDetail::of);
+    }
+
+    /** Newest photos of published posts in visible entries, for the home gallery. */
+    @Transactional(readOnly = true)
+    public List<PhotoItem> recentPhotos(int limit) {
+        int size = Math.min(Math.max(limit, 1), MAX_PHOTOS);
+        return cache.get("photos:" + size, () -> {
+            List<UUID> visible = categories.listPublic().stream().map(Category::getId).toList();
+            if (visible.isEmpty()) return List.of();
+            Set<String> seen = new HashSet<>();
+            Map<String, Integer> perPost = new HashMap<>();
+            List<PhotoItem> photos = new ArrayList<>();
+            for (PostRepository.PhotoRow row : posts.findPhotos(ContentStatus.PUBLISHED, visible, PHOTO_SCAN)) {
+                if (!seen.add(row.getUrl()) || perPost.merge(row.getSlug(), 1, Integer::sum) > PHOTOS_PER_POST) continue;
+                photos.add(new PhotoItem(row.getUrl(), row.getTitle(), row.getSlug()));
+                if (photos.size() == size) break;
+            }
+            return List.copyOf(photos);
+        });
     }
 
     public boolean registerView(UUID id) {

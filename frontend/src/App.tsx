@@ -10,6 +10,7 @@ import { NavigationBar, NewsTicker } from './components/NavigationBar';
 import { HeroSection } from './components/HeroSection';
 import { NewsAndAnnouncementsSection } from './components/NewsAndAnnouncementsSection';
 import { MultiCategorySection } from './components/MultiCategorySection';
+import { PhotoGallerySection } from './components/PhotoGallerySection';
 import { Footer } from './components/Footer';
 import { SearchDialog } from './components/SearchDialog';
 import { NotFound, cx } from './components/ui';
@@ -31,6 +32,7 @@ const HomePage: React.FC = () => {
       <HeroSection />
       <NewsAndAnnouncementsSection />
       <MultiCategorySection />
+      <PhotoGallerySection />
     </>
   );
 };

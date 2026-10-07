@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import vn.edu.portal.dto.PostDtos.PageResponse;
+import vn.edu.portal.dto.PostDtos.PhotoItem;
 import vn.edu.portal.dto.PostDtos.PostDetail;
 import vn.edu.portal.dto.PostDtos.PostRequest;
 import vn.edu.portal.dto.PostDtos.PostSummary;
@@ -50,6 +51,12 @@ public class PostController {
                                           HttpServletRequest request) {
         PostQuery query = new PostQuery(category, descendants, parseTypes(type), q, status, pinned, page, size);
         return service.list(query, AdminAuthInterceptor.isAdmin(request));
+    }
+
+    /** Public: newest photos (covers and body images) of published posts, for the home gallery. */
+    @GetMapping("/photos")
+    public List<PhotoItem> photos(@RequestParam(defaultValue = "9") int limit) {
+        return service.recentPhotos(limit);
     }
 
     @GetMapping("/by-slug/{slug}")

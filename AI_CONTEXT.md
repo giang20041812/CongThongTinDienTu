@@ -24,7 +24,7 @@ Dự án được chia thành hai module chính nằm song song: `frontend/` và
 - **`src/api.ts`**: cache dùng chung (gộp request, TTL 60s). Request công khai **không** gửi token (admin xem web như khách); lỗi chỉ được giữ 5s rồi thử lại. `usePostPage({category, type, q, pinned, page, size})`, `usePost(slug)`, `useTimetable()`, `adminApi.*` cho trang quản trị.
 - **`src/lib/content.ts`**: `toPostView`, định dạng ngày/tệp, `optimizeImage`. **`src/lib/site.ts`**: `useSite()` đọc `/api/settings`, `usePageTitle()`, `SETTING_FIELDS` (form “Thông tin trường”).
 - **`src/components/ui.tsx`**, **`PostParts.tsx`**, **`SectionHeader.tsx`**: UI dùng chung – trang mới phải dùng lại.
-- Trang chủ: banner = 1 ảnh cố định `src/assets/realbanner.png` (mảng `BANNERS` trong `HeroSection.tsx`; thêm ảnh vào mảng thì tự thành slider), tin mới (`type=POST_LIST`), thông báo – văn bản (`type=DOCUMENT_LIST`), cột “Chuyên mục nổi bật” = đầu mục có `showOnHome`.
+- Trang chủ: banner = 1 ảnh cố định `src/assets/realbanner.png` (mảng `BANNERS` trong `HeroSection.tsx`; thêm ảnh vào mảng thì tự thành slider), tin mới (`type=POST_LIST`), thông báo – văn bản (`type=DOCUMENT_LIST`), cột “Chuyên mục nổi bật” = đầu mục có `showOnHome`, “Thư viện ảnh” (`PhotoGallerySection.tsx`) = ảnh mới nhất của bài đã đăng (`/api/posts/photos`, tối đa 2 ảnh/bài, bấm ảnh mở bài).
 - **`src/pages/AdminPages.tsx`**: Tổng quan · Đầu mục & menu · Bài viết & văn bản · Thời khóa biểu (lưới nhập theo lớp, giờ tiết, ghi chú) · Góp ý · Thông tin trường. Token lưu `sessionStorage` (`portal-admin-token`).
 - **Thiết kế**: token màu theo logo trong `src/index.css` (`brand` #0A4AA0, `gold` #F8C108, `flame` #E8192A); font Be Vietnam Pro.
 
@@ -32,7 +32,7 @@ Dự án được chia thành hai module chính nằm song song: `frontend/` và
 - **Package base**: `vn.edu.portal`. Entity không bao giờ trả thẳng cho bài viết: dùng `dto/PostDtos` (`PostSummary` không có blocks, `PostDetail`).
 - **API** (GET công khai; ghi cần token admin – xem `AdminAuthInterceptor`):
   - `GET /api/categories` (khách: mục hiển thị; admin: tất cả), `GET /by-slug/{slug}`, `POST`, `PUT /{id}`, `PUT /order` (`[{id,parentId,sortOrder}]`), `DELETE /{id}?moveTo=` (bắt buộc khi mục còn bài).
-  - `GET /api/posts?category=&descendants=&type=POST_LIST,DOCUMENT_LIST&q=&status=&pinned=&page=&size=` (phân trang, tìm không dấu qua cột `search_text`), `GET /by-slug/{slug}`, `GET /{id}` (admin), `POST /{id}/views`, `POST/PUT/DELETE`.
+  - `GET /api/posts?category=&descendants=&type=POST_LIST,DOCUMENT_LIST&q=&status=&pinned=&page=&size=` (phân trang, tìm không dấu qua cột `search_text`), `GET /by-slug/{slug}`, `GET /photos?limit=` (ảnh bìa + ảnh trong bài, mới nhất trước, ≤ 24), `GET /{id}` (admin), `POST /{id}/views`, `POST/PUT/DELETE`.
   - `POST /api/feedback` (công khai, giới hạn 5 lần/30 phút/IP, có honeypot) · `GET/PUT/DELETE /api/feedback` (admin).
   - `GET/PUT /api/settings`, `POST /api/upload` (ảnh ≤ 5MB), `POST /api/upload/file` (tài liệu ≤ 10MB, Cloudinary raw), `/api/auth/*`, `/api/users`.
   - `GET /api/timetable` (`{periods, entries}`, công khai, cache), `PUT /api/timetable/classes/{lớp}` (`{entries:[{dayOfWeek, period, subject, teacher}]}` – thay cả tuần của lớp), `DELETE /api/timetable/classes/{lớp}`, `PUT /api/timetable/periods`.

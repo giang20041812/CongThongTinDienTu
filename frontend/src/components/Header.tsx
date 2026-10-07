@@ -1,5 +1,5 @@
 import React from 'react';
-import { EnvelopeSimple, MapPin, Phone } from './icons';
+import { EnvelopeSimple, FacebookLogo, MapPin, MessengerLogo, Phone } from './icons';
 import { telHref, useSite } from '../lib/site';
 import schoolLogo from '../assets/logo.jpg';
 import { Link } from '../lib/router';
@@ -45,6 +45,18 @@ export const Header: React.FC = () => {
             <a href={`mailto:${site.email}`} className="hidden items-center gap-1.5 transition-colors hover:text-white sm:flex">
               <EnvelopeSimple className="size-3.5 text-gold-300" aria-hidden="true" />
               {site.email}
+            </a>
+          )}
+          {site.facebook_url && (
+            <a href={site.facebook_url} target="_blank" rel="noopener noreferrer" aria-label="Fanpage" className="flex items-center gap-1.5 transition-colors hover:text-white">
+              <FacebookLogo className="size-3.5 text-gold-300" aria-hidden="true" />
+              <span className="hidden sm:inline">Fanpage</span>
+            </a>
+          )}
+          {site.messenger_url && (
+            <a href={site.messenger_url} target="_blank" rel="noopener noreferrer" aria-label="Messenger" className="flex items-center gap-1.5 transition-colors hover:text-white">
+              <MessengerLogo className="size-3.5 text-gold-300" aria-hidden="true" />
+              <span className="hidden sm:inline">Messenger</span>
             </a>
           )}
           {site.hotline && (

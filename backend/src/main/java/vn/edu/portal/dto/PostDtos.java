@@ -79,6 +79,9 @@ public final class PostDtos {
 
     public record PageResponse<T>(List<T> items, int page, int size, long total, int totalPages) {}
 
+    /** One photo of the home gallery: a cover or body image, linking back to its post. */
+    public record PhotoItem(String url, String title, String slug) {}
+
     private static CategoryRef categoryRef(Post p) {
         var c = p.getCategory();
         return c == null ? null : new CategoryRef(c.getId(), c.getName(), c.getSlug(), c.getPageType());

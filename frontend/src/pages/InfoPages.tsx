@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChatCircleDots, CheckCircle, Clock, EnvelopeSimple, GlobeHemisphereEast, MapPin, PaperPlaneTilt, Phone, ShareNetwork } from '../components/icons';
+import { CheckCircle, Clock, EnvelopeSimple, FacebookLogo, GlobeHemisphereEast, MapPin, MessengerLogo, PaperPlaneTilt, Phone } from '../components/icons';
 import { submitFeedback } from '../api';
 import { mapEmbedUrl, telHref, useSite } from '../lib/site';
 import { useMenu, MenuLink } from '../lib/menu';
@@ -68,12 +68,12 @@ export const ContactPage: React.FC<SectionProps> = (props) => {
               {site.working_hours && <ContactLine icon={Clock} label="Giờ làm việc">{site.working_hours}</ContactLine>}
               {site.website && <ContactLine icon={GlobeHemisphereEast} label="Website">{site.website}</ContactLine>}
               {site.facebook_url && (
-                <ContactLine icon={ShareNetwork} label="Facebook">
+                <ContactLine icon={FacebookLogo} label="Facebook">
                   <a href={site.facebook_url} target="_blank" rel="noopener noreferrer" className="hover:text-brand-600">{site.facebook_url.replace(/^https?:\/\//, '')}</a>
                 </ContactLine>
               )}
               {site.messenger_url && (
-                <ContactLine icon={ChatCircleDots} label="Messenger">
+                <ContactLine icon={MessengerLogo} label="Messenger">
                   <a href={site.messenger_url} target="_blank" rel="noopener noreferrer" className="hover:text-brand-600">Nhắn tin cho nhà trường</a>
                 </ContactLine>
               )}
