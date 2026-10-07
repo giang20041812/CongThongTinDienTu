@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle, Clock, EnvelopeSimple, GlobeHemisphereEast, MapPin, PaperPlaneTilt, Phone, ShareNetwork } from '../components/icons';
+import { ChatCircleDots, CheckCircle, Clock, EnvelopeSimple, GlobeHemisphereEast, MapPin, PaperPlaneTilt, Phone, ShareNetwork } from '../components/icons';
 import { submitFeedback } from '../api';
 import { mapEmbedUrl, telHref, useSite } from '../lib/site';
 import { useMenu, MenuLink } from '../lib/menu';
@@ -52,11 +52,16 @@ export const ContactPage: React.FC<SectionProps> = (props) => {
                   <a href={telHref(site.hotline)} className="hover:text-brand-600">{site.hotline}</a>
                 </ContactLine>
               )}
-              {site.email && (
+              {(site.email || site.official_email) && (
                 <ContactLine icon={EnvelopeSimple} label="Email">
-                  <a href={`mailto:${site.email}`} className="hover:text-brand-600">{site.email}</a>
+                  {site.email && <a href={`mailto:${site.email}`} className="hover:text-brand-600">{site.email}</a>}
                   {site.official_email && (
-                    <a href={`mailto:${site.official_email}`} className="mt-1 block text-[14px] font-medium text-body hover:text-brand-600">{site.official_email}</a>
+                    <a
+                      href={`mailto:${site.official_email}`}
+                      className={cx('hover:text-brand-600', site.email && 'mt-1 block text-[14px] font-medium text-body')}
+                    >
+                      {site.official_email}
+                    </a>
                   )}
                 </ContactLine>
               )}
@@ -65,6 +70,11 @@ export const ContactPage: React.FC<SectionProps> = (props) => {
               {site.facebook_url && (
                 <ContactLine icon={ShareNetwork} label="Facebook">
                   <a href={site.facebook_url} target="_blank" rel="noopener noreferrer" className="hover:text-brand-600">{site.facebook_url.replace(/^https?:\/\//, '')}</a>
+                </ContactLine>
+              )}
+              {site.messenger_url && (
+                <ContactLine icon={ChatCircleDots} label="Messenger">
+                  <a href={site.messenger_url} target="_blank" rel="noopener noreferrer" className="hover:text-brand-600">Nhắn tin cho nhà trường</a>
                 </ContactLine>
               )}
             </ul>

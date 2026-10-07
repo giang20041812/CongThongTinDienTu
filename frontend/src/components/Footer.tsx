@@ -11,6 +11,7 @@ export const Footer: React.FC = () => {
   const { tree } = useMenu();
   const year = new Date().getFullYear();
   const usefulLinks = parseLinks(site.useful_links);
+  const email = site.email || site.official_email;
 
   return (
     <footer className="no-print relative mt-auto overflow-hidden bg-brand-950 text-white/75">
@@ -46,10 +47,10 @@ export const Footer: React.FC = () => {
                 <a href={telHref(site.hotline)} className="transition-colors hover:text-white">{site.hotline}</a>
               </li>
             )}
-            {site.email && (
+            {email && (
               <li className="flex items-center gap-3">
                 <EnvelopeSimple className="size-4 shrink-0 text-gold-300" />
-                <a href={`mailto:${site.email}`} className="break-all transition-colors hover:text-white">{site.email}</a>
+                <a href={`mailto:${email}`} className="break-all transition-colors hover:text-white">{email}</a>
               </li>
             )}
             {site.website && (

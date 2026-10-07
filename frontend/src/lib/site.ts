@@ -14,6 +14,7 @@ export const DEFAULT_SITE = {
   working_hours: '',
   map_embed_url: '',
   facebook_url: '',
+  messenger_url: '',
   /** One "Tên | https://..." per line, shown in the footer. */
   useful_links: '',
   /** Edited from the timetable admin screen. */
@@ -35,6 +36,7 @@ export const SETTING_FIELDS: { key: keyof SiteInfo; label: string; multiline?: b
   { key: 'email', label: 'Email liên hệ' },
   { key: 'official_email', label: 'Email công vụ' },
   { key: 'facebook_url', label: 'Facebook' },
+  { key: 'messenger_url', label: 'Messenger' },
   { key: 'map_embed_url', label: 'Link nhúng Google Maps (tuỳ chọn)', hint: 'Để trống = tự tìm theo tên trường và địa chỉ' },
   { key: 'useful_links', label: 'Liên kết ở chân trang', multiline: true, wide: true, hint: 'Mỗi dòng một liên kết: Tên | https://địa-chỉ' },
 ];
