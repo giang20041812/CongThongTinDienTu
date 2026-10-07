@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import banner1 from '../assets/bannger.jpg';
-import banner2 from '../assets/banner2.jpg';
-import banner3 from '../assets/banner3.png';
+import realBanner from '../assets/realbanner.png';
 import { categoryIcon, MenuLink, useMenu } from '../lib/menu';
 import { useReducedMotion } from '../lib/media';
 import { telHref, useSite } from '../lib/site';
@@ -10,8 +8,8 @@ import type { Category } from '../types';
 import { ArrowRight, CaretLeft, CaretRight, PhoneCall, Sparkle } from './icons';
 import { Container, Eyebrow, cx } from './ui';
 
-/** Fixed banner artwork shipped with the site (src/assets) – not news posts. */
-const BANNERS = [banner1, banner2, banner3];
+/** Fixed banner artwork shipped with the site (src/assets) – not news posts. Add images here to turn it into a slider. */
+const BANNERS = [realBanner];
 const SLIDE_MS = 6500;
 
 const arrowClass =
@@ -29,7 +27,8 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
   const [paused, setPaused] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const reducedMotion = useReducedMotion();
-  const autoplay = !reducedMotion && count > 1;
+  const slider = count > 1;
+  const autoplay = !reducedMotion && slider;
 
   const go = useCallback((index: number) => setCurrent((index + count) % count), [count]);
   const next = useCallback(() => setCurrent((i) => (i + 1) % count), [count]);
@@ -44,7 +43,7 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
 
   return (
     <section
-      aria-roledescription="carousel"
+      aria-roledescription={slider ? 'carousel' : undefined}
       aria-label={`Ảnh Trường ${site.school_name}`}
       className={cx('group relative isolate overflow-hidden rounded-3xl bg-brand-900 shadow-card', className)}
       onMouseEnter={() => setPaused(true)}
@@ -70,7 +69,7 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
           <img
             key={src}
             src={src}
-            alt={`Trường ${site.school_name} – ảnh ${index + 1}`}
+            alt={slider ? `Trường ${site.school_name} – ảnh ${index + 1}` : `Trường ${site.school_name}`}
             aria-hidden={!active}
             loading={index === 0 ? 'eager' : 'lazy'}
             decoding="async"
@@ -82,52 +81,57 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
         );
       })}
 
-      {/* Light scrim so the controls stay visible on bright images */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-brand-950/55 to-transparent" aria-hidden="true" />
+      {/* A single banner needs no slider controls */}
+      {slider && (
+        <>
+          {/* Light scrim so the controls stay visible on bright images */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-brand-950/55 to-transparent" aria-hidden="true" />
 
-      <div className="absolute inset-x-0 bottom-0 flex items-center gap-3 p-5 sm:p-6">
-        <div className="flex items-center gap-2" role="tablist" aria-label="Chọn ảnh">
-          {BANNERS.map((src, index) => {
-            const active = index === current;
-            return (
-              <button
-                key={src}
-                role="tab"
-                aria-selected={active}
-                aria-label={`Ảnh ${index + 1}`}
-                onClick={() => go(index)}
-                className={cx(
-                  'relative h-1.5 overflow-hidden rounded-full bg-white/40 transition-all duration-500 ease-(--ease-soft) hover:bg-white/70',
-                  active ? 'w-12' : 'w-5',
-                )}
-              >
-                {active && (
-                  <span
-                    key={current}
-                    className="absolute inset-0 origin-left rounded-full bg-gold-400"
-                    style={{
-                      animation: autoplay ? `slide-progress ${SLIDE_MS}ms linear forwards` : undefined,
-                      animationPlayState: paused ? 'paused' : 'running',
-                      transform: autoplay ? undefined : 'scaleX(1)',
-                    }}
-                    onAnimationEnd={next}
-                  />
-                )}
-              </button>
-            );
-          })}
-        </div>
-        <span className="ml-auto text-[12px] font-semibold tabular-nums text-white/70" aria-hidden="true">
-          <span className="text-[15px] text-white">{String(current + 1).padStart(2, '0')}</span> / {String(count).padStart(2, '0')}
-        </span>
-      </div>
+          <div className="absolute inset-x-0 bottom-0 flex items-center gap-3 p-5 sm:p-6">
+            <div className="flex items-center gap-2" role="tablist" aria-label="Chọn ảnh">
+              {BANNERS.map((src, index) => {
+                const active = index === current;
+                return (
+                  <button
+                    key={src}
+                    role="tab"
+                    aria-selected={active}
+                    aria-label={`Ảnh ${index + 1}`}
+                    onClick={() => go(index)}
+                    className={cx(
+                      'relative h-1.5 overflow-hidden rounded-full bg-white/40 transition-all duration-500 ease-(--ease-soft) hover:bg-white/70',
+                      active ? 'w-12' : 'w-5',
+                    )}
+                  >
+                    {active && (
+                      <span
+                        key={current}
+                        className="absolute inset-0 origin-left rounded-full bg-gold-400"
+                        style={{
+                          animation: autoplay ? `slide-progress ${SLIDE_MS}ms linear forwards` : undefined,
+                          animationPlayState: paused ? 'paused' : 'running',
+                          transform: autoplay ? undefined : 'scaleX(1)',
+                        }}
+                        onAnimationEnd={next}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <span className="ml-auto text-[12px] font-semibold tabular-nums text-white/70" aria-hidden="true">
+              <span className="text-[15px] text-white">{String(current + 1).padStart(2, '0')}</span> / {String(count).padStart(2, '0')}
+            </span>
+          </div>
 
-      <button onClick={prev} aria-label="Ảnh trước" className={cx(arrowClass, 'left-3')}>
-        <CaretLeft className="size-5" />
-      </button>
-      <button onClick={next} aria-label="Ảnh tiếp theo" className={cx(arrowClass, 'right-3')}>
-        <CaretRight className="size-5" />
-      </button>
+          <button onClick={prev} aria-label="Ảnh trước" className={cx(arrowClass, 'left-3')}>
+            <CaretLeft className="size-5" />
+          </button>
+          <button onClick={next} aria-label="Ảnh tiếp theo" className={cx(arrowClass, 'right-3')}>
+            <CaretRight className="size-5" />
+          </button>
+        </>
+      )}
     </section>
   );
 };

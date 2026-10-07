@@ -24,7 +24,7 @@ Dự án được chia thành hai module chính nằm song song: `frontend/` và
 - **`src/api.ts`**: cache dùng chung (gộp request, TTL 60s). Request công khai **không** gửi token (admin xem web như khách); lỗi chỉ được giữ 5s rồi thử lại. `usePostPage({category, type, q, pinned, page, size})`, `usePost(slug)`, `useTimetable()`, `adminApi.*` cho trang quản trị.
 - **`src/lib/content.ts`**: `toPostView`, định dạng ngày/tệp, `optimizeImage`. **`src/lib/site.ts`**: `useSite()` đọc `/api/settings`, `usePageTitle()`, `SETTING_FIELDS` (form “Thông tin trường”).
 - **`src/components/ui.tsx`**, **`PostParts.tsx`**, **`SectionHeader.tsx`**: UI dùng chung – trang mới phải dùng lại.
-- Trang chủ: banner = 3 ảnh cố định trong `src/assets` (bannger, banner2, banner3), tin mới (`type=POST_LIST`), thông báo – văn bản (`type=DOCUMENT_LIST`), cột “Chuyên mục nổi bật” = đầu mục có `showOnHome`.
+- Trang chủ: banner = 1 ảnh cố định `src/assets/realbanner.png` (mảng `BANNERS` trong `HeroSection.tsx`; thêm ảnh vào mảng thì tự thành slider), tin mới (`type=POST_LIST`), thông báo – văn bản (`type=DOCUMENT_LIST`), cột “Chuyên mục nổi bật” = đầu mục có `showOnHome`.
 - **`src/pages/AdminPages.tsx`**: Tổng quan · Đầu mục & menu · Bài viết & văn bản · Thời khóa biểu (lưới nhập theo lớp, giờ tiết, ghi chú) · Góp ý · Thông tin trường. Token lưu `sessionStorage` (`portal-admin-token`).
 - **Thiết kế**: token màu theo logo trong `src/index.css` (`brand` #0A4AA0, `gold` #F8C108, `flame` #E8192A); font Be Vietnam Pro.
 
