@@ -35,13 +35,6 @@ export function categoryRoutes(categories: CategoryService): Router {
     res.json(category);
   });
 
-  /** moveTo: the category that receives this entry's posts (required when it still has posts). */
-  router.delete('/:id', async (req, res) => {
-    const id = uuidParam(req.params.id);
-    const moveTo = queryParam(req, 'moveTo');
-    if (!(await categories.delete(id, moveTo ? uuidParam(moveTo) : null))) throw notFound();
-    res.status(200).end();
-  });
 
   return router;
 }

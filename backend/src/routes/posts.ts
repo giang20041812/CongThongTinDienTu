@@ -75,10 +75,6 @@ export function postRoutes(posts: PostService): Router {
     res.json(post);
   });
 
-  router.delete('/:id', async (req, res) => {
-    if (!(await posts.delete(uuidParam(req.params.id)))) throw notFound();
-    res.status(200).end();
-  });
 
   return router;
 }

@@ -395,13 +395,6 @@ export class PostService {
     return this.findAny(id);
   }
 
-  async delete(id: string): Promise<boolean> {
-    // Blocks and attachments go with it (ON DELETE CASCADE).
-    const result = await pool.query(`DELETE FROM posts WHERE id = $1`, [id]);
-    if (!result.rowCount) return false;
-    this.cache.clear();
-    return true;
-  }
 
   private async search(q: PostQuery, admin: boolean): Promise<PageResponse<PostSummary>> {
     const size = Math.min(Math.max(q.size, 1), MAX_PAGE_SIZE);

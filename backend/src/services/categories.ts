@@ -160,28 +160,6 @@ export class CategoryService {
     return saved ?? null;
   }
 
-  /** Deletes an entry; its posts must be moved to `moveTo` first if it has any. False when it does not exist. */
-  async delete(id: string, moveTo: string | null): Promise<boolean> {
-    const deleted = await transaction(async (db) => {
-      const found = await queryOne(`SELECT id FROM categories WHERE id = $1`, [id], db);
-      if (!found) return false;
-      const child = await queryOne(`SELECT 1 FROM categories WHERE parent_id = $1 LIMIT 1`, [id], db);
-      if (child) throw conflict('Đầu mục đang có mục con. Hãy chuyển hoặc xoá các mục con trước.');
-      const count = await this.countPosts(id, db);
-      if (count > 0) {
-        if (moveTo == null) {
-          throw conflict(`Đầu mục đang có ${count} bài viết. Hãy chọn đầu mục để chuyển các bài viết sang trước khi xoá.`);
-        }
-        if (moveTo === id) throw badRequest('Không thể chuyển bài viết sang chính đầu mục đang xoá.');
-        await this.requirePostTarget(moveTo, db);
-        await db.query(`UPDATE posts SET category_id = $2 WHERE category_id = $1`, [id, moveTo]);
-      }
-      await db.query(`DELETE FROM categories WHERE id = $1`, [id]);
-      return true;
-    });
-    if (deleted) this.cache.clear();
-    return deleted;
-  }
 
   /** Applies a whole drag/drop or up/down re-arrangement at once ([{id, parentId, sortOrder}]), then validates the tree. */
   async reorder(body: unknown): Promise<Category[]> {

@@ -277,25 +277,11 @@ function CategoryForm({ draft, tree, onCancel, onSave }: { draft: CategoryDraft;
   </Panel>;
 }
 
-function DeleteCategoryDialog({ target, tree, onCancel, onConfirm }: { target: Category; tree: MenuNode[]; onCancel: () => void; onConfirm: (moveTo: string) => Promise<void> }) {
-  const [moveTo, setMoveTo] = useState('');
-  const [busy, setBusy] = useState(false);
-  const filtered = tree.map(root => ({ ...root, children: root.children.filter(c => c.id !== target.id) })).filter(root => root.id !== target.id);
-  return <div className="fixed inset-0 z-40 bg-black/40 grid place-items-center p-4" role="dialog" aria-modal="true">
-    <div className="bg-white w-full max-w-lg p-6 shadow-2xl">
-      <h3 className="font-extrabold text-lg">Xoá đầu mục “{target.name}”?</h3>
-      <p className="text-sm text-[#536b80] mt-2">Nếu đầu mục đang có bài viết, hãy chọn nơi chuyển các bài viết đó sang. Mục có mục con phải được làm trống trước.</p>
-      <label className="block mt-4"><span className="label-admin">Chuyển bài viết sang (nếu có)</span><CategorySelect tree={filtered} value={moveTo} onChange={setMoveTo} onlyPostTargets emptyLabel="— Không có bài viết / không chuyển —" /></label>
-      <div className="flex justify-end gap-2 mt-6"><button onClick={onCancel} className="admin-secondary">Hủy</button><button disabled={busy} onClick={async () => { setBusy(true); try { await onConfirm(moveTo); } finally { setBusy(false); } }} className="admin-primary !bg-red-600 hover:!bg-red-700 disabled:opacity-60"><Trash2 size={14} /> Xoá đầu mục</button></div>
-    </div>
-  </div>;
-}
 
 function MenuSection({ notify }: { notify: Notify }) {
   const { data: categories, loading, error, reload } = useLoader(() => adminApi.categories(), [], [] as Category[]);
   const tree = useMemo(() => buildMenu(categories), [categories]);
   const [editing, setEditing] = useState<CategoryDraft | null>(null);
-  const [deleting, setDeleting] = useState<Category | null>(null);
 
   const save = async (draft: CategoryDraft) => {
     const body = { parentId: draft.parentId || null, name: draft.name, slug: draft.slug, pageType: draft.pageType, visible: draft.visible, showOnHome: draft.showOnHome, externalUrl: draft.externalUrl, description: draft.description };
@@ -343,18 +329,6 @@ function MenuSection({ notify }: { notify: Notify }) {
     }
   };
 
-  const remove = async (moveTo: string) => {
-    if (!deleting) return;
-    try {
-      await adminApi.deleteCategory(deleting.id, moveTo || undefined);
-      notify('Đã xoá đầu mục');
-      setDeleting(null);
-      await reload();
-    } catch (err) {
-      notify(errorMessage(err, 'Không xoá được đầu mục'), 'error');
-    }
-  };
-
   const toDraft = (c: Category): CategoryDraft => ({ id: c.id, parentId: c.parentId ?? '', name: c.name, slug: c.slug, pageType: c.pageType, visible: c.visible, showOnHome: c.showOnHome, externalUrl: c.externalUrl ?? '', description: c.description ?? '' });
 
   const Row = ({ item, siblings, index, parentId }: { item: Category; siblings: Category[]; index: number; parentId: string | null }) => {
@@ -379,7 +353,6 @@ function MenuSection({ notify }: { notify: Notify }) {
         <IconButton title={item.visible ? 'Ẩn khỏi website' : 'Hiện trên website'} onClick={() => toggle(item, 'visible')}>{item.visible ? <Eye size={14} /> : <EyeOff size={14} />}</IconButton>
         {isRoot && <IconButton title="Thêm mục con" onClick={() => setEditing(emptyDraft(item.id))}><Plus size={14} /></IconButton>}
         <IconButton title="Sửa" onClick={() => setEditing(toDraft(item))}><Pencil size={14} /></IconButton>
-        <IconButton title="Xoá" danger onClick={() => setDeleting(item)}><Trash2 size={14} /></IconButton>
         {item.visible && <a href={item.pageType === 'LINK' && item.externalUrl ? item.externalUrl : `/${item.slug}`} target="_blank" rel="noopener noreferrer" title="Xem trên website" className="w-8 h-8 grid place-items-center text-[#536b80] hover:text-[#0052cc]"><ExternalLink size={14} /></a>}
       </div>
     </div>;
@@ -388,7 +361,6 @@ function MenuSection({ notify }: { notify: Notify }) {
   return <>
     <PageHeading eyebrow="Cấu trúc website" title="Đầu mục & menu" description="Menu 2 cấp được tạo từ cây đầu mục này. Đổi tên, sắp xếp, chuyển nhóm hay đổi kiểu trang đều áp dụng ngay, bài viết đi theo đầu mục." action={<button onClick={() => setEditing(emptyDraft())} className="admin-primary"><Plus size={16} /> Thêm mục cấp 1</button>} />
     {editing && <CategoryForm key={editing.id ?? `new-${editing.parentId}`} draft={editing} tree={tree} onCancel={() => setEditing(null)} onSave={save} />}
-    {deleting && <DeleteCategoryDialog target={deleting} tree={tree} onCancel={() => setDeleting(null)} onConfirm={remove} />}
     {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
     {loading && categories.length === 0 ? <p className="p-5 text-center text-sm text-[#8a9bad]">Đang tải dữ liệu...</p> : <div className="space-y-3">
       {tree.map((root, index) => <div key={root.id} className="border border-[#e3ebf3] overflow-hidden">
@@ -545,10 +517,7 @@ function PostsSection({ notify }: { notify: Notify }) {
     { items: [], page: 0, size: 20, total: 0, totalPages: 0 },
   );
 
-  const remove = async (post: PostSummaryDto) => {
-    if (!window.confirm(`Xoá bài viết “${post.title}”?`)) return;
-    try { await adminApi.deletePost(post.id); notify('Đã xoá bài viết'); await reload(); } catch (err) { notify(errorMessage(err, 'Không xoá được bài viết'), 'error'); }
-  };
+
   const toggleStatus = async (post: PostSummaryDto) => {
     try { await adminApi.updatePost(post.id, { status: post.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED' }); await reload(); } catch (err) { notify(errorMessage(err, 'Không cập nhật được'), 'error'); }
   };
@@ -573,7 +542,7 @@ function PostsSection({ notify }: { notify: Notify }) {
         <span className="text-xs whitespace-nowrap">{item.publishedAt ? new Date(item.publishedAt).toLocaleDateString('vi-VN') : ''}</span>,
         <span className="text-xs">{item.views.toLocaleString('vi-VN')}</span>,
         <button onClick={() => toggleStatus(item)} title="Bấm để đổi Đã đăng / Bản nháp"><StatusPill tone={item.status === 'PUBLISHED' ? 'green' : 'gray'}>{STATUS_LABELS[item.status] ?? item.status}</StatusPill></button>,
-        <div className="flex gap-3 whitespace-nowrap">{item.status === 'PUBLISHED' && <a href={`/bai-viet/${item.slug}`} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#536b80]">Xem</a>}<button onClick={() => setForm({ id: item.id })} className="text-xs font-bold text-[#0052cc]">Sửa</button><button onClick={() => remove(item)} className="text-xs font-bold text-red-600">Xoá</button></div>,
+        <div className="flex gap-3 whitespace-nowrap">{item.status === 'PUBLISHED' && <a href={`/bai-viet/${item.slug}`} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#536b80]">Xem</a>}<button onClick={() => setForm({ id: item.id })} className="text-xs font-bold text-[#0052cc]">Sửa</button></div>,
       ])}
     />}
     {data.totalPages > 1 && <div className="flex items-center justify-between mt-4 text-xs text-[#71849b]"><span>Tổng {data.total} bài · trang {page + 1}/{data.totalPages}</span><div className="flex gap-2"><button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="admin-secondary disabled:opacity-40">← Trước</button><button disabled={page + 1 >= data.totalPages} onClick={() => setPage(p => p + 1)} className="admin-secondary disabled:opacity-40">Sau →</button></div></div>}

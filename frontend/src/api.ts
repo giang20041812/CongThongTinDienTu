@@ -269,14 +269,11 @@ export const adminApi = {
   updateCategory: (id: string, body: Partial<Category>) => mutate<Category>(`${CATEGORIES_PATH}/${id}`, 'PUT', body),
   reorderCategories: (items: { id: string; parentId: string | null; sortOrder: number }[]) =>
     mutate<Category[]>(`${CATEGORIES_PATH}/order`, 'PUT', items),
-  deleteCategory: (id: string, moveTo?: string) =>
-    mutate<void>(`${CATEGORIES_PATH}/${id}${moveTo ? `?moveTo=${moveTo}` : ''}`, 'DELETE'),
 
   posts: (params: PostListParams) => request<PageResponse<PostSummaryDto>>(postsPath(params)),
   post: (id: string) => request<PostDetailDto>(`/posts/${id}`),
   createPost: (body: unknown) => mutate<PostDetailDto>('/posts', 'POST', body),
   updatePost: (id: string, body: unknown) => mutate<PostDetailDto>(`/posts/${id}`, 'PUT', body),
-  deletePost: (id: string) => mutate<void>(`/posts/${id}`, 'DELETE'),
 
   feedback: () => request<FeedbackDto[]>('/feedback'),
   updateFeedback: (id: string, body: { status?: string; note?: string }) => mutate<FeedbackDto>(`/feedback/${id}`, 'PUT', body),
