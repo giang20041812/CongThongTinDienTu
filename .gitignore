@@ -1,10 +1,11 @@
 node_modules/
-build/
 dist/
-coverage/
-.DS_Store
 *.log
-.env*
+.DS_Store
+
+# Secrets: never commit them (hosting panels keep their own copy).
+.env
+.env.*
 !.env.example
 
 # Business documents and database dumps: never commit them.
