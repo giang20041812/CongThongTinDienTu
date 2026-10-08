@@ -1,9 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: v2-05-update-categories-order
-      author: portal
-      changes:
-        - sql:
-            sql: |
-              UPDATE categories SET sort_order = 0 WHERE slug = 'doan-thanh-nien';
-              UPDATE categories SET sort_order = 1 WHERE slug = 'cau-lac-bo';

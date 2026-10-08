@@ -3,11 +3,13 @@ File này chứa context quan trọng để hỗ trợ AI/Agent nhanh chóng n�
 
 ## 1. CÔNG NGHỆ SỬ DỤNG
 - **Frontend**: React (với Vite), TypeScript, Tailwind CSS, Lucide React (Icons).
-- **Backend**: Java Spring Boot (v4), Spring Data JPA, Hibernate, Liquibase, PostgreSQL.
-- **Tools**: npm (cho frontend), Maven (cho backend).
+- **Backend**: Node.js (≥ 20.19) + Express 5 + TypeScript, thư viện `pg` nối thẳng PostgreSQL (Supabase). Không ORM.
+- **Lưu tệp**: Cloudinary (qua lớp `backend/src/storage`, đổi nhà cung cấp được).
+- **Tools**: npm workspaces (một `package.json` + một `package-lock.json` ở gốc repo cho cả hai module).
+- **Chạy thành 1 app Node**: server Express trả `/api/*` và phục vụ luôn bản build React (`frontend/dist`) – để deploy 1 lần lên Vibe Hosting (Mắt Bão, Nhân Hòa…), nơi không chạy được Java. Bản Spring Boot cũ đã bỏ (API giữ nguyên từng trường JSON).
 
 ## 2. CẤU TRÚC THƯ MỤC
-Dự án được chia thành hai module chính nằm song song: `frontend/` và `backend/`.
+Dự án gồm hai workspace nằm song song: `frontend/` và `backend/`; `package.json` gốc điều phối (`dev`, `build`, `start`).
 
 ### 2.0 MÔ HÌNH NỘI DUNG (QUAN TRỌNG)
 - **Menu = cây đầu mục** (bảng `categories`, `parent_id`, tối đa **2 cấp**). Mỗi đầu mục có `page_type` quyết định cách hiển thị:
@@ -29,31 +31,37 @@ Dự án được chia thành hai module chính nằm song song: `frontend/` và
 - **Thiết kế**: token màu theo logo trong `src/index.css` (`brand` #0A4AA0, `gold` #F8C108, `flame` #E8192A); font Be Vietnam Pro.
 
 ### 2.2 BACKEND (`/backend`)
-- **Package base**: `vn.edu.portal`. Entity không bao giờ trả thẳng cho bài viết: dùng `dto/PostDtos` (`PostSummary` không có blocks, `PostDetail`).
-- **API** (GET công khai; ghi cần token admin – xem `AdminAuthInterceptor`):
+- **Cấu trúc `src/`**: `server.ts` (khởi động: migration → băm mật khẩu dạng chữ → listen `PORT`), `app.ts` (ghép Express: `/api` + phục vụ `frontend/dist`), `config.ts` (biến môi trường), `db.ts` (pool `pg`, `transaction()`), `migrations.ts`, `security.ts` (token, mật khẩu, giới hạn đăng nhập/góp ý, luật quyền), `http.ts` (lỗi → JSON, đọc body kiểu Jackson), `text.ts` (slug, chữ không dấu, tóm tắt, `localNow()`), `cache.ts`, `services/` (categories, posts, timetable), `routes/` (mỗi file = 1 controller cũ), `storage/`, `multipart.ts`, `cli.ts` (`migrate`).
+- **JSON trả về giống hệt bản Java** (tên trường, thứ tự, định dạng ngày): SQL tự đặt alias camelCase; bài viết dùng `PostSummary` (không có blocks) và `PostDetail` (kèm blocks, attachments) trong `services/posts.ts`.
+- **API** (GET công khai; ghi cần token admin – xem `requiresAdmin` trong `security.ts`):
   - `GET /api/categories` (khách: mục hiển thị; admin: tất cả), `GET /by-slug/{slug}`, `POST`, `PUT /{id}`, `PUT /order` (`[{id,parentId,sortOrder}]`), `DELETE /{id}?moveTo=` (bắt buộc khi mục còn bài).
   - `GET /api/posts?category=&descendants=&type=POST_LIST,DOCUMENT_LIST&q=&status=&pinned=&page=&size=` (phân trang, tìm không dấu qua cột `search_text`), `GET /by-slug/{slug}`, `GET /photos?limit=` (ảnh bìa + ảnh trong bài, mới nhất trước, ≤ 24), `GET /{id}` (admin), `POST /{id}/views`, `POST/PUT/DELETE`.
   - `POST /api/feedback` (công khai, giới hạn 5 lần/30 phút/IP, có honeypot) · `GET/PUT/DELETE /api/feedback` (admin).
   - `GET/PUT /api/settings`, `POST /api/upload` (ảnh ≤ 5MB), `POST /api/upload/file` (tài liệu ≤ 10MB, Cloudinary raw), `/api/auth/*`, `/api/users`.
   - `GET /api/timetable` (`{periods, entries}`, công khai, cache), `PUT /api/timetable/classes/{lớp}` (`{entries:[{dayOfWeek, period, subject, teacher}]}` – thay cả tuần của lớp), `DELETE /api/timetable/classes/{lớp}`, `PUT /api/timetable/periods`.
-- **`service/`**: `CategoryService` (luật cây: 2 cấp, mục con không là GROUP, slug duy nhất/không dành riêng, không đổi thành GROUP/LINK khi còn bài), `PostService`, `TimetableService`, `ContentCache` (cache RAM, xoá sau mỗi thao tác ghi).
-- **Schema do Liquibase quản lý** (`resources/db/changelog/changesets/v2-*.yaml`), Hibernate chỉ `validate`. `v2-01` **xoá bảng v1 cũ** (chạy 1 lần), `v2-02` tạo schema, `v2-03` seed menu 7 nhóm/35 mục, tài khoản `admin/admin123` (được băm khi khởi động – đổi ngay) và thông tin trường; `v2-04` bỏ bảng `schedules` (Lịch làm việc), tạo bảng thời khóa biểu + giờ 10 tiết và các khoá cài đặt mới. Thay đổi schema = thêm changeset mới, **không sửa changeset đã chạy**.
-- **`application.yml`**: biến môi trường (xem `backend/.env.example`: `APP_AUTH_SECRET`, `APP_CORS_ORIGINS`, `DB_PREPARE_THRESHOLD`, `LIQUIBASE_ENABLED`...).
+- **`services/`**: `CategoryService` (luật cây: 2 cấp, mục con không là GROUP, slug duy nhất/không dành riêng, không đổi thành GROUP/LINK khi còn bài), `PostService`, `TimetableService`; `cache.ts` = `ContentCache` (cache RAM cho dữ liệu công khai, xoá sau mỗi thao tác ghi; lượt xem cố ý không xoá cache).
+- **Schema = file SQL trong `backend/db/migrations/`** (`0001_schema.sql`, `0002_seed.sql`: menu 7 nhóm/35 mục, tài khoản `admin/admin123` – được băm khi khởi động, đổi ngay – thông tin trường, 10 tiết học), ghi nhận ở bảng `schema_migrations`. Tự chạy khi khởi động (`DB_MIGRATE_ON_START`) hoặc `npm run db:migrate`. DB cũ do Liquibase/Java tạo được nhận nguyên trạng (chỉ đánh dấu 0001/0002 đã chạy); bảng `databasechangelog*` còn lại không còn dùng. Thay đổi schema = **thêm file mới** `000N_ten.sql`, không sửa file đã chạy.
+- **Biến môi trường**: xem `backend/.env.example` (`DATABASE_URL` hoặc `DB_*`, `APP_AUTH_SECRET`, `CLOUDINARY_*`, `APP_CORS_ORIGINS`, `APP_TIMEZONE`...). File `.env` chỉ dùng trên máy; giá trị đặt trên hosting luôn được ưu tiên.
 
 ### 2.3 DỮ LIỆU MẪU
 - `scripts/seed_sample_data.py` (chỉ dùng thư viện chuẩn Python, gọi REST API): mô tả 42 đầu mục, ~116 bài (đủ mọi đầu mục, có bài nháp/ẩn, đủ để thử phân trang), PDF đính kèm (tải lên Cloudinary **1 lần** rồi dùng chung link), TKB 12 lớp, 5 góp ý, giờ làm việc, ghi chú TKB.
 - Chạy: `python scripts/seed_sample_data.py --api http://localhost:8080/api --pdf <tệp.pdf>` (hoặc `--pdf-url <link đã có>`). Từ chối chạy khi đã có bài viết, trừ khi `--force`.
 
 ## 3. CÁCH KHỞI CHẠY (LOCAL)
-1. **Database:** Cần bật PostgreSQL, tạo database `portal_db`, username `postgres`, pass `123`. Liquibase tự tạo bảng + dữ liệu menu ở lần chạy đầu.
-2. **Backend:** Vào thư mục `backend`, chạy lệnh: `./mvnw spring-boot:run` (Server chạy ở port 8080).
-3. **Frontend:** Vào thư mục `frontend`, chạy: `npm install` (lần đầu) và `npm run dev` (Web chạy ở port 3000 hoặc 5173 tùy Vite).
+1. **Cài đặt:** ở gốc repo chạy `npm install` (một lần cho cả frontend lẫn backend).
+2. **Database:** PostgreSQL cục bộ (vd. database `portal_db`, user `postgres`, pass `123`, hoặc `docker compose up db`) hoặc Supabase. Khai báo trong `backend/.env` (chép từ `backend/.env.example`). Lần chạy đầu tự tạo bảng + dữ liệu menu.
+3. **Chạy dev:** `npm run dev` ở gốc repo – API ở http://localhost:8080 (tự nạp lại khi sửa code), web ở http://localhost:3000 (Vite proxy `/api` về 8080).
+4. **Chạy như production:** `npm run build` rồi `npm start` → một server ở `PORT` (mặc định 8080) phục vụ cả web lẫn API.
+5. **Kiểm tra:** `npm run lint` (TypeScript cả hai module), `npm test` (unit test backend).
 
 ## 4. GHI CHÚ CHO AI/AGENT
 - Khi cần biết frontend lấy dữ liệu gì, đọc `src/api.ts`, `src/lib/menu.tsx` và `src/lib/content.ts` trước.
-- Thêm một kiểu trang mới = thêm giá trị vào `PageType` (Java + `types/index.ts`), một nhánh trong `CategoryPage.tsx` và nhãn trong `lib/menu.tsx`.
+- Thêm một kiểu trang mới = thêm giá trị vào `PAGE_TYPES` (`backend/src/services/categories.ts`) và `PageType` (`frontend/src/types/index.ts`), một nhánh trong `CategoryPage.tsx` và nhãn trong `lib/menu.tsx`.
 - Khi cần update UI Admin, vào `AdminPages.tsx`.
-- Truy vấn dùng để trả JSON phải nạp sẵn quan hệ bằng `@EntityGraph` (xem `PostRepository`); danh sách không nạp `blocks`. DB ở xa (~250ms/round-trip) nên mỗi truy vấn N+1 đều rất đắt.
-- Khi thêm `@ManyToOne`/`@OneToMany` mới: đặt `@JsonIgnore` hoặc DTO để ngắt đệ quy, và `@ToString.Exclude`/`@EqualsAndHashCode.Exclude` cho quan hệ hai chiều (Lombok `@Data`).
-- Kết nối Supabase pooler (cổng 6543) cần `prepareThreshold=0` (đã cấu hình qua `DB_PREPARE_THRESHOLD`), nếu không sẽ lỗi ngẫu nhiên "prepared statement S_1 already exists".
+- DB ở xa (~250ms/round-trip tới Supabase): mỗi endpoint trả JSON chỉ nên tốn 1 truy vấn – nạp quan hệ bằng JOIN/`json_agg` (xem `SELECT_DETAIL`, `search()` trong `services/posts.ts`), danh sách không nạp `blocks`, tránh truy vấn trong vòng lặp.
+- Mọi thao tác ghi nhiều câu lệnh phải nằm trong `transaction()` (db.ts) và gọi `cache.clear()` sau khi xong.
+- Chỉ dùng truy vấn có tham số `$1…` không đặt `name` (prepared statement không tên) – pooler Supabase (cổng 6543, transaction mode) không giữ được prepared statement có tên.
+- Cột DATE/TIME/TIMESTAMP được trả nguyên dạng chữ (`2026-10-08T07:30:00`, không múi giờ) – đừng chuyển sang `Date` của JS. "Bây giờ" dùng `localNow()` (múi giờ `APP_TIMEZONE`).
+- Lỗi nghiệp vụ: `throw badRequest('…')` / `conflict('…')` / `notFound()` (http.ts) → JSON `{message}`; Express 5 tự bắt lỗi của handler async.
 - Trạng thái nội dung luôn là mã `PUBLISHED` / `DRAFT` / `HIDDEN`. Đầu mục bị ẩn (`visible=false`) thì bài của nó cũng không hiển thị công khai.
+- Không bao giờ commit `.env` (hosting có thể gửi mã nguồn cho AI bên ngoài phân tích lỗi deploy).
