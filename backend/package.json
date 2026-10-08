@@ -1,0 +1,34 @@
+{
+  "name": "portal-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "API của cổng thông tin (Express + PostgreSQL/Supabase); khi đã build frontend thì phục vụ luôn website.",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false src/server.ts",
+    "build": "esbuild src/server.ts src/cli.ts src/vercel.ts --bundle --platform=node --format=esm --target=node20 --packages=external --sourcemap --outdir=dist",
+    "start": "node --enable-source-maps dist/server.js",
+    "db:migrate": "tsx src/cli.ts migrate",
+    "lint": "tsc --noEmit",
+    "test": "node --import tsx --test test/*.test.ts"
+  },
+  "dependencies": {
+    "busboy": "^1.6.0",
+    "cloudinary": "^2.11.0",
+    "compression": "^1.8.2",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@types/busboy": "^1.5.4",
+    "@types/compression": "^1.8.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.14.0",
+    "@types/pg": "^8.23.1",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
