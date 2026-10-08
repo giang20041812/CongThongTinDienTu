@@ -1,6 +1,8 @@
+# Local stack: PostgreSQL + the portal (website and API in one Node container) on http://localhost.
+# `docker compose up db` alone gives a database for `npm run dev`.
 services:
   db:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     container_name: portal_postgres
     environment:
       POSTGRES_DB: portal_db
@@ -16,32 +18,25 @@ services:
       timeout: 5s
       retries: 5
 
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: portal_backend
+  app:
+    build: .
+    container_name: portal_app
     environment:
       DB_HOST: db
       DB_PORT: 5432
       DB_NAME: portal_db
       DB_USERNAME: postgres
       DB_PASSWORD: password
+      # Required in production: >= 32 random characters, keeps admin sessions valid across restarts.
+      APP_AUTH_SECRET: ${APP_AUTH_SECRET:-}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
     ports:
-      - "8080:8080"
+      - "80:8080"
     depends_on:
       db:
         condition: service_healthy
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: portal_frontend
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
 
 volumes:
   postgres_data:

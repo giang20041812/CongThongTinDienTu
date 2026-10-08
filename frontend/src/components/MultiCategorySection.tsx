@@ -1,253 +1,152 @@
-import React from 'react';
-import { ChevronRight } from 'lucide-react';
-import { EduImageFrame } from './EduImageFrame';
-import { usePosts, useAnnouncements } from '../api';
-import { motion } from 'motion/react';
+import React, { useMemo } from 'react';
+import { usePostPage } from '../api';
+import { Link } from '../lib/router';
+import { categoryIcon, categoryRoute, useMenu } from '../lib/menu';
+import { formatNumber, postRoute, toPostView } from '../lib/content';
+import { useIsDesktop } from '../lib/media';
+import { toneAt, toneStyle, type Tone } from '../lib/tones';
+import type { Category } from '../types';
+import { Coverflow } from './Coverflow';
+import { ArrowRight, CalendarDots, CaretRight, Compass } from './icons';
+import { Container, Reveal, SectionHeading, SmartImage, trackPointer } from './ui';
 
-interface MultiCategorySectionProps {
-  onSelectNews?: (id: string) => void;
-  onNavigate?: (view: string) => void;
-}
+const MAX_COLUMNS = 8;
 
-interface CategoryColumnProps {
-  headerLabel: string;
-  featuredImage: { label: string; subLabel: string; theme: 'exam' | 'lab' | 'campus' | 'ceremony' | 'club' | 'lost'; imageUrl?: string };
-  featuredTitle: string;
-  subItems: { title: string; date?: string; id: string }[];
-  onClickFeatured?: () => void;
-  onClickMore?: () => void;
-  moreLabel?: string;
-  onSelectItem?: (id: string) => void;
-  accentColorClass?: string;
-  accentBgClass?: string;
-}
-
-const CategoryColumn: React.FC<CategoryColumnProps> = ({
-  headerLabel,
-  featuredImage,
-  featuredTitle,
-  subItems,
-  onClickFeatured,
-  onClickMore,
-  moreLabel = 'Xem thêm',
-  onSelectItem,
-  accentColorClass = 'text-black',
-  accentBgClass = 'bg-black',
-}) => (
-  <motion.div 
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-50px" }}
-    transition={{ duration: 0.5 }}
-    className="flex flex-col min-w-0 bg-white glass-card hover-lift rounded-xl border border-gray-100 shadow-sm p-5 h-full overflow-hidden relative group/col"
-  >
-    {/* Decorative top accent line */}
-    <div className={`absolute top-0 left-0 right-0 h-1.5 ${accentBgClass} opacity-80 group-hover/col:opacity-100 transition-opacity`}></div>
-
-    {/* Header bar without blue backgrounds - using border bottom instead */}
-    <div className={`border-b-2 ${accentColorClass.replace('text-', 'border-')} pb-2 mb-4 flex items-center justify-between`}>
-      <span className={`${accentColorClass} font-extrabold uppercase tracking-wider text-[13px] md:text-sm`}>{headerLabel}</span>
-    </div>
-
-    {/* Featured: image + title */}
-    <div
-      onClick={onClickFeatured}
-      className="group cursor-pointer mb-5 relative rounded-lg overflow-hidden"
-    >
-      <div className={`w-full overflow-hidden border border-gray-100 rounded-lg group-hover:shadow-md transition-all duration-300 mb-3`}>
-        <EduImageFrame
-          label={featuredImage.label}
-          subLabel={featuredImage.subLabel}
-          theme={featuredImage.theme}
-          aspectRatio="16:9"
-          imageUrl={featuredImage.imageUrl}
-        />
-      </div>
-      <h3 className={`text-[14px] font-bold text-gray-800 ${accentColorClass.replace('text-', 'group-hover:text-')} transition-colors leading-snug line-clamp-3 uppercase`}>
-        {featuredTitle}
-      </h3>
-    </div>
-
-    {/* Sub items list */}
-    <div className="flex flex-col divide-y divide-gray-100/50 flex-1">
-      {subItems.map((item, idx) => (
-        <button
-          key={idx}
-          onClick={() => onSelectItem ? onSelectItem(item.id) : onClickMore?.()}
-          className="group text-left py-2.5 flex items-start gap-2.5 transition-colors hover:bg-gray-50/50 -mx-2 px-2 rounded-lg"
-        >
-          <span className={`mt-0.5 shrink-0 ${accentColorClass} opacity-70 group-hover:opacity-100 transition-opacity`}>
-            <ChevronRight className="w-4 h-4" />
-          </span>
-          <span className={`text-[13px] font-medium text-gray-700 ${accentColorClass.replace('text-', 'group-hover:text-')} transition-colors leading-snug line-clamp-2`}>
-            {item.title}
-          </span>
-        </button>
-      ))}
-    </div>
-
-    {/* Xem thêm */}
-    <div className="mt-5 pt-3 border-t border-gray-100 flex justify-end">
-      <button
-        onClick={onClickMore}
-        className={`text-[12px] font-bold ${accentColorClass} hover:opacity-80 flex items-center gap-1 cursor-pointer transition-all hover:gap-2`}
-      >
-        <span>{moreLabel}</span>
-        <ChevronRight className="w-3.5 h-3.5" />
-      </button>
-    </div>
-  </motion.div>
-);
-
-export const MultiCategorySection: React.FC<MultiCategorySectionProps> = ({
-  onSelectNews,
-  onNavigate,
-}) => {
-  const { data: posts, loading: loadingPosts } = usePosts();
-  const { data: announcements, loading: loadingAnnouncements } = useAnnouncements();
-
-  if (loadingPosts || loadingAnnouncements) {
-    return <div className="py-20 text-center text-gray-500">Đang tải dữ liệu...</div>;
-  }
-
-  // Parse API data with robust category fallbacks
-  const schoolNews = posts.filter((p: any) => p.category?.code === 'NEWS' || p.category?.code === 'TIN_TUC').slice(0, 3);
-  const youthActivities = posts.filter((p: any) => p.category?.code === 'YOUTH' || p.category?.code === 'ACTIVITIES' || p.category?.code === 'PHONG_TRAO').slice(0, 3);
-  const clubItems = posts.filter((p: any) => p.category?.code === 'CLUB').slice(0, 3);
-  const adminAnnouncements = announcements.slice(0, 3);
-  
-  const admissions = posts.filter((p: any) => p.category?.code === 'ADMISSION').slice(0, 3);
-  const competitions = posts.filter((p: any) => p.category?.code === 'COMPETITION' || p.category?.code === 'CHUYEN_MON' || p.category?.code === 'ACADEMIC').slice(0, 3);
-  const science = posts.filter((p: any) => p.category?.code === 'SCIENCE' || p.category?.code === 'THUC_NGHIEM').slice(0, 3);
-  const studyAbroad = posts.filter((p: any) => p.category?.code === 'STUDY_ABROAD').slice(0, 3);
-
-  // Fallbacks if data empty
-  const fallbackItem = { id: '', title: 'Đang cập nhật...', summary: '' };
+/** One home-page card: the 3 newest posts of a menu entry, in the entry's tone. */
+const CategoryCard: React.FC<{ category: Category; tone: Tone }> = ({ category, tone }) => {
+  const { data, loading } = usePostPage({ category: category.slug, size: 3 });
+  const [featured, ...rest] = useMemo(() => data.items.map(toPostView), [data]);
+  const Icon = categoryIcon(category);
 
   return (
-    <>
-      {/* ──────────────── ROW 1 ─── */}
-      <section className="w-full bg-[#f8f9fa] border-b border-gray-200 py-6 sm:py-8 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            variants={{
-              hidden: { opacity: 0 },
-              visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
-            }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5"
-          >
-            <CategoryColumn
-              headerLabel="TIN NHÀ TRƯỜNG"
-              featuredImage={{ label: 'TIN TỨC', subLabel: 'Nhà Trường', theme: 'campus', imageUrl: schoolNews[0]?.imgUrl || schoolNews[0]?.imageUrl }}
-              featuredTitle={schoolNews[0]?.title || fallbackItem.title}
-              subItems={schoolNews.slice(1).map((n: any) => ({ title: n.title, id: n.id }))}
-              onClickFeatured={() => onSelectNews?.(schoolNews[0]?.id)}
-              onSelectItem={(id) => onSelectNews?.(id)}
-              onClickMore={() => onNavigate?.('news-list')}
-              accentColorClass="text-blue-600"
-              accentBgClass="bg-gradient-brand"
-            />
-            <CategoryColumn
-              headerLabel="HOẠT ĐỘNG ĐOÀN"
-              featuredImage={{ label: 'ĐOÀN HỘI', subLabel: 'Thanh Niên', theme: 'ceremony', imageUrl: youthActivities[0]?.imgUrl || youthActivities[0]?.imageUrl }}
-              featuredTitle={youthActivities[0]?.title || fallbackItem.title}
-              subItems={youthActivities.slice(1).map((n: any) => ({ title: n.title, id: n.id }))}
-              onClickFeatured={() => onSelectNews?.(youthActivities[0]?.id)}
-              onSelectItem={(id) => onSelectNews?.(id)}
-              onClickMore={() => onNavigate?.('news-list')}
-              accentColorClass="text-green-600"
-              accentBgClass="bg-gradient-success"
-            />
-            <CategoryColumn
-              headerLabel="CÂU LẠC BỘ"
-              featuredImage={{ label: 'NGOẠI KHÓA', subLabel: 'CLB Trường', theme: 'club', imageUrl: clubItems[0]?.imgUrl || clubItems[0]?.imageUrl }}
-              featuredTitle={clubItems[0]?.title || fallbackItem.title}
-              subItems={clubItems.slice(1).map((n: any) => ({ title: n.title, id: n.id }))}
-              onClickFeatured={() => onNavigate?.('clubs-list')}
-              onSelectItem={() => onNavigate?.('clubs-list')}
-              onClickMore={() => onNavigate?.('clubs-list')}
-              accentColorClass="text-purple-600"
-              accentBgClass="bg-gradient-purple"
-            />
-            <CategoryColumn
-              headerLabel="THÔNG BÁO"
-              featuredImage={{ label: 'THÔNG BÁO', subLabel: 'Nhà Trường', theme: 'exam', imageUrl: adminAnnouncements[0]?.imgUrl || adminAnnouncements[0]?.imageUrl }}
-              featuredTitle={adminAnnouncements[0]?.title || fallbackItem.title}
-              subItems={adminAnnouncements.slice(1).map((n: any) => ({ title: n.title, id: n.id }))}
-              onClickFeatured={() => onNavigate?.('announcement-list')}
-              onSelectItem={() => onNavigate?.('announcement-list')}
-              onClickMore={() => onNavigate?.('announcement-list')}
-              accentColorClass="text-red-600"
-              accentBgClass="bg-gradient-to-r from-red-500 to-rose-600"
-            />
-          </motion.div>
+    <article
+      style={toneStyle(tone)}
+      onPointerMove={trackPointer}
+      className="spotlight tilt group/col relative flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-white p-4 shadow-card transition-all duration-500 ease-(--ease-soft) hover:-translate-y-1 hover:border-(--tone)/30 hover:shadow-card-hover sm:p-5"
+    >
+      <span className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-(--tone) to-(--tone-2)" aria-hidden="true" />
+      <header className="flex items-center gap-3 pt-1">
+        <span className="tone-glow grid size-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-(--tone) to-(--tone-2) text-white transition-transform duration-500 ease-(--ease-soft) group-hover/col:-rotate-6 group-hover/col:scale-110">
+          <Icon className="size-[22px]" />
+        </span>
+        <div className="min-w-0">
+          <h3 className="line-clamp-2 text-[13.5px] font-bold uppercase leading-tight tracking-wide text-ink">{category.name}</h3>
+          <p className="mt-1 text-[12px] font-semibold text-(--tone-ink)">
+            {loading ? 'Đang tải…' : `${formatNumber(data.total)} bài viết`}
+          </p>
         </div>
-      </section>
+      </header>
 
-      {/* ──────────────── ROW 2 ─── */}
-      <section className="w-full bg-[#f8f9fa] border-b border-gray-200 py-6 sm:py-8 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            variants={{
-              hidden: { opacity: 0 },
-              visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
-            }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5"
-          >
-            <CategoryColumn
-              headerLabel="TUYỂN SINH"
-              featuredImage={{ label: 'TUYỂN SINH', subLabel: 'Tuyển Sinh', theme: 'exam', imageUrl: admissions[0]?.imgUrl || admissions[0]?.imageUrl }}
-              featuredTitle={admissions[0]?.title || fallbackItem.title}
-              subItems={admissions.slice(1).map((n: any) => ({ title: n.title, id: n.id }))}
-              onClickFeatured={() => onNavigate?.('admissions-list')}
-              onSelectItem={() => onNavigate?.('admissions-list')}
-              onClickMore={() => onNavigate?.('admissions-list')}
-              accentColorClass="text-orange-500"
-              accentBgClass="bg-gradient-accent"
-            />
-            <CategoryColumn
-              headerLabel="KỲ THI HSG"
-              featuredImage={{ label: 'KỲ THI', subLabel: 'Học sinh giỏi', theme: 'exam', imageUrl: competitions[0]?.imgUrl || competitions[0]?.imageUrl }}
-              featuredTitle={competitions[0]?.title || fallbackItem.title}
-              subItems={competitions.slice(1).map((n: any) => ({ title: n.title, id: n.id }))}
-              onClickFeatured={() => onSelectNews?.(competitions[0]?.id)}
-              onSelectItem={(id) => onSelectNews?.(id)}
-              onClickMore={() => onNavigate?.('news-list')}
-              accentColorClass="text-teal-600"
-              accentBgClass="bg-gradient-to-r from-teal-500 to-emerald-500"
-            />
-            <CategoryColumn
-              headerLabel="NGHIÊN CỨU STEM"
-              featuredImage={{ label: 'KHOA HỌC', subLabel: 'STEM', theme: 'lab', imageUrl: science[0]?.imgUrl || science[0]?.imageUrl }}
-              featuredTitle={science[0]?.title || fallbackItem.title}
-              subItems={science.slice(1).map((n: any) => ({ title: n.title, id: n.id }))}
-              onClickFeatured={() => onSelectNews?.(science[0]?.id)}
-              onSelectItem={(id) => onSelectNews?.(id)}
-              onClickMore={() => onNavigate?.('news-list')}
-              accentColorClass="text-pink-500"
-              accentBgClass="bg-gradient-pink"
-            />
-            <CategoryColumn
-              headerLabel="DU HỌC"
-              featuredImage={{ label: 'DU HỌC', subLabel: 'Quốc Tế', theme: 'campus', imageUrl: studyAbroad[0]?.imgUrl || studyAbroad[0]?.imageUrl }}
-              featuredTitle={studyAbroad[0]?.title || fallbackItem.title}
-              subItems={studyAbroad.slice(1).map((n: any) => ({ title: n.title, id: n.id }))}
-              onClickFeatured={() => onNavigate?.('study-abroad-list')}
-              onSelectItem={() => onNavigate?.('study-abroad-list')}
-              onClickMore={() => onNavigate?.('study-abroad-list')}
-              accentColorClass="text-indigo-600"
-              accentBgClass="bg-gradient-to-r from-indigo-500 to-blue-500"
-            />
-          </motion.div>
+      {loading ? (
+        <div className="skeleton mt-4 aspect-[16/10] rounded-2xl" />
+      ) : featured ? (
+        <Link to={postRoute(featured)} draggable={false} className="group mt-4 block">
+          <SmartImage
+            src={featured.image}
+            alt={featured.title}
+            width={560}
+            className="shine aspect-[16/10] rounded-2xl"
+            imgClassName="group-hover:scale-105"
+            placeholderLabel={category.name}
+          />
+          <h4 className="mt-3 line-clamp-3 text-[14px] font-semibold leading-snug text-ink transition-colors duration-300 group-hover:text-(--tone-ink)">
+            {featured.title}
+          </h4>
+          {featured.date && (
+            <p className="mt-1.5 inline-flex items-center gap-1.5 text-[12px] text-muted">
+              <CalendarDots className="size-3.5 text-(--tone)" />
+              {featured.date}
+            </p>
+          )}
+        </Link>
+      ) : (
+        <div className="mt-4 grid flex-1 place-items-center rounded-2xl border border-dashed border-(--tone)/30 bg-(--tone)/5 p-6 text-center text-[13px] text-muted">
+          Nội dung đang được cập nhật
         </div>
-      </section>
-    </>
+      )}
+
+      {rest.length > 0 && (
+        <ul className="mt-3 divide-y divide-line">
+          {rest.map((item) => (
+            <li key={item.id}>
+              <Link
+                to={postRoute(item)}
+                draggable={false}
+                className="group flex items-start gap-2 py-2.5 text-[13px] leading-snug text-body transition-colors hover:text-(--tone-ink)"
+              >
+                <CaretRight className="mt-0.5 size-3.5 shrink-0 text-(--tone) transition-transform group-hover:translate-x-0.5" />
+                <span className="line-clamp-2">{item.title}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <Link
+        to={categoryRoute(category)}
+        draggable={false}
+        className="group mt-auto inline-flex items-center gap-1.5 self-start rounded-full bg-(--tone)/10 py-2 pl-4 pr-3 text-[13px] font-semibold text-(--tone-ink) transition-all duration-300 hover:bg-(--tone) hover:text-white"
+      >
+        Xem thêm
+        <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
+      </Link>
+    </article>
   );
 };
 
+/** Entries flagged "Hiện trên trang chủ" in the admin, in menu order. */
+export const MultiCategorySection: React.FC = () => {
+  const { tree } = useMenu();
+  const desktop = useIsDesktop();
+  const featured = useMemo(
+    () => tree.flatMap((root) => [root, ...root.children]).filter((c) => c.showOnHome && c.pageType !== 'LINK').slice(0, MAX_COLUMNS),
+    [tree],
+  );
+  if (featured.length === 0) return null;
+
+  return (
+    <section className="relative isolate overflow-hidden pt-14 pb-6 sm:pt-20 sm:pb-10">
+      {/* Colour wash, dot grid and slowly floating shapes */}
+      <div className="bg-aurora absolute inset-0 -z-10" aria-hidden="true" />
+      <div className="bg-dots-brand absolute inset-0 -z-10 [mask-image:linear-gradient(180deg,transparent,#000_30%,#000_70%,transparent)]" aria-hidden="true" />
+      <div className="pointer-events-none absolute inset-0 -z-10 hidden sm:block" aria-hidden="true">
+        <span className="absolute left-[2%] top-[42%] size-16 animate-float rounded-2xl border-4 border-sky-300/50 [rotate:12deg]" />
+        <span className="absolute right-[8%] top-24 size-10 animate-float rounded-full bg-gold-300/60 [animation-delay:-2s]" />
+        <span className="absolute bottom-20 left-[12%] size-6 animate-float rounded-full bg-violet-400/50 [animation-delay:-4s]" />
+        <span className="absolute -right-24 bottom-[-6rem] size-72 animate-orbit rounded-full border-2 border-dashed border-flame-300/40" />
+      </div>
+
+      <Container>
+        <Reveal>
+          <SectionHeading
+            icon={Compass}
+            eyebrow="Khám phá"
+            title="Chuyên mục nổi bật"
+            description="Hoạt động, thành tích và thông tin mới nhất theo từng lĩnh vực của nhà trường."
+          />
+        </Reveal>
+        {desktop ? (
+          <div className="grid grid-cols-4 gap-5">
+            {featured.map((category, index) => (
+              <Reveal key={category.id} delay={(index % 4) * 90} className="h-full">
+                <CategoryCard category={category} tone={toneAt(index)} />
+              </Reveal>
+            ))}
+          </div>
+        ) : (
+          <Reveal>
+            <Coverflow
+              items={featured}
+              itemKey={(category) => category.id}
+              itemLabel={(category) => category.name}
+              itemTone={(_, index) => toneAt(index)}
+              renderItem={(category, index) => <CategoryCard category={category} tone={toneAt(index)} />}
+              label="Chuyên mục nổi bật"
+              interval={6000}
+            />
+          </Reveal>
+        )}
+      </Container>
+    </section>
+  );
+};

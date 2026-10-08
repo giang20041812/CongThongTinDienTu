@@ -1,307 +1,374 @@
 @import "tailwindcss";
 
-/* ===============================================
-   THPT ĐẶNG TRẦN ĐỨC - Color Palette
-   Primary: Portal Blue  #0052cc
-   Secondary: Sky Blue #00d2ff
-   Accent: White       #FFFFFF
-   Dark Blue:          #0026e6
-   Light Blue:         #EAF3F8
-   =============================================== */
+/* =====================================================================
+   THPT ĐẶNG TRẦN ĐỨC — design tokens taken from the school logo
+   brand  #0A4AA0  navy of the "ĐTĐ" letters
+   gold   #F8C108  the rising sun
+   flame  #E8192A  the torch flame
+   Every font family resolves to Be Vietnam Pro, so stray font-mono /
+   font-serif utilities can never break typographic consistency.
+   ===================================================================== */
+@theme {
+  --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+
+  --color-brand-50: #eef4fc;
+  --color-brand-100: #dae6f8;
+  --color-brand-200: #b6cdef;
+  --color-brand-300: #85abe2;
+  --color-brand-400: #5083d0;
+  --color-brand-500: #2a63bd;
+  --color-brand-600: #0a4aa0;
+  --color-brand-700: #083d86;
+  --color-brand-800: #07306a;
+  --color-brand-900: #062551;
+  --color-brand-950: #041a3a;
+
+  --color-gold-50: #fff9e6;
+  --color-gold-100: #fef0c2;
+  --color-gold-200: #fde28a;
+  --color-gold-300: #fbd24d;
+  --color-gold-400: #f8c108;
+  --color-gold-500: #e0a900;
+  --color-gold-600: #b88800;
+  --color-gold-700: #8c6700;
+
+  --color-flame-50: #fef1f2;
+  --color-flame-100: #fddde0;
+  --color-flame-200: #fab7bd;
+  --color-flame-400: #ef4a57;
+  --color-flame-500: #e8192a;
+  --color-flame-600: #c8101f;
+  --color-flame-700: #a10d19;
+
+  --color-ink: #0e1b30;
+  --color-body: #3a4a63;
+  --color-muted: #66758c;
+  --color-line: #e2e8f1;
+  --color-surface: #f5f8fc;
+
+  --shadow-card: 0 1px 2px rgb(10 40 90 / 0.04), 0 6px 18px -6px rgb(10 40 90 / 0.08);
+  --shadow-card-hover: 0 2px 6px rgb(10 40 90 / 0.06), 0 18px 36px -12px rgb(10 40 90 / 0.18);
+  --shadow-nav: 0 6px 20px -8px rgb(4 26 58 / 0.45);
+
+  --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  --animate-marquee: marquee var(--marquee-duration, 40s) linear infinite;
+  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+  --animate-fade-up: fade-up 0.5s var(--ease-soft) both;
+  --animate-rise: rise 0.7s var(--ease-soft) both;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-drift: drift 22s ease-in-out infinite;
+  --animate-orbit: orbit 30s linear infinite;
+  --animate-ring: ring 3.2s ease-in-out infinite;
+  --animate-twinkle: twinkle 2.4s ease-in-out infinite;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+/* Ends on `transform: none` so animated wrappers don't keep a containing block for sticky/fixed children. */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes slide-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes dialog-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+/* Slow wander of the soft colour blobs behind sections */
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(6%, -8%) scale(1.08); }
+  66% { transform: translate(-6%, 5%) scale(0.94); }
+}
+@keyframes orbit {
+  to { transform: rotate(360deg); }
+}
+/* A phone that rings twice, then rests */
+@keyframes ring {
+  0%, 36%, 100% { transform: rotate(0); }
+  4%, 12%, 20%, 28% { transform: rotate(-14deg); }
+  8%, 16%, 24%, 32% { transform: rotate(14deg); }
+}
+@keyframes twinkle {
+  0%, 100% { transform: scale(1) rotate(0); opacity: 1; }
+  50% { transform: scale(0.72) rotate(45deg); opacity: 0.7; }
+}
+
 
 @layer base {
-  * {
-    border-radius: 0px !important;
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-    color: #17324D;
-    background-color: #F3F3F3;
+    font-family: var(--font-sans);
+    color: var(--color-body);
+    background-color: var(--color-surface);
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    letter-spacing: -0.015em;
-    transition: color 150ms ease, text-decoration-color 150ms ease;
+    color: var(--color-ink);
+    letter-spacing: -0.012em;
+    text-wrap: balance;
   }
 
-  h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
-    color: #0026e6 !important;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 3px;
+  ::selection {
+    background: var(--color-brand-600);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold-400);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  button {
+    cursor: pointer;
   }
 }
 
-/* Custom modern sharp scrollbars - Navy/Gold theme */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #EAF3F8;
-}
+/* Soft branded scrollbars */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--color-surface); }
 ::-webkit-scrollbar-thumb {
-  background: #0052cc;
+  background: var(--color-brand-200);
+  border-radius: 999px;
+  border: 2px solid var(--color-surface);
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #0026e6;
-}
+::-webkit-scrollbar-thumb:hover { background: var(--color-brand-400); }
 
-/* Subtle modern background grids - Blue theme */
-.bg-edu-grid {
-  background-image: 
-    linear-gradient(to right, rgba(11, 120, 181, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(11, 120, 181, 0.04) 1px, transparent 1px);
-  background-size: 32px 32px;
-}
-
-.bg-blueprint-lines {
-  background-image: 
-    repeating-linear-gradient(0deg, transparent, transparent 47px, rgba(11, 120, 181, 0.035) 48px, transparent 49px),
-    repeating-linear-gradient(90deg, transparent, transparent 47px, rgba(11, 120, 181, 0.035) 48px, transparent 49px);
-}
-
-.bg-dot-matrix {
-  background-image: radial-gradient(rgba(11, 120, 181, 0.08) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-
-.scrollbar-none::-webkit-scrollbar {
-  display: none;
-}
-.scrollbar-none {
+@utility scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
 }
 
-/* Sharp hairline accent borders - Blue theme */
-.border-edu-blue {
-  border-color: #0052cc;
+/* Faint academic dot pattern used on brand bands */
+@utility bg-dots {
+  background-image: radial-gradient(rgb(255 255 255 / 0.12) 1px, transparent 1px);
+  background-size: 18px 18px;
 }
-.border-edu-gold {
-  border-color: #00d2ff;
-}
-.border-edu-subtle {
-  border-color: #C9DDE8;
+@utility bg-dots-brand {
+  background-image: radial-gradient(rgb(10 74 160 / 0.08) 1px, transparent 1px);
+  background-size: 18px 18px;
 }
 
-/* Subtle gentle floating animation for background elements */
-@keyframes slowDrift {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
+/* Thin navy · gold · flame stripe echoing the logo colours */
+@utility brand-stripe {
+  background: linear-gradient(90deg,
+    var(--color-brand-600) 0 70%,
+    var(--color-gold-400) 70% 88%,
+    var(--color-flame-500) 88% 100%);
+}
+
+/* Skeleton placeholder */
+@utility skeleton {
+  border-radius: 0.75rem;
+  background: linear-gradient(90deg, #e9eef6 25%, #f4f7fb 50%, #e9eef6 75%);
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+/* Soft multi-colour wash (sky · violet · gold · rose) for feature bands */
+@utility bg-aurora {
+  background-color: #f7faff;
+  background-image:
+    radial-gradient(38% 55% at 6% 10%, rgb(56 189 248 / 0.2), transparent 70%),
+    radial-gradient(32% 50% at 94% 6%, rgb(167 139 250 / 0.22), transparent 70%),
+    radial-gradient(40% 55% at 88% 96%, rgb(251 191 36 / 0.2), transparent 70%),
+    radial-gradient(34% 45% at 10% 94%, rgb(244 63 94 / 0.13), transparent 70%);
+}
+
+/* Coloured drop shadow in the element's tone (see lib/tones.ts) */
+@utility tone-glow {
+  box-shadow: 0 10px 22px -8px color-mix(in oklab, var(--tone, #3b82f6) 65%, transparent);
+}
+
+/* Glow that follows the pointer inside a card, in the card's tone; position from trackPointer() */
+@utility spotlight {
+  isolation: isolate;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), color-mix(in oklab, var(--tone, #3b82f6) 15%, transparent), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.5s var(--ease-soft);
+    pointer-events: none;
   }
-  50% {
-    transform: translateY(-8px) rotate(1deg);
+  &:hover::before { opacity: 1; }
+}
+
+/* 3D tilt towards the pointer – mouse/trackpad only, never on touch or with reduced motion */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .tilt:hover {
+    transform: perspective(900px) rotateX(calc((0.5 - var(--py, 0.5)) * 7deg)) rotateY(calc((var(--px, 0.5) - 0.5) * 9deg));
   }
 }
 
-@keyframes pulseLaser {
-  0%, 100% {
-    opacity: 0.25;
-  }
-  50% {
-    opacity: 0.6;
-  }
+/* Light sweep across an image (SmartImage wrapper) when its card or link is hovered */
+.shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.38) 48%, rgb(255 255 255 / 0.38) 52%, transparent 70%);
+  transform: translateX(-110%);
+  pointer-events: none;
+}
+.spotlight:hover .shine::after,
+a:hover .shine::after {
+  transform: translateX(110%);
+  transition: transform 1s var(--ease-soft);
 }
 
-@keyframes marqueeSlide {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
+/* Gradient underline of section headings: draws in when its Reveal wrapper appears */
+.heading-bar {
+  transform-origin: left;
+  transition: transform 0.9s var(--ease-soft) 0.25s;
+}
+.reveal:not(.is-visible) .heading-bar { transform: scaleX(0); }
+
+/* ---------------------------------------------------------------------
+   3D coverflow carousel (components/Coverflow.tsx). Slides share one
+   grid cell, so the deck is as tall as its tallest card. Each slide is
+   placed by --o (its distance from the centre card, set by React) minus
+   --drag (the live swipe distance): side cards turn towards the centre,
+   sink back and fade; cards further out are invisible.
+   --------------------------------------------------------------------- */
+.coverflow {
+  --cf-width: 72%;
+  --cf-step: 74%;
+  --cf-speed: 0.75s;
+  --drag: 0;
+  display: grid;
+  perspective: 1100px;
+  touch-action: pan-y pinch-zoom;
+}
+@media (min-width: 640px) {
+  .coverflow { --cf-width: 52%; --cf-step: 78%; }
+}
+@media (min-width: 768px) {
+  .coverflow { --cf-width: 42%; --cf-step: 84%; perspective: 1400px; }
+}
+.coverflow[data-jumping] { --cf-speed: 0.3s; }
+
+.coverflow-slide {
+  --d: clamp(-2.5, calc(var(--o) - var(--drag)), 2.5);
+  --far: max(var(--d), calc(var(--d) * -1));
+  position: relative;
+  /* Nearest card on top – it also swaps mid-swipe, once the incoming card passes halfway */
+  z-index: calc(100 - var(--far) * 20);
+  grid-area: 1 / 1;
+  justify-self: center;
+  width: var(--cf-width);
+  transform: translate3d(calc(var(--d) * var(--cf-step)), 0, calc(var(--far) * -170px)) rotateY(calc(var(--d) * -32deg));
+  /* centre 1 · side cards 0.55 · anything further 0 */
+  opacity: clamp(0, calc(1.45 - var(--far) * 0.9), 1);
+  transition: transform var(--cf-speed) var(--ease-soft), opacity var(--cf-speed) var(--ease-soft);
+}
+.coverflow[data-dragging] .coverflow-slide { transition: none; }
+.coverflow-slide[data-pos='far'] { pointer-events: none; }
+
+/* Scroll-reveal: elements fade up once when they enter the viewport */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s var(--ease-soft), transform 0.6s var(--ease-soft);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
 }
 
-@keyframes goldShimmer {
-  0%, 100% {
-    background-position: -200% center;
-  }
-  50% {
-    background-position: 200% center;
-  }
+/* Long-form article typography */
+.prose-article p {
+  margin: 0 0 1.1em;
+  line-height: 1.85;
+  font-size: 1.0625rem;
+  color: #2b3a52;
+}
+.prose-article p:last-child { margin-bottom: 0; }
+.prose-article figure { margin: 1.75rem 0; }
+.prose-article figcaption {
+  margin-top: 0.6rem;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  font-style: italic;
 }
 
-.animate-slow-drift {
-  animation: slowDrift 14s ease-in-out infinite;
-}
-
-.animate-slow-drift-reverse {
-  animation: slowDrift 18s ease-in-out infinite reverse;
-}
-
-.animate-pulse-laser {
-  animation: pulseLaser 4s ease-in-out infinite;
-}
-
-.animate-marquee {
-  display: flex;
-  width: 200%;
-  animation: marqueeSlide 30s linear infinite;
-}
-
-/* Header chỉ giữ phần nhận diện; navigation được đặt sau banner trên trang chủ. */
-header > .header-navigation,
-header > .header-mobile-menu,
-header > .header-nav-accent {
-  display: none;
-}
-
-/* Admin workspace */
-.admin-input,
-.admin-select {
-  width: 100%;
-  border: 1px solid #d8e3ec;
-  background: #fff;
-  color: #17324d;
-  padding: 0.68rem 0.8rem;
-  outline: none;
-  font-size: 0.82rem;
-}
-.admin-input:focus,
-.admin-select:focus { border-color: #0052cc; box-shadow: 0 0 0 3px rgba(11,120,181,.1); }
-.admin-input-icon { position: absolute; left: .75rem; top: .72rem; color: #8da0b3; }
-.label-admin { display: block; color: #536b80; font-weight: 700; font-size: .7rem; margin-bottom: .4rem; }
-.admin-primary { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; background: #0052cc; color: #fff; padding: .7rem 1rem; font-size: .75rem; font-weight: 800; transition: background .15s ease; }
-.admin-primary:hover { background: #0026e6; }
-.admin-secondary { display: inline-flex; align-items: center; gap: .4rem; padding: .7rem 1rem; font-size: .75rem; font-weight: 800; color: #536b80; background: #eef3f7; }
-.filter-chip { border: 1px solid #e0e8ef; color: #71849b; padding: .45rem .7rem; font-size: .7rem; font-weight: 700; background: #fff; }
-.filter-chip:hover, .filter-chip.active { color: #0052cc; border-color: #8fc7e4; background: #eaf5fb; }
-.lost-found-header-actions > button:nth-child(1),
-.lost-found-header-actions > button:nth-child(2) { display: none; }
-@media (max-width: 767px) {
-  .lost-found-track {
-    padding-inline: calc(50% - 112px);
-    scroll-snap-type: x mandatory;
-  }
-  .lost-found-card { scroll-snap-align: center; }
-}
-@media (min-width: 640px) and (max-width: 767px) {
-  .lost-found-track { padding-inline: calc(50% - 128px); }
-}
-.header-brand-lockup {
-  display: none;
-}
-.header-search-under-nav {
-  display: none;
-}
-.navigation-search-row {
-  display: none;
-}
-
-.animate-marquee:hover {
+.marquee-track:hover,
+.marquee-track:focus-within {
   animation-play-state: paused;
 }
 
-/* Gold shimmer effect for accents */
-.gold-shimmer {
-  background: linear-gradient(90deg, #00d2ff, #BFE8F7, #00d2ff, #0052cc);
-  background-size: 200% auto;
-  animation: goldShimmer 3s linear infinite;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal { opacity: 1; transform: none; }
 }
 
-/* School header gradient */
-.school-header-gradient {
-  background: linear-gradient(135deg, #0052cc 0%, #0026e6 50%, #0052cc 100%);
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; }
+  .reveal { opacity: 1 !important; transform: none !important; }
 }
 
-/* Blue accent bar */
-.gold-accent-bar {
-  background: linear-gradient(90deg, #0026e6, #0052cc, #0026e6);
+/* ---------------------------------------------------------------------
+   Admin workspace (kept as-is: the admin app relies on these classes)
+   --------------------------------------------------------------------- */
+/* In the components layer so Tailwind utilities on the same element (e.g. pl-10) still win. */
+@layer components {
+  .admin-input,
+  .admin-select {
+    width: 100%;
+    border: 1px solid #d8e3ec;
+    background: #fff;
+    color: #17324d;
+    padding: 0.68rem 0.8rem;
+    outline: none;
+    font-size: 0.82rem;
+  }
+  .admin-input:focus,
+  .admin-select:focus { border-color: #0052cc; box-shadow: 0 0 0 3px rgba(11,120,181,.1); }
+  .admin-input-icon { position: absolute; left: .75rem; top: .72rem; color: #8da0b3; }
+  .label-admin { display: block; color: #536b80; font-weight: 700; font-size: .7rem; margin-bottom: .4rem; }
+  .admin-primary { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; background: #0052cc; color: #fff; padding: .7rem 1rem; font-size: .75rem; font-weight: 800; transition: background .15s ease; }
+  .admin-primary:hover { background: #0026e6; }
+  .admin-secondary { display: inline-flex; align-items: center; gap: .4rem; padding: .7rem 1rem; font-size: .75rem; font-weight: 800; color: #536b80; background: #eef3f7; }
+  .filter-chip { border: 1px solid #e0e8ef; color: #71849b; padding: .45rem .7rem; font-size: .7rem; font-weight: 700; background: #fff; }
+  .filter-chip:hover, .filter-chip.active { color: #0052cc; border-color: #8fc7e4; background: #eaf5fb; }
 }
-
-/* Dynamic Vibrant Colors & Animations */
-:root {
-  --color-primary: #0052cc;
-  --color-primary-dark: #0026e6;
-  --color-secondary: #00a3bf;
-  --color-accent: #ff9900;
-  --color-danger: #e63946;
-  --color-success: #2a9d8f;
-  --color-warning: #e9c46a;
-  --color-purple: #7209b7;
-  --color-pink: #f72585;
-}
-
-/* Gradients */
-.bg-gradient-brand {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
-}
-.bg-gradient-accent {
-  background: linear-gradient(135deg, #ff9900 0%, #ff5500 100%);
-}
-.bg-gradient-success {
-  background: linear-gradient(135deg, #2a9d8f 0%, #21867a 100%);
-}
-.bg-gradient-purple {
-  background: linear-gradient(135deg, #7209b7 0%, #480ca8 100%);
-}
-.bg-gradient-pink {
-  background: linear-gradient(135deg, #f72585 0%, #b5179e 100%);
-}
-
-.text-gradient {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.text-gradient-accent {
-  background: linear-gradient(135deg, #ff9900, #ff5500);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Hover effects */
-.hover-lift {
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
-}
-.hover-lift:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px -5px rgba(0, 82, 204, 0.15), 0 8px 10px -6px rgba(0, 82, 204, 0.1);
-}
-
-.glass-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-}
-
-/* Removing rigid background overrides that made the site dull */
-
-/* Footer contrast overrides. Legacy footer utilities are intentionally kept in
-   the component, so scope the readable portal palette to this region only. */
-footer {
-  background-color: #0026e6 !important;
-  color: #EAF3F8 !important;
-  border-top-color: #BFE8F7 !important;
-}
-footer [class*="text-[#bfdbfe]"],
-footer [class*="text-[#93c5fd]"],
-footer [class*="text-[#6b82b8]"] {
-  color: #EAF3F8 !important;
-}
-footer [class*="text-[#ff9900]"] {
-  color: #BFE8F7 !important;
-}
-footer [class*="border-[#002060]"],
-footer [class*="border-[#0052cc]"] {
-  border-color: #0052cc !important;
-}
-footer [class*="bg-[#002060]"],
-footer [class*="bg-[#0052cc]"] {
-  background-color: #0052cc !important;
-}
-
-/* Recolor the inline educational graphics used by the image placeholders. */
-svg [stroke="#0052cc"] { stroke: #0052cc; }
-svg [stroke="#0026e6"] { stroke: #0026e6; }
-svg [fill="#0052cc"] { fill: #0052cc; }
-svg [fill="#0026e6"] { fill: #0026e6; }
