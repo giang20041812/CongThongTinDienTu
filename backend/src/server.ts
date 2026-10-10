@@ -24,9 +24,8 @@ async function main() {
   await hashPlaintextPasswords();
 
   const app = createApp(createServices());
-  const server = app.listen(config.port, () => {
-    console.log(`[http] Cổng thông tin đang chạy tại http://localhost:${config.port}`);
-  });
+  const onListening = () => console.log(`[http] Cổng thông tin đang chạy tại http://${config.host || 'localhost'}:${config.port}`);
+  const server = config.host ? app.listen(config.port, config.host, onListening) : app.listen(config.port, onListening);
 
   const shutdown = (signal: string) => {
     console.log(`[http] Nhận ${signal}, đang dừng...`);

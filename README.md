@@ -29,6 +29,33 @@ Database cục bộ nhanh nhất: `docker compose up db` (PostgreSQL ở cổng 
 | `npm test` | Unit test của backend |
 | `npm run db:migrate` | Áp dụng migration mà không khởi động server |
 
+## Triển khai lên VPS (Ubuntu 22.04/24.04)
+
+App chỉ cần khoảng 80MB RAM khi rảnh và 250MB khi tải nặng (DB ở Supabase, tệp ở Cloudinary), nên VPS 1 core / 1,5GB RAM là đủ. Thư mục `deploy/` có sẵn mọi thứ: Nginx đứng trước app (HTTPS bằng Let's Encrypt), app chạy như dịch vụ systemd `portal` và chỉ nghe ở `127.0.0.1:8080`.
+
+**Cài lần đầu** – SSH vào VPS bằng root:
+
+```bash
+git clone https://github.com/giang20041812/CongThongTinDienTu.git /root/portal-src
+bash /root/portal-src/deploy/setup-vps.sh ten-mien-cua-truong.edu.vn   # swap, Node 22, Nginx, tường lửa, dịch vụ
+nano /srv/portal/shared/.env                                          # điền DATABASE_URL, CLOUDINARY_* (APP_AUTH_SECRET đã tự sinh)
+bash /root/portal-src/deploy/deploy.sh                                # deploy lần đầu
+```
+
+Sau đó ở chỗ quản lý tên miền, tạo **bản ghi A** cho `ten-mien` và `www.ten-mien`, trỏ về IP của VPS. Khi `ping ten-mien` đã ra đúng IP thì bật HTTPS: `certbot --nginx -d ten-mien -d www.ten-mien --redirect`. Chứng chỉ tự gia hạn.
+
+**Cập nhật web** sau khi push code lên `main`: `sudo portal-deploy`.
+
+- Mỗi lần deploy, code được tải và build ở một thư mục riêng (`/srv/portal/releases/<thời điểm>`). Build hỏng thì web vẫn chạy bản cũ. Bản mới không khởi động được thì tự quay lại bản cũ.
+- Web chỉ gián đoạn vài giây lúc khởi động lại.
+- Quay lại bản trước: `sudo portal-deploy rollback` (giữ 3 bản gần nhất; chỉ đổi code, không gỡ migration DB).
+
+| Việc | Lệnh |
+|---|---|
+| Xem log | `journalctl -u portal -f` |
+| Khởi động lại (vd. sau khi sửa `.env`) | `sudo systemctl restart portal` |
+| Trạng thái | `systemctl status portal nginx` |
+
 ## Triển khai lên Vibe Hosting (Mắt Bão, Nhân Hòa…)
 
 1. Đẩy mã nguồn lên GitHub.
