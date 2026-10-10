@@ -57,6 +57,7 @@ Hosting hỗ trợ Dockerfile có thể dùng `Dockerfile` ở gốc repo. Chạ
 ## Cơ sở dữ liệu
 
 - Schema nằm trong `backend/db/migrations/*.sql`. Server tự áp dụng file mới khi khởi động (tắt bằng `DB_MIGRATE_ON_START=false`) và ghi lại vào bảng `schema_migrations`. Muốn đổi schema thì **thêm file mới** `000N_ten.sql`, không sửa file đã chạy.
+- **Row Level Security**: mọi bảng đều bật RLS mà không có policy, và role `anon`/`authenticated` không có quyền nào (`0003_rls.sql`). Ai có anon key cũng không đọc/ghi được dữ liệu qua API của Supabase. Website chỉ truy cập DB qua backend Node (role `postgres` là chủ bảng nên không bị RLS chặn). Vì web không dùng Data API, có thể tắt hẳn ở Supabase → *Project Settings* → *Data API*.
 - Database do bản Java (Liquibase) tạo được nhận nguyên trạng, không chạy lại dữ liệu mẫu. Hai bảng `databasechangelog` và `databasechangeloglock` không còn dùng, xoá được khi không cần quay lại bản Java.
 - **Đổi / quên mật khẩu admin**: trong Supabase → SQL Editor chạy
   `UPDATE users SET password_hash = 'mat-khau-moi' WHERE username = 'admin';`
