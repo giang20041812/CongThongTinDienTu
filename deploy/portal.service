@@ -1,0 +1,26 @@
+# systemd: chạy website như một dịch vụ (tự khởi động cùng VPS, tự chạy lại khi lỗi).
+# setup-vps.sh chép file này vào /etc/systemd/system/portal.service.
+# Log: journalctl -u portal -f
+[Unit]
+Description=Cong thong tin dien tu (Node.js)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=portal
+Group=portal
+# "current" trỏ tới bản phát hành đang chạy (deploy.sh đổi nó mỗi lần deploy).
+WorkingDirectory=/srv/portal/current
+# Chỉ nghe ở 127.0.0.1: bên ngoài phải đi qua Nginx (HTTPS). Các biến còn lại nằm trong /srv/portal/shared/.env.
+Environment=NODE_ENV=production HOST=127.0.0.1 PORT=8080
+ExecStart=/usr/bin/node --enable-source-maps backend/dist/server.js
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
