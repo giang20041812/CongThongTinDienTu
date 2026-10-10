@@ -115,6 +115,8 @@ function timeZone(): string {
 
 export const config = {
   port: int('PORT', 8080),
+  /** Interface to listen on; empty = all. 127.0.0.1 on a VPS, where only Nginx may reach the app. */
+  host: text('HOST'),
   db: dbConfig(),
   dbPoolSize: Math.max(1, int('DB_POOL_SIZE', 10)),
   dbAppName: text('DB_APP_NAME', 'portal'),
