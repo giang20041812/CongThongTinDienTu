@@ -19,6 +19,7 @@ import { CategoryService } from './services/categories.js';
 import { PostService } from './services/posts.js';
 import { TimetableService } from './services/timetable.js';
 import { type FileStorage, createStorage } from './storage/index.js';
+import { UPLOADS_PATH } from './storage/local.js';
 
 export interface Services {
   cache: ContentCache;
@@ -120,6 +121,8 @@ export function createApp(services: Services) {
   });
   app.use(compression());
   app.use('/api', apiRouter(services));
+  // Files of STORAGE_PROVIDER=local (on a VPS Nginx serves them before they get here). Names are never reused.
+  app.use(UPLOADS_PATH, express.static(config.storage.local.dir, { index: false, immutable: true, maxAge: '1y', fallthrough: false }));
   serveFrontend(app);
   app.use(staticErrorHandler);
   return app;

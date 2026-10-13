@@ -8,6 +8,9 @@ dist/
 .env.*
 !.env.example
 
+# Files of STORAGE_PROVIDER=local when running on this machine.
+uploads/
+
 # Business documents and database dumps: never commit them.
 *.docx
 scripts/backup/
