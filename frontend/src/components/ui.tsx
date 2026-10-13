@@ -98,7 +98,7 @@ interface SmartImageProps {
   placeholderLabel?: string;
 }
 
-/** Lazy, resized (Cloudinary/Unsplash), fades in on load and falls back to a branded placeholder. */
+/** Lazy, resized (Cloudinary, /uploads copies, Unsplash), fades in on load and falls back to a branded placeholder. */
 export const SmartImage: React.FC<SmartImageProps> = ({
   src,
   alt,

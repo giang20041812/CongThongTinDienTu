@@ -139,5 +139,9 @@ export const config = {
       apiSecret: text('CLOUDINARY_API_SECRET'),
       url: text('CLOUDINARY_URL'),
     },
+    /** STORAGE_PROVIDER=local: files on this server's disk, served at /uploads. */
+    local: {
+      dir: path.resolve(text('UPLOAD_DIR') || path.join(BACKEND_ROOT, '..', 'uploads')),
+    },
   },
 };
