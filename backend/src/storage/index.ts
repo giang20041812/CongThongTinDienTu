@@ -1,5 +1,6 @@
 import { config } from '../config.js';
 import { cloudinaryStorage } from './cloudinary.js';
+import { localStorage } from './local.js';
 
 export interface StoredFile {
   /** Public (https) URL saved in the posts – it must stay valid for as long as the content exists. */
@@ -14,10 +15,10 @@ export interface UploadInput {
 }
 
 /**
- * Where uploaded images and attachments are kept. The server's own disk is not an option: hosting containers
- * lose it on every redeploy. To move to another provider (S3-compatible storage, Supabase Storage...), add an
- * implementation next to cloudinary.ts and select it with STORAGE_PROVIDER – existing URLs keep working as long
- * as the old provider keeps serving them.
+ * Where uploaded images and attachments are kept (STORAGE_PROVIDER): "cloudinary", or "local" = this server's disk,
+ * which only a VPS keeps (hosting containers lose it on every redeploy). Another provider = an implementation next
+ * to these. Existing URLs keep working as long as the old provider keeps serving them; `cli.js import-cloudinary`
+ * copies Cloudinary files to the local disk and rewrites their URLs.
  */
 export interface FileStorage {
   readonly name: string;
@@ -31,7 +32,9 @@ export function createStorage(): FileStorage {
   switch (config.storage.provider) {
     case 'cloudinary':
       return cloudinaryStorage(config.storage.cloudinary);
+    case 'local':
+      return localStorage(config.storage.local);
     default:
-      throw new Error(`STORAGE_PROVIDER "${config.storage.provider}" chưa được hỗ trợ (hiện có: cloudinary).`);
+      throw new Error(`STORAGE_PROVIDER "${config.storage.provider}" chưa được hỗ trợ (hiện có: cloudinary, local).`);
   }
 }

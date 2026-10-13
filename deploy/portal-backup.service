@@ -1,0 +1,11 @@
+# Backup DB + ảnh/tệp (deploy/backup.sh), chạy bởi portal-backup.timer. Log: journalctl -u portal-backup
+[Unit]
+Description=Backup cong thong tin (DB + anh/tep) len Google Drive
+After=postgresql.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /srv/portal/current/deploy/backup.sh
+Nice=10
+IOSchedulingClass=idle

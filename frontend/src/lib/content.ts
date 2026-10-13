@@ -110,12 +110,21 @@ export const splitParagraphs = (text: string) =>
     .map((p) => p.trim())
     .filter(Boolean);
 
+/** Smaller copies stored next to each image uploaded to our own server ("<name>-400.webp"); same as IMAGE_WIDTHS in backend/src/storage/local.ts. */
+const LOCAL_IMAGE_WIDTHS = [400, 800];
+
 /**
- * Serves Cloudinary images resized, in modern formats (WebP/AVIF) and over HTTPS;
+ * Serves Cloudinary images resized, in modern formats (WebP/AVIF) and over HTTPS; picks the smallest
+ * stored copy that is wide enough for images on our own server (/uploads/images/...);
  * resizes Unsplash images via their URL params. Other URLs pass through unchanged.
  */
 export const optimizeImage = (url: string | undefined, width: number): string | undefined => {
   if (!url) return undefined;
+  const local = /^(.*\/uploads\/images\/[^?#]+)\.webp$/.exec(url);
+  if (local && !/-\d+$/.test(local[1])) {
+    const copy = LOCAL_IMAGE_WIDTHS.find((w) => width <= w);
+    return copy ? `${local[1]}-${copy}.webp` : url;
+  }
   let result = url.replace(/^http:\/\/res\.cloudinary\.com/, 'https://res.cloudinary.com');
   if (/res\.cloudinary\.com\/[^/]+\/image\/upload\//.test(result) && !/\/upload\/[a-z]_[^/]*\//.test(result)) {
     result = result.replace('/image/upload/', `/image/upload/f_auto,q_auto,c_limit,w_${width}/`);

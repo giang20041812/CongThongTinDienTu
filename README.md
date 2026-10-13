@@ -4,8 +4,8 @@ Website nhà trường và trang quản trị, chạy thành **một app Node.js
 
 - `frontend/` – giao diện React (Vite, TypeScript, Tailwind), build ra `frontend/dist`.
 - `backend/` – API Node.js (Express 5, TypeScript) ở `/api/*`, đồng thời phục vụ bản build của frontend.
-- Cơ sở dữ liệu: PostgreSQL trên **Supabase** (hoặc bất kỳ PostgreSQL nào).
-- Ảnh và tệp đính kèm: **Cloudinary**.
+- Cơ sở dữ liệu: PostgreSQL – trên VPS (cách triển khai chính), hoặc Supabase / bất kỳ PostgreSQL nào.
+- Ảnh và tệp đính kèm: ổ đĩa của VPS (`STORAGE_PROVIDER=local`) hoặc **Cloudinary**.
 
 Không còn Java/Spring Boot: API giữ nguyên từng đường dẫn và từng trường JSON của bản cũ, dữ liệu Supabase hiện có dùng tiếp được, không cần chuyển đổi.
 
@@ -31,18 +31,55 @@ Database cục bộ nhanh nhất: `docker compose up db` (PostgreSQL ở cổng 
 
 ## Triển khai lên VPS (Ubuntu 22.04/24.04)
 
-App chỉ cần khoảng 80MB RAM khi rảnh và 250MB khi tải nặng (DB ở Supabase, tệp ở Cloudinary), nên VPS 1 core / 1,5GB RAM là đủ. Thư mục `deploy/` có sẵn mọi thứ: Nginx đứng trước app (HTTPS bằng Let's Encrypt), app chạy như dịch vụ systemd `portal` và chỉ nghe ở `127.0.0.1:8080`.
+Mọi thứ nằm trên một VPS (khuyên dùng 2 core / 2,5GB RAM / 40GB):
+
+- **Nginx** đứng trước, lo HTTPS (Let's Encrypt) và phục vụ thẳng ảnh/tệp ở `/uploads`.
+- **App Node** là dịch vụ systemd `portal`, chỉ nghe ở `127.0.0.1:8080`.
+- **PostgreSQL 17** chỉ nghe trong máy.
+- **Ảnh/tệp** nằm ở `/srv/portal/shared/uploads`. Ảnh được thu nhỏ ngay lúc tải lên thành WebP 1600/800/400px.
+- **Backup** chạy mỗi đêm lúc 2:30 và đẩy lên Google Drive.
+
+Đo thực tế: app khoảng 80MB RAM khi rảnh và 250MB khi tải nặng, Postgres khoảng 80MB. Mọi file cấu hình nằm trong `deploy/`.
 
 **Cài lần đầu** – SSH vào VPS bằng root:
 
 ```bash
 git clone https://github.com/giang20041812/CongThongTinDienTu.git /root/portal-src
-bash /root/portal-src/deploy/setup-vps.sh ten-mien-cua-truong.edu.vn   # swap, Node 22, Nginx, tường lửa, dịch vụ
-nano /srv/portal/shared/.env                                          # điền DATABASE_URL, CLOUDINARY_* (APP_AUTH_SECRET đã tự sinh)
-bash /root/portal-src/deploy/deploy.sh                                # deploy lần đầu
+bash /root/portal-src/deploy/setup-vps.sh ten-mien-cua-truong.edu.vn  # swap, Node 22, PostgreSQL, Nginx, tường lửa, dịch vụ
+bash /root/portal-src/deploy/import-supabase.sh                      # chỉ khi chuyển từ Supabase sang (xem dưới)
+bash /root/portal-src/deploy/deploy.sh                               # deploy lần đầu
 ```
 
+`setup-vps.sh` tự tạo database, mật khẩu và `APP_AUTH_SECRET` trong `/srv/portal/shared/.env`, nên không cần điền tay. Nếu là web mới (không chuyển dữ liệu), lần chạy đầu sẽ có tài khoản `admin` / `admin123` – **đổi mật khẩu ngay**.
+
 Sau đó ở chỗ quản lý tên miền, tạo **bản ghi A** cho `ten-mien` và `www.ten-mien`, trỏ về IP của VPS. Khi `ping ten-mien` đã ra đúng IP thì bật HTTPS: `certbot --nginx -d ten-mien -d www.ten-mien --redirect`. Chứng chỉ tự gia hạn.
+
+**Chuyển từ Supabase + Cloudinary** (làm một lần, trong lúc đó đừng sửa nội dung ở web cũ):
+
+1. `bash /root/portal-src/deploy/import-supabase.sh`. Script hỏi chuỗi kết nối (Supabase → **Connect** → *Session pooler*, cổng 5432) rồi chép toàn bộ bảng của app sang DB trên VPS. Supabase chỉ bị đọc, không bị sửa.
+2. Deploy lần đầu như trên.
+3. Chép ảnh/tệp từ Cloudinary về VPS và sửa link trong bài:
+   `sudo -u portal -H bash -c 'cd /srv/portal/current && node backend/dist/cli.js import-cloudinary' && systemctl restart portal`.
+   Chạy lại bao nhiêu lần cũng được: link nào đã chuyển thì bỏ qua.
+4. Trỏ tên miền về VPS. Giữ Supabase và Cloudinary thêm khoảng 1 tháng làm dự phòng rồi mới xoá.
+
+**Backup lên Google Drive** – nối một lần, chạy `rclone config` bằng root trên VPS:
+
+1. Chọn `n` (remote mới), đặt tên **`gdrive`**, kiểu `drive`. Bỏ trống client_id/secret, chọn scope `drive.file`.
+2. Khi được hỏi "Use web browser to automatically authenticate?", trả lời `n`. Trên máy tính có trình duyệt, cài [rclone](https://rclone.org/downloads/) và chạy lệnh `rclone authorize "drive" ...` mà VPS in ra. Đăng nhập Google (nên dùng tài khoản của trường), rồi dán đoạn mã nhận được vào VPS.
+3. Chạy thử: `systemctl start portal-backup && journalctl -u portal-backup -n 20`.
+
+Trên Drive sẽ có thư mục `portal-backup/db` (bản dump DB, giữ 90 ngày) và `portal-backup/uploads` (bản sao ảnh/tệp). Trên VPS cũng giữ 14 bản dump gần nhất ở `/srv/portal/backups`. Nếu chưa nối Drive, dịch vụ `portal-backup` báo lỗi (`systemctl status portal-backup`).
+
+**Khôi phục** (VPS mới: chạy `setup-vps.sh` trước):
+
+```bash
+rclone copy gdrive:portal-backup/uploads /srv/portal/shared/uploads && chown -R portal:portal /srv/portal/shared/uploads
+rclone copy gdrive:portal-backup/db/db-YYYYMMDD-HHMM.dump /tmp/
+systemctl stop portal
+pg_restore --clean --if-exists --no-owner --dbname="$(sed -n 's/^DATABASE_URL=//p' /srv/portal/shared/.env)" /tmp/db-YYYYMMDD-HHMM.dump
+systemctl start portal
+```
 
 **Cập nhật web** sau khi push code lên `main`: `sudo portal-deploy`.
 
@@ -54,7 +91,9 @@ Sau đó ở chỗ quản lý tên miền, tạo **bản ghi A** cho `ten-mien` 
 |---|---|
 | Xem log | `journalctl -u portal -f` |
 | Khởi động lại (vd. sau khi sửa `.env`) | `sudo systemctl restart portal` |
-| Trạng thái | `systemctl status portal nginx` |
+| Trạng thái | `systemctl status portal nginx postgresql` |
+| Backup ngay / xem lần backup tới | `sudo systemctl start portal-backup` / `systemctl list-timers portal-backup` |
+| Mở DB bằng psql | `sudo -u postgres psql portal` |
 
 ## Triển khai lên Vibe Hosting (Mắt Bão, Nhân Hòa…)
 
@@ -92,8 +131,9 @@ Hosting hỗ trợ Dockerfile có thể dùng `Dockerfile` ở gốc repo. Chạ
 
 ## Ảnh và tệp đính kèm
 
-Hiện lưu trên Cloudinary, giống bản Java. Ổ đĩa của container trên hosting bị xoá mỗi lần deploy, nên không lưu tệp trên server. Khi cần đổi sang kho khác (S3, Supabase Storage, gói lưu trữ của nhà cung cấp…):
+Chọn bằng biến `STORAGE_PROVIDER`:
 
-- Mã nguồn: thêm một file cài đặt `FileStorage` cạnh `backend/src/storage/cloudinary.ts` và chọn bằng biến `STORAGE_PROVIDER`. Phần còn lại không phải sửa.
-- Tệp cũ: database lưu **đường dẫn đầy đủ** (`posts.cover_url`, `post_blocks.image_url`, `post_attachments.url`), nên tệp cũ vẫn mở được chừng nào còn giữ tài khoản Cloudinary. Muốn bỏ hẳn Cloudinary thì phải chép tệp sang kho mới và cập nhật các cột này.
-- Giao diện đang nhờ Cloudinary thu nhỏ ảnh và đổi sang WebP/AVIF qua URL (`optimizeImage` trong `frontend/src/lib/content.ts`). Kho mới không có tính năng này thì ảnh sẽ tải ở kích thước gốc, trừ khi thu nhỏ ảnh lúc tải lên hoặc đặt CDN xử lý ảnh phía trước.
+- **`local`** (trên VPS): tệp nằm ở `UPLOAD_DIR`, link dạng `/uploads/images/2026/10/<mã>.webp`. Ảnh được thu nhỏ ngay lúc tải lên (WebP rộng tối đa 1600px, kèm bản 800 và 400px). Giao diện tự chọn bản vừa đủ (`optimizeImage` trong `frontend/src/lib/content.ts`). **Không** dùng `local` trên hosting kiểu container (Vibe Hosting…), vì ổ đĩa ở đó bị xoá mỗi lần deploy.
+- **`cloudinary`**: giống bản Java. Cloudinary thu nhỏ ảnh qua URL.
+
+Database lưu đường dẫn tệp trong `posts.cover_url`, `post_blocks.image_url`, `post_attachments.url`. Tệp cũ vẫn mở được chừng nào kho cũ còn phục vụ. `node backend/dist/cli.js import-cloudinary` chép mọi tệp Cloudinary mà bài viết đang dùng về `UPLOAD_DIR` và sửa các link này. Muốn thêm kho khác (S3…), thêm một file cài đặt `FileStorage` cạnh `backend/src/storage/local.ts`.

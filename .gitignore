@@ -7,3 +7,6 @@ dist/
 .env
 .env.*
 !.env.example
+
+# Files of STORAGE_PROVIDER=local when running on this machine.
+uploads/

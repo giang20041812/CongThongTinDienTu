@@ -4,7 +4,7 @@ File này chứa context quan trọng để hỗ trợ AI/Agent nhanh chóng n�
 ## 1. CÔNG NGHỆ SỬ DỤNG
 - **Frontend**: React (với Vite), TypeScript, Tailwind CSS, Lucide React (Icons).
 - **Backend**: Node.js (≥ 20.19) + Express 5 + TypeScript, thư viện `pg` nối thẳng PostgreSQL (Supabase). Không ORM.
-- **Lưu tệp**: Cloudinary (qua lớp `backend/src/storage`, đổi nhà cung cấp được).
+- **Lưu tệp**: `STORAGE_PROVIDER=local` (ổ đĩa VPS, ảnh thu nhỏ bằng `sharp` lúc tải lên) hoặc `cloudinary` – lớp `backend/src/storage`.
 - **Tools**: npm workspaces (một `package.json` + một `package-lock.json` ở gốc repo cho cả hai module).
 - **Chạy thành 1 app Node**: server Express trả `/api/*` và phục vụ luôn bản build React (`frontend/dist`) – để deploy 1 lần lên Vibe Hosting (Mắt Bão, Nhân Hòa…), nơi không chạy được Java. Bản Spring Boot cũ đã bỏ (API giữ nguyên từng trường JSON).
 
@@ -31,18 +31,18 @@ Dự án gồm hai workspace nằm song song: `frontend/` và `backend/`; `packa
 - **Thiết kế**: token màu theo logo trong `src/index.css` (`brand` #0A4AA0, `gold` #F8C108, `flame` #E8192A); font Be Vietnam Pro.
 
 ### 2.2 BACKEND (`/backend`)
-- **Cấu trúc `src/`**: `server.ts` (khởi động: migration → băm mật khẩu dạng chữ → listen `PORT`), `app.ts` (ghép Express: `/api` + phục vụ `frontend/dist`), `config.ts` (biến môi trường), `db.ts` (pool `pg`, `transaction()`), `migrations.ts`, `security.ts` (token, mật khẩu, giới hạn đăng nhập/góp ý, luật quyền), `http.ts` (lỗi → JSON, đọc body kiểu Jackson), `text.ts` (slug, chữ không dấu, tóm tắt, `localNow()`), `cache.ts`, `services/` (categories, posts, timetable), `routes/` (mỗi file = 1 controller cũ), `storage/`, `multipart.ts`, `cli.ts` (`migrate`).
+- **Cấu trúc `src/`**: `server.ts` (khởi động: migration → băm mật khẩu dạng chữ → listen `PORT`), `app.ts` (ghép Express: `/api` + phục vụ `frontend/dist`), `config.ts` (biến môi trường), `db.ts` (pool `pg`, `transaction()`), `migrations.ts`, `security.ts` (token, mật khẩu, giới hạn đăng nhập/góp ý, luật quyền), `http.ts` (lỗi → JSON, đọc body kiểu Jackson), `text.ts` (slug, chữ không dấu, tóm tắt, `localNow()`), `cache.ts`, `services/` (categories, posts, timetable), `routes/` (mỗi file = 1 controller cũ), `storage/`, `multipart.ts`, `cli.ts` (`migrate`, `import-cloudinary`).
 - **JSON trả về giống hệt bản Java** (tên trường, thứ tự, định dạng ngày): SQL tự đặt alias camelCase; bài viết dùng `PostSummary` (không có blocks) và `PostDetail` (kèm blocks, attachments) trong `services/posts.ts`.
 - **API** (GET công khai; ghi cần token admin – xem `requiresAdmin` trong `security.ts`):
   - `GET /api/categories` (khách: mục hiển thị; admin: tất cả), `GET /by-slug/{slug}`, `POST`, `PUT /{id}`, `PUT /order` (`[{id,parentId,sortOrder}]`), `DELETE /{id}?moveTo=` (bắt buộc khi mục còn bài).
   - `GET /api/posts?category=&descendants=&type=POST_LIST,DOCUMENT_LIST&q=&status=&pinned=&page=&size=` (phân trang, tìm không dấu qua cột `search_text`), `GET /by-slug/{slug}`, `GET /photos?limit=` (ảnh bìa + ảnh trong bài, mới nhất trước, ≤ 24), `GET /{id}` (admin), `POST /{id}/views`, `POST/PUT/DELETE`.
   - `POST /api/feedback` (công khai, giới hạn 5 lần/30 phút/IP, có honeypot) · `GET/PUT/DELETE /api/feedback` (admin).
-  - `GET/PUT /api/settings`, `POST /api/upload` (ảnh ≤ 5MB), `POST /api/upload/file` (tài liệu ≤ 10MB, Cloudinary raw), `/api/auth/*`, `/api/users`.
+  - `GET/PUT /api/settings`, `POST /api/upload` (ảnh ≤ 5MB), `POST /api/upload/file` (tài liệu ≤ 10MB), `/api/auth/*`, `/api/users`.
   - `GET /api/timetable` (`{periods, entries}`, công khai, cache), `PUT /api/timetable/classes/{lớp}` (`{entries:[{dayOfWeek, period, subject, teacher}]}` – thay cả tuần của lớp), `DELETE /api/timetable/classes/{lớp}`, `PUT /api/timetable/periods`.
 - **`services/`**: `CategoryService` (luật cây: 2 cấp, mục con không là GROUP, slug duy nhất/không dành riêng, không đổi thành GROUP/LINK khi còn bài), `PostService`, `TimetableService`; `cache.ts` = `ContentCache` (cache RAM cho dữ liệu công khai, xoá sau mỗi thao tác ghi; lượt xem cố ý không xoá cache).
 - **Schema = file SQL trong `backend/db/migrations/`** (`0001_schema.sql`, `0002_seed.sql`: menu 7 nhóm/35 mục, tài khoản `admin/admin123` – được băm khi khởi động, đổi ngay – thông tin trường, 10 tiết học), ghi nhận ở bảng `schema_migrations`. Tự chạy khi khởi động (`DB_MIGRATE_ON_START`) hoặc `npm run db:migrate`. DB cũ do Liquibase/Java tạo được nhận nguyên trạng (chỉ đánh dấu 0001/0002 đã chạy); bảng `databasechangelog*` còn lại không còn dùng. Thay đổi schema = **thêm file mới** `000N_ten.sql`, không sửa file đã chạy.
 - **RLS** (`0003_rls.sql`): mọi bảng `public` bật Row Level Security, **không có policy**, và thu hồi mọi quyền của `anon`/`authenticated` → Data API của Supabase (PostgREST, anon key) không đọc/ghi được gì. Backend vẫn đọc/ghi bình thường vì kết nối bằng role chủ bảng (`postgres`, có BYPASSRLS) – đừng đổi sang role khác không phải chủ bảng. Bảng mới thì thêm `ALTER TABLE ten ENABLE ROW LEVEL SECURITY;` trong chính migration tạo bảng. Không thêm policy cho `anon` trừ khi frontend gọi Supabase trực tiếp.
-- **Triển khai VPS** (`deploy/`): `setup-vps.sh` (cài lần đầu: Node 22, Nginx, ufw, user `portal`, systemd `portal.service` với `HOST=127.0.0.1 PORT=8080`), `deploy.sh` (= lệnh `sudo portal-deploy [rollback]`: mỗi bản ở `/srv/portal/releases/<thời điểm>`, `/srv/portal/current` là symlink, `.env` dùng chung ở `/srv/portal/shared/.env`). File trong `deploy/` và `*.sh` luôn LF (`.gitattributes`).
+- **Triển khai VPS** (`deploy/`, cách chính – mọi thứ trên một VPS): `setup-vps.sh` (cài lần đầu: Node 22, PostgreSQL 17 + DB `portal`, Nginx phục vụ thẳng `/uploads`, ufw, rclone, user `portal`, systemd `portal.service` với `HOST=127.0.0.1 PORT=8080`, `portal-backup.timer` 2:30 → `backup.sh`: dump DB + chép `/srv/portal/shared/uploads` lên Google Drive qua rclone remote `gdrive`), `import-supabase.sh` (chép DB từ Supabase một lần), `deploy.sh` (= lệnh `sudo portal-deploy [rollback]`: mỗi bản ở `/srv/portal/releases/<thời điểm>`, `/srv/portal/current` là symlink, `.env` dùng chung ở `/srv/portal/shared/.env`). File trong `deploy/` và `*.sh` luôn LF (`.gitattributes`).
 - **Biến môi trường**: xem `backend/.env.example` (`DATABASE_URL` hoặc `DB_*`, `APP_AUTH_SECRET`, `CLOUDINARY_*`, `APP_CORS_ORIGINS`, `APP_TIMEZONE`...). File `.env` chỉ dùng trên máy; giá trị đặt trên hosting luôn được ưu tiên.
 
 ### 2.3 DỮ LIỆU MẪU
@@ -60,7 +60,7 @@ Dự án gồm hai workspace nằm song song: `frontend/` và `backend/`; `packa
 - Khi cần biết frontend lấy dữ liệu gì, đọc `src/api.ts`, `src/lib/menu.tsx` và `src/lib/content.ts` trước.
 - Thêm một kiểu trang mới = thêm giá trị vào `PAGE_TYPES` (`backend/src/services/categories.ts`) và `PageType` (`frontend/src/types/index.ts`), một nhánh trong `CategoryPage.tsx` và nhãn trong `lib/menu.tsx`.
 - Khi cần update UI Admin, vào `AdminPages.tsx`.
-- DB ở xa (~250ms/round-trip tới Supabase): mỗi endpoint trả JSON chỉ nên tốn 1 truy vấn – nạp quan hệ bằng JOIN/`json_agg` (xem `SELECT_DETAIL`, `search()` trong `services/posts.ts`), danh sách không nạp `blocks`, tránh truy vấn trong vòng lặp.
+- DB có thể ở xa (~250ms/round-trip tới Supabase; trên VPS thì DB nằm cùng máy): mỗi endpoint trả JSON chỉ nên tốn 1 truy vấn – nạp quan hệ bằng JOIN/`json_agg` (xem `SELECT_DETAIL`, `search()` trong `services/posts.ts`), danh sách không nạp `blocks`, tránh truy vấn trong vòng lặp.
 - Mọi thao tác ghi nhiều câu lệnh phải nằm trong `transaction()` (db.ts) và gọi `cache.clear()` sau khi xong.
 - Chỉ dùng truy vấn có tham số `$1…` không đặt `name` (prepared statement không tên) – pooler Supabase (cổng 6543, transaction mode) không giữ được prepared statement có tên.
 - Cột DATE/TIME/TIMESTAMP được trả nguyên dạng chữ (`2026-10-08T07:30:00`, không múi giờ) – đừng chuyển sang `Date` của JS. "Bây giờ" dùng `localNow()` (múi giờ `APP_TIMEZONE`).
