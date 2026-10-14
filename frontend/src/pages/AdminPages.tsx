@@ -1,7 +1,7 @@
 import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   AlertCircle, ArrowDown, ArrowUp, CalendarClock, Check, ExternalLink, Eye, EyeOff, FileText, FolderTree, Home, ImagePlus,
-  LayoutDashboard, LogOut, Menu, MessageSquare, Paperclip, Pencil, Pin, Plus, Search, Settings, ShieldCheck,
+  KeyRound, LayoutDashboard, LogOut, Menu, MessageSquare, Paperclip, Pencil, Pin, Plus, Search, Settings, ShieldCheck,
   Trash2, Type, Upload, UserRound, X,
 } from 'lucide-react';
 import { adminApi, AUTH_EXPIRED_EVENT, EMPTY_TIMETABLE, fetchAdminMe, getAdminToken, loginAdmin, logoutAdmin, type AccountDto, type AdminMe, type AdminRole } from '../api';
@@ -127,16 +127,21 @@ function DataTable({ headers, rows, empty = 'Không tìm thấy dữ liệu phù
 }
 
 /** <select> of menu entries grouped by their top-level heading. */
-function CategorySelect({ tree, value, onChange, onlyPostTargets, emptyLabel }: { tree: MenuNode[]; value: string; onChange: (id: string) => void; onlyPostTargets?: boolean; emptyLabel: string }) {
-  const allowed = (c: Category) => !onlyPostTargets || holdsPosts(c.pageType);
+function CategorySelect({ tree, value, onChange, onlyPostTargets, emptyLabel, allowedIds }: { tree: MenuNode[]; value: string; onChange: (id: string) => void; onlyPostTargets?: boolean; emptyLabel: string; allowedIds?: Set<string> }) {
+  const allowed = (c: Category) => (!onlyPostTargets || holdsPosts(c.pageType)) && (!allowedIds || allowedIds.has(c.id));
   return <select value={value} onChange={e => onChange(e.target.value)} className="admin-select w-full bg-white">
     <option value="">{emptyLabel}</option>
-    {tree.map(root => root.children.length === 0
-      ? (allowed(root) ? <option key={root.id} value={root.id}>{root.name}</option> : null)
-      : <optgroup key={root.id} label={root.name}>
-          {allowed(root) && <option value={root.id}>{root.name} (mục cha)</option>}
-          {root.children.filter(allowed).map(child => <option key={child.id} value={child.id}>{child.name}{child.visible ? '' : ' (ẩn)'}</option>)}
-        </optgroup>)}
+    {tree.map(root => {
+      const allowedChildren = root.children.filter(allowed);
+      const rootAllowed = allowed(root);
+      if (!rootAllowed && allowedChildren.length === 0) return null;
+      return root.children.length === 0
+        ? (rootAllowed ? <option key={root.id} value={root.id}>{root.name}</option> : null)
+        : <optgroup key={root.id} label={root.name}>
+            {rootAllowed && <option value={root.id}>{root.name} (mục cha)</option>}
+            {allowedChildren.map(child => <option key={child.id} value={child.id}>{child.name}{child.visible ? '' : ' (ẩn)'}</option>)}
+          </optgroup>;
+    })}
   </select>;
 }
 
@@ -148,6 +153,189 @@ function UploadButton({ label, accept, onFile, busy }: { label: string; accept: 
 }
 
 // ---------------------------------------------------------------------------
+// Change password modal
+// ---------------------------------------------------------------------------
+
+function ChangePasswordModal({ isOpen, onClose, notify, username }: { isOpen: boolean; onClose: () => void; notify: Notify; username: string }) {
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setError('');
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (!currentPassword) {
+      setError('Vui lòng nhập mật khẩu hiện tại.');
+      return;
+    }
+    if (newPassword.length < 8) {
+      setError('Mật khẩu mới phải có ít nhất 8 ký tự.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError('Mật khẩu xác nhận không khớp với mật khẩu mới.');
+      return;
+    }
+    if (newPassword === currentPassword) {
+      setError('Mật khẩu mới không được trùng với mật khẩu hiện tại.');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await adminApi.changePassword({ currentPassword, newPassword });
+      notify('Đổi mật khẩu thành công!');
+      onClose();
+    } catch (err) {
+      setError(errorMessage(err, 'Đổi mật khẩu thất bại. Vui lòng kiểm tra lại mật khẩu hiện tại.'));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="w-full max-w-md bg-white border border-[#c8ddeb] shadow-2xl overflow-hidden relative">
+        <div className="h-1.5 bg-[#0052cc]" />
+        <div className="p-6">
+          <div className="flex items-center justify-between pb-4 border-b border-[#edf1f5] mb-5">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 bg-[#e5f2fb] text-[#0052cc] grid place-items-center">
+                <KeyRound size={18} />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-[#17324d] text-base">Đổi mật khẩu</h3>
+                <p className="text-xs text-[#71849b]">Tài khoản: <strong className="text-[#17324d]">{username}</strong></p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-[#8495a6] hover:text-[#17324d] p-1"
+              aria-label="Đóng"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 text-xs text-red-700 flex items-start gap-2">
+                <AlertCircle size={15} className="shrink-0 mt-0.5 text-red-600" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <div>
+              <span className="label-admin">Mật khẩu hiện tại *</span>
+              <div className="relative">
+                <input
+                  type={showCurrent ? 'text' : 'password'}
+                  value={currentPassword}
+                  onChange={e => setCurrentPassword(e.target.value)}
+                  className="admin-input pr-10"
+                  placeholder="Nhập mật khẩu đang dùng"
+                  required
+                />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() => setShowCurrent(!showCurrent)}
+                  className="absolute right-3 top-2.5 text-[#8a9bad] hover:text-[#17324d]"
+                >
+                  {showCurrent ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <span className="label-admin">Mật khẩu mới (tối thiểu 8 ký tự) *</span>
+              <div className="relative">
+                <input
+                  type={showNew ? 'text' : 'password'}
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  className="admin-input pr-10"
+                  placeholder="Nhập mật khẩu mới"
+                  autoComplete="new-password"
+                  required
+                />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() => setShowNew(!showNew)}
+                  className="absolute right-3 top-2.5 text-[#8a9bad] hover:text-[#17324d]"
+                >
+                  {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <span className="label-admin">Xác nhận mật khẩu mới *</span>
+              <div className="relative">
+                <input
+                  type={showConfirm ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  className="admin-input pr-10"
+                  placeholder="Nhập lại mật khẩu mới"
+                  autoComplete="new-password"
+                  required
+                />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() => setShowConfirm(!showConfirm)}
+                  className="absolute right-3 top-2.5 text-[#8a9bad] hover:text-[#17324d]"
+                >
+                  {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end gap-2 border-t border-[#edf1f5] mt-5">
+              <button
+                type="button"
+                onClick={onClose}
+                className="admin-secondary"
+                disabled={submitting}
+              >
+                Hủy
+              </button>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="admin-primary disabled:opacity-60"
+              >
+                {submitting ? 'Đang cập nhật...' : 'Cập nhật mật khẩu'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Portal shell
 // ---------------------------------------------------------------------------
 
@@ -156,6 +344,7 @@ function AdminPortal({ me, onLogout }: { me: AdminMe; onLogout: () => void }) {
   // Editors only get the posts screen, confined to the entry assigned to them (enforced by the API as well).
   const [section, setSection] = useState<AdminSection>(isEditor ? 'posts' : 'dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; tone: 'ok' | 'error' } | null>(null);
 
   const navigate = (next: AdminSection) => { setSection(next); setSidebarOpen(false); };
@@ -182,20 +371,58 @@ function AdminPortal({ me, onLogout }: { me: AdminMe; onLogout: () => void }) {
     <aside className={`fixed lg:sticky lg:top-0 z-30 w-[255px] h-screen shrink-0 bg-[#102b49] text-white flex flex-col transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
       <div className="h-[76px] px-6 flex items-center border-b border-white/10"><div className="w-9 h-9 bg-[#0052cc] grid place-items-center mr-3"><ShieldCheck size={19} /></div><div><p className="text-[9px] tracking-[.2em] text-[#83c9ed] font-bold">CỔNG THÔNG TIN</p><p className="font-extrabold">Quản trị</p></div></div>
       <div className="px-4 pt-7"><p className="text-[10px] uppercase tracking-[.16em] text-[#7490aa] font-bold px-3 mb-3">Không gian quản trị</p>{navItems.map(item => { const Icon = item.icon; return <button key={item.id} onClick={() => navigate(item.id)} className={`w-full flex items-center gap-3 px-3 py-3 text-sm font-semibold mb-1 transition-colors ${section === item.id ? 'bg-[#0052cc] text-white' : 'text-[#b8c9d8] hover:bg-white/10'}`}><Icon size={17} /> <span className="flex-1 text-left">{item.label}</span></button>; })}</div>
-      <div className="mt-auto p-4 border-t border-white/10 space-y-1"><a href="/" target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3 text-sm text-[#b8c9d8] hover:text-white px-3 py-3"><Home size={17} /> Xem trang công khai</a><button className="w-full flex items-center gap-3 text-sm text-[#b8c9d8] hover:text-white px-3 py-3" onClick={onLogout}><LogOut size={17} /> Đăng xuất</button></div>
+      <div className="mt-auto p-4 border-t border-white/10 space-y-1">
+        <a href="/" target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3 text-sm text-[#b8c9d8] hover:text-white px-3 py-2.5"><Home size={17} /> Xem trang công khai</a>
+        <button className="w-full flex items-center gap-3 text-sm text-[#b8c9d8] hover:text-white px-3 py-2.5 transition-colors" onClick={() => setChangePasswordOpen(true)}><KeyRound size={17} /> Đổi mật khẩu</button>
+        <button className="w-full flex items-center gap-3 text-sm text-[#b8c9d8] hover:text-white px-3 py-2.5 transition-colors" onClick={onLogout}><LogOut size={17} /> Đăng xuất</button>
+      </div>
     </aside>
     <div className="flex-1 min-w-0">
-      <header className="h-[76px] bg-white border-b border-[#e5edf4] flex items-center justify-between px-5 lg:px-9"><div className="flex items-center gap-4"><button className="lg:hidden text-[#17324d]" onClick={() => setSidebarOpen(true)} aria-label="Mở menu"><Menu /></button><div><p className="text-[11px] text-[#8495a6] first-letter:uppercase">{today}</p><h1 className="font-extrabold text-lg">{navItems.find(n => n.id === section)?.label}</h1></div></div><div className="hidden sm:flex items-center gap-2 text-sm"><div className="w-8 h-8 bg-[#e5f2fb] text-[#0052cc] grid place-items-center"><UserRound size={16} /></div><span className="font-bold">{isEditor ? `${me.username} · ${me.categoryName ?? 'Chưa gán đầu mục'}` : 'Quản trị viên'}</span></div></header>
+      <header className="h-[76px] bg-white border-b border-[#e5edf4] flex items-center justify-between px-5 lg:px-9">
+        <div className="flex items-center gap-4">
+          <button className="lg:hidden text-[#17324d]" onClick={() => setSidebarOpen(true)} aria-label="Mở menu"><Menu /></button>
+          <div>
+            <p className="text-[11px] text-[#8495a6] first-letter:uppercase">{today}</p>
+            <h1 className="font-extrabold text-lg">{navItems.find(n => n.id === section)?.label}</h1>
+          </div>
+        </div>
+        <div className="flex items-center gap-2.5 sm:gap-3 text-sm">
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-[#f0f4f9] rounded-sm border border-[#e1eaf2]">
+            <div className="w-7 h-7 bg-[#0052cc] text-white grid place-items-center">
+              <UserRound size={14} />
+            </div>
+            <div className="text-left">
+              <p className="font-bold text-xs text-[#17324d] leading-tight">{me.username}</p>
+              <p className="text-[10px] text-[#63788e] leading-tight">{isEditor ? (me.categoryName ?? 'Biên tập viên') : 'Quản trị viên'}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setChangePasswordOpen(true)}
+            title="Đổi mật khẩu"
+            className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 border border-[#c8ddeb] text-[#0052cc] bg-[#f4f9fd] hover:bg-[#e6f2fb] transition-colors"
+          >
+            <KeyRound size={14} />
+            <span className="hidden md:inline">Đổi mật khẩu</span>
+          </button>
+        </div>
+      </header>
       <main className="p-5 lg:p-9 max-w-[1400px] mx-auto">
         {!isEditor && section === 'dashboard' && <Dashboard onNavigate={navigate} />}
         {section === 'menu' && <MenuSection notify={notify} />}
-        {section === 'posts' && <PostsSection notify={notify} />}
+        {section === 'posts' && <PostsSection notify={notify} me={me} />}
         {section === 'timetable' && <TimetableSection notify={notify} />}
         {section === 'feedback' && <FeedbackSection notify={notify} />}
         {section === 'settings' && <SettingsSection notify={notify} />}
         {section === 'users' && <AccountsSection notify={notify} />}
       </main>
     </div>
+    <ChangePasswordModal
+      isOpen={changePasswordOpen}
+      onClose={() => setChangePasswordOpen(false)}
+      notify={notify}
+      username={me.username}
+    />
     {toast && <div role="status" className={`fixed bottom-6 right-6 text-white px-4 py-3 text-sm shadow-xl flex items-center gap-2 z-50 max-w-md ${toast.tone === 'error' ? 'bg-[#a93226]' : 'bg-[#17324d]'}`}>{toast.tone === 'error' ? <AlertCircle size={16} /> : <Check size={16} className="text-[#69d493]" />}{toast.message}</div>}
   </div>;
 }
@@ -387,7 +614,7 @@ interface BlockDraft { key: string; type: 'TEXT' | 'IMAGE'; content: string; ima
 const newKey = () => Math.random().toString(36).slice(2);
 const toLocalInput = (value?: string | null) => (value ? value.slice(0, 16) : '');
 
-function PostForm({ postId, tree, categories, onClose, onSaved, notify }: { postId: string | null; tree: MenuNode[]; categories: Category[]; onClose: () => void; onSaved: () => void; notify: Notify }) {
+function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedScopeIds }: { postId: string | null; tree: MenuNode[]; categories: Category[]; onClose: () => void; onSaved: () => void; notify: Notify; allowedScopeIds?: Set<string> }) {
   const [loaded, setLoaded] = useState(!postId);
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
@@ -402,6 +629,13 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify }: { post
   const [doc, setDoc] = useState({ documentNumber: '', issuer: '', issuedDate: '', recipient: '', actionRequired: '' });
   const [uploading, setUploading] = useState('');
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!postId && !categoryId && allowedScopeIds && allowedScopeIds.size > 0) {
+      const firstValid = categories.find(c => allowedScopeIds.has(c.id) && holdsPosts(c.pageType));
+      if (firstValid) setCategoryId(firstValid.id);
+    }
+  }, [postId, categoryId, allowedScopeIds, categories]);
 
   useEffect(() => {
     if (!postId) return;
@@ -462,7 +696,7 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify }: { post
     <form onSubmit={submit} className="grid gap-5">
       <div className="grid gap-4 md:grid-cols-2">
         <label className="block md:col-span-2"><span className="label-admin">Tiêu đề *</span><input value={title} onChange={e => setTitle(e.target.value)} className="admin-input" placeholder="Nhập tiêu đề" maxLength={500} /></label>
-        <label className="block"><span className="label-admin">Đầu mục *</span><CategorySelect tree={tree} value={categoryId} onChange={setCategoryId} onlyPostTargets emptyLabel="— Chọn đầu mục —" />
+        <label className="block"><span className="label-admin">Đầu mục *</span><CategorySelect tree={tree} value={categoryId} onChange={setCategoryId} onlyPostTargets emptyLabel="— Chọn đầu mục —" allowedIds={allowedScopeIds} />
           {category && <span className="text-[11px] text-[#8a9bad] mt-1 block">Kiểu trang: {PAGE_TYPE_LABELS[category.pageType]}{category.pageType === 'PAGE' ? ' – bài mới nhất/được ghim sẽ là nội dung của trang' : ''}</span>}
         </label>
         <label className="block"><span className="label-admin">Đường dẫn (để trống = tự tạo)</span><input value={slug} onChange={e => setSlug(e.target.value)} className="admin-input" placeholder="vd: le-khai-giang-2026" /></label>
@@ -508,13 +742,24 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify }: { post
   </Panel>;
 }
 
-function PostsSection({ notify }: { notify: Notify }) {
+function PostsSection({ notify, me }: { notify: Notify; me?: AdminMe }) {
   const { data: categories } = useLoader(() => adminApi.categories(), [], [] as Category[]);
   const tree = useMemo(() => buildMenu(categories), [categories]);
   const [filter, setFilter] = useState({ category: '', status: '', q: '' });
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(0);
   const [form, setForm] = useState<{ id: string | null } | null>(null);
+
+  const allowedScopeIds = useMemo(() => {
+    if (me?.role !== 'EDITOR' || !me.categoryId) return undefined;
+    const own = categories.find(c => c.id === me.categoryId);
+    if (!own) return new Set<string>([me.categoryId]);
+    const set = new Set<string>([own.id]);
+    categories.forEach(c => {
+      if (c.parentId === own.id) set.add(c.id);
+    });
+    return set;
+  }, [categories, me]);
 
   useEffect(() => { const t = window.setTimeout(() => { setFilter(f => ({ ...f, q: query })); setPage(0); }, 350); return () => window.clearTimeout(t); }, [query]);
   const slugOf = (id: string) => categories.find(c => c.id === id)?.slug;
@@ -524,18 +769,17 @@ function PostsSection({ notify }: { notify: Notify }) {
     { items: [], page: 0, size: 20, total: 0, totalPages: 0 },
   );
 
-
   const toggleStatus = async (post: PostSummaryDto) => {
     try { await adminApi.updatePost(post.id, { status: post.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED' }); await reload(); } catch (err) { notify(errorMessage(err, 'Không cập nhật được'), 'error'); }
   };
 
-  if (form) return <PostForm postId={form.id} tree={tree} categories={categories} notify={notify} onClose={() => setForm(null)} onSaved={() => { setForm(null); void reload(); }} />;
+  if (form) return <PostForm postId={form.id} tree={tree} categories={categories} notify={notify} onClose={() => setForm(null)} onSaved={() => { setForm(null); void reload(); }} allowedScopeIds={allowedScopeIds} />;
 
   return <>
     <PageHeading eyebrow="Nội dung website" title="Bài viết & văn bản" description="Mọi nội dung (tin, trang giới thiệu, thông báo, văn bản, tài liệu) đều là bài viết thuộc một đầu mục." action={<button onClick={() => setForm({ id: null })} className="admin-primary"><Plus size={16} /> Thêm bài viết</button>} />
     <Toolbar>
       <div className="flex flex-col sm:flex-row gap-2 flex-1">
-        <div className="sm:w-72"><CategorySelect tree={tree} value={filter.category} onChange={id => { setFilter(f => ({ ...f, category: id })); setPage(0); }} emptyLabel="Tất cả đầu mục" /></div>
+        <div className="sm:w-72"><CategorySelect tree={tree} value={filter.category} onChange={id => { setFilter(f => ({ ...f, category: id })); setPage(0); }} emptyLabel={allowedScopeIds ? "Tất cả đầu mục được phân quyền" : "Tất cả đầu mục"} allowedIds={allowedScopeIds} /></div>
         <select value={filter.status} onChange={e => { setFilter(f => ({ ...f, status: e.target.value })); setPage(0); }} className="admin-select bg-white sm:w-44"><option value="">Mọi trạng thái</option>{Object.entries(STATUS_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
       </div>
       <SearchBox value={query} onChange={setQuery} placeholder="Tìm tiêu đề, số hiệu..." />
@@ -557,16 +801,38 @@ function PostsSection({ notify }: { notify: Notify }) {
 }
 
 // ---------------------------------------------------------------------------
-// Accounts (admin only): editors manage the posts of exactly one top-level menu entry
+// Accounts (admin only): editors manage the posts of assigned menu entries
 // ---------------------------------------------------------------------------
 
 function AccountsSection({ notify }: { notify: Notify }) {
   const { data: categories } = useLoader(() => adminApi.categories(), [], [] as Category[]);
   const { data: accounts, loading, error, reload } = useLoader(() => adminApi.users(), [], [] as AccountDto[]);
-  const roots = useMemo(() => categories.filter(c => !c.parentId), [categories]);
+  const tree = useMemo(() => buildMenu(categories), [categories]);
+  const [query, setQuery] = useState('');
   const [form, setForm] = useState<{ id: string | null; username: string; password: string; role: AdminRole; categoryId: string } | null>(null);
   const [saving, setSaving] = useState(false);
-  const rootName = (id: string | null) => roots.find(c => c.id === id)?.name ?? '—';
+
+  const getCategoryLabel = (id: string | null) => {
+    if (!id) return '—';
+    const cat = categories.find(c => c.id === id);
+    if (!cat) return '—';
+    if (cat.parentId) {
+      const parent = categories.find(c => c.id === cat.parentId);
+      return `${parent ? `${parent.name} > ` : ''}${cat.name}`;
+    }
+    const hasChildren = categories.some(c => c.parentId === cat.id);
+    return hasChildren ? `${cat.name} (toàn bộ mục con)` : cat.name;
+  };
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return accounts;
+    return accounts.filter(a =>
+      a.username.toLowerCase().includes(q) ||
+      (a.categoryId && getCategoryLabel(a.categoryId).toLowerCase().includes(q)) ||
+      (a.role === 'ADMIN' ? 'quản trị viên admin' : 'biên tập viên editor').includes(q)
+    );
+  }, [accounts, query, categories]);
 
   const save = async (event: FormEvent) => {
     event.preventDefault();
@@ -574,9 +840,23 @@ function AccountsSection({ notify }: { notify: Notify }) {
     setSaving(true);
     try {
       const categoryId = form.role === 'EDITOR' ? form.categoryId || null : null;
-      if (form.id) await adminApi.updateUser(form.id, { username: form.username, role: form.role, categoryId, ...(form.password ? { password: form.password } : {}) });
-      else await adminApi.createUser({ username: form.username, password: form.password, role: form.role, categoryId });
-      notify('Đã lưu tài khoản');
+      if (form.id) {
+        await adminApi.updateUser(form.id, {
+          username: form.username.trim(),
+          role: form.role,
+          categoryId,
+          ...(form.password.trim() ? { password: form.password.trim() } : {}),
+        });
+        notify('Đã cập nhật tài khoản');
+      } else {
+        await adminApi.createUser({
+          username: form.username.trim(),
+          password: form.password.trim(),
+          role: form.role,
+          categoryId,
+        });
+        notify('Đã tạo tài khoản mới thành công');
+      }
       setForm(null);
       await reload();
     } catch (err) {
@@ -588,30 +868,151 @@ function AccountsSection({ notify }: { notify: Notify }) {
 
   const remove = async (account: AccountDto) => {
     if (!window.confirm(`Xóa tài khoản "${account.username}"?`)) return;
-    try { await adminApi.deleteUser(account.id); notify('Đã xóa tài khoản'); await reload(); } catch (err) { notify(errorMessage(err, 'Không xóa được tài khoản (tài khoản đã đăng bài không thể xóa)'), 'error'); }
+    try {
+      await adminApi.deleteUser(account.id);
+      notify('Đã xóa tài khoản');
+      await reload();
+    } catch (err) {
+      notify(errorMessage(err, 'Không xóa được tài khoản (tài khoản đã đăng bài không thể xóa)'), 'error');
+    }
   };
 
   return <>
-    <PageHeading eyebrow="Phân quyền" title="Tài khoản" description="Biên tập viên chỉ thấy và quản lý bài viết của đầu mục được gán. Quản trị viên có toàn quyền." action={<button onClick={() => setForm({ id: null, username: '', password: '', role: 'EDITOR', categoryId: '' })} className="admin-primary"><Plus size={16} /> Thêm tài khoản</button>} />
-    {form && <Panel title={form.id ? 'Sửa tài khoản' : 'Tài khoản mới'} onClose={() => setForm(null)}>
+    <PageHeading
+      eyebrow="Quản lý người dùng & phân quyền"
+      title="Tài khoản hệ thống"
+      description="Tạo và phân quyền quản trị theo từng đầu mục hoặc toàn quyền hệ thống. Mọi tài khoản đều có thể tự đổi mật khẩu cá nhân."
+      action={<button onClick={() => setForm({ id: null, username: '', password: '', role: 'EDITOR', categoryId: '' })} className="admin-primary"><Plus size={16} /> Thêm tài khoản mới</button>}
+    />
+    {form && <Panel title={form.id ? `Chỉnh sửa tài khoản: ${form.username}` : 'Thêm tài khoản mới'} onClose={() => setForm(null)}>
       <form onSubmit={save} className="grid sm:grid-cols-2 gap-4">
-        <label className="block"><span className="label-admin">Tên đăng nhập</span><input value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} className="admin-input" autoComplete="off" required /></label>
-        <label className="block"><span className="label-admin">{form.id ? 'Mật khẩu mới (bỏ trống nếu giữ nguyên)' : 'Mật khẩu (tối thiểu 8 ký tự)'}</span><input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} className="admin-input" autoComplete="new-password" required={!form.id} /></label>
-        <label className="block"><span className="label-admin">Vai trò</span><select value={form.role} onChange={e => setForm({ ...form, role: e.target.value as AdminRole })} className="admin-select w-full bg-white"><option value="EDITOR">Biên tập viên (1 đầu mục)</option><option value="ADMIN">Quản trị viên</option></select></label>
-        {form.role === 'EDITOR' && <label className="block"><span className="label-admin">Đầu mục được quản lý</span><select value={form.categoryId} onChange={e => setForm({ ...form, categoryId: e.target.value })} className="admin-select w-full bg-white" required><option value="">— Chọn đầu mục —</option>{roots.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>}
-        <div className="sm:col-span-2 flex gap-2"><button disabled={saving} className="admin-primary">{saving ? 'Đang lưu...' : 'Lưu tài khoản'}</button><button type="button" onClick={() => setForm(null)} className="admin-secondary">Hủy</button></div>
+        <label className="block">
+          <span className="label-admin">Tên đăng nhập *</span>
+          <input
+            value={form.username}
+            onChange={e => setForm({ ...form, username: e.target.value })}
+            className="admin-input"
+            autoComplete="off"
+            placeholder="vd: giaovien_toan, bientap_tintuc"
+            required
+          />
+        </label>
+        <label className="block">
+          <span className="label-admin">{form.id ? 'Đổi mật khẩu mới (bỏ trống nếu giữ nguyên)' : 'Mật khẩu ban đầu (tối thiểu 8 ký tự) *'}</span>
+          <input
+            type="password"
+            value={form.password}
+            onChange={e => setForm({ ...form, password: e.target.value })}
+            className="admin-input"
+            autoComplete="new-password"
+            placeholder={form.id ? 'Nhập nếu muốn đổi mật khẩu cho user này' : 'Nhập mật khẩu ít nhất 8 ký tự'}
+            required={!form.id}
+          />
+        </label>
+        <label className="block">
+          <span className="label-admin">Vai trò tài khoản *</span>
+          <select
+            value={form.role}
+            onChange={e => setForm({ ...form, role: e.target.value as AdminRole })}
+            className="admin-select w-full bg-white"
+          >
+            <option value="EDITOR">Biên tập viên (quản lý theo đầu mục)</option>
+            <option value="ADMIN">Quản trị viên (toàn quyền hệ thống)</option>
+          </select>
+        </label>
+        {form.role === 'EDITOR' && (
+          <label className="block">
+            <span className="label-admin">Phân quyền đầu mục quản lý *</span>
+            <select
+              value={form.categoryId}
+              onChange={e => setForm({ ...form, categoryId: e.target.value })}
+              className="admin-select w-full bg-white font-medium"
+              required
+            >
+              <option value="">— Chọn đầu mục phụ trách —</option>
+              {tree.map(root => (
+                <optgroup key={root.id} label={`📁 Nhóm: ${root.name}`}>
+                  <option value={root.id} className="font-bold">
+                    📁 {root.name} {root.children.length > 0 ? '(Quản lý mục này và toàn bộ mục con)' : ''}
+                  </option>
+                  {root.children.map(child => (
+                    <option key={child.id} value={child.id}>
+                      &nbsp;&nbsp;&nbsp;&nbsp;↳ {child.name} {child.visible ? '' : ' (đang ẩn)'}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+            <span className="text-[11px] text-[#71849b] mt-1 block">
+              Biên tập viên chỉ xem và đăng/sửa bài viết thuộc đầu mục này (và các mục con nếu có).
+            </span>
+          </label>
+        )}
+        <div className="sm:col-span-2 flex gap-2 pt-2 border-t border-[#edf1f5]">
+          <button disabled={saving} className="admin-primary disabled:opacity-60">
+            {saving ? 'Đang lưu...' : (form.id ? 'Cập nhật tài khoản' : 'Tạo tài khoản')}
+          </button>
+          <button type="button" onClick={() => setForm(null)} className="admin-secondary">
+            Hủy
+          </button>
+        </div>
       </form>
     </Panel>}
+
+    <Toolbar>
+      <div className="flex items-center gap-2 text-xs text-[#71849b]">
+        <span>Tổng số: <strong className="text-[#17324d]">{filtered.length}</strong> tài khoản</span>
+      </div>
+      <SearchBox value={query} onChange={setQuery} placeholder="Tìm tài khoản, đầu mục..." />
+    </Toolbar>
+
     {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
-    {loading && accounts.length === 0 ? <p className="p-5 text-center text-sm text-[#8a9bad]">Đang tải dữ liệu...</p> : <DataTable
-      headers={['Tên đăng nhập', 'Vai trò', 'Đầu mục quản lý', 'Hành động']}
-      rows={accounts.map(a => [
-        <span className="font-bold text-sm">{a.username}</span>,
-        <StatusPill tone={a.role === 'ADMIN' ? 'blue' : 'green'}>{a.role === 'ADMIN' ? 'Quản trị viên' : a.role === 'EDITOR' ? 'Biên tập viên' : a.role}</StatusPill>,
-        <span className="text-xs">{a.role === 'EDITOR' ? rootName(a.categoryId) : 'Tất cả'}</span>,
-        <div className="flex gap-3 whitespace-nowrap"><button onClick={() => setForm({ id: a.id, username: a.username, password: '', role: a.role === 'EDITOR' ? 'EDITOR' : 'ADMIN', categoryId: a.categoryId ?? '' })} className="text-xs font-bold text-[#0052cc]">Sửa</button><button onClick={() => remove(a)} className="text-xs font-bold text-[#a93226]">Xóa</button></div>,
-      ])}
-    />}
+    {loading && accounts.length === 0 ? (
+      <p className="p-5 text-center text-sm text-[#8a9bad]">Đang tải dữ liệu...</p>
+    ) : (
+      <DataTable
+        headers={['Tên đăng nhập', 'Vai trò', 'Đầu mục được phân quyền', 'Ngày tạo', 'Hành động']}
+        rows={filtered.map(a => [
+          <div>
+            <p className="font-bold text-sm text-[#17324d] flex items-center gap-1.5">
+              <UserRound size={14} className="text-[#0052cc]" />
+              {a.username}
+            </p>
+          </div>,
+          <StatusPill tone={a.role === 'ADMIN' ? 'blue' : 'green'}>
+            {a.role === 'ADMIN' ? 'Quản trị viên' : 'Biên tập viên'}
+          </StatusPill>,
+          <div className="text-xs">
+            {a.role === 'ADMIN' ? (
+              <span className="inline-flex items-center gap-1 text-[#0052cc] font-semibold bg-[#e6f2fb] px-2 py-0.5">
+                <ShieldCheck size={12} /> Toàn bộ hệ thống
+              </span>
+            ) : (
+              <span className="font-medium text-[#2c3e50] bg-[#f0f4f9] px-2 py-0.5 border border-[#d8e3ed]">
+                {getCategoryLabel(a.categoryId)}
+              </span>
+            )}
+          </div>,
+          <span className="text-xs text-[#8a9bad] whitespace-nowrap">
+            {a.createdAt ? new Date(a.createdAt).toLocaleDateString('vi-VN') : '—'}
+          </span>,
+          <div className="flex gap-3 whitespace-nowrap">
+            <button
+              onClick={() => setForm({ id: a.id, username: a.username, password: '', role: a.role === 'EDITOR' ? 'EDITOR' : 'ADMIN', categoryId: a.categoryId ?? '' })}
+              className="text-xs font-bold text-[#0052cc] hover:underline flex items-center gap-1"
+            >
+              <Pencil size={12} /> Sửa / Đổi MK
+            </button>
+            <button
+              onClick={() => remove(a)}
+              className="text-xs font-bold text-[#a93226] hover:underline flex items-center gap-1"
+            >
+              <Trash2 size={12} /> Xóa
+            </button>
+          </div>,
+        ])}
+      />
+    )}
   </>;
 }
 

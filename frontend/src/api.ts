@@ -102,6 +102,7 @@ export interface AccountDto {
   username: string;
   role: 'ADMIN' | 'EDITOR' | 'USER';
   categoryId: string | null;
+  categoryName?: string | null;
   createdAt: string | null;
 }
 
@@ -293,6 +294,11 @@ export const adminApi = {
   updateUser: (id: string, body: { username?: string; password?: string; role?: AdminRole; categoryId?: string | null }) =>
     mutate<AccountDto>(`/users/${id}`, 'PUT', body),
   deleteUser: (id: string) => mutate<void>(`/users/${id}`, 'DELETE'),
+  changePassword: (body: { currentPassword: string; newPassword: string }) =>
+    request<{ success: boolean; message: string }>('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
 
   posts: (params: PostListParams) => request<PageResponse<PostSummaryDto>>(postsPath(params)),
   post: (id: string) => request<PostDetailDto>(`/posts/${id}`),

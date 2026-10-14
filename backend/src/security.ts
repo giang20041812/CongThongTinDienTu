@@ -201,6 +201,7 @@ function requiredAccess(method: string, path: string): Access {
   if (method === 'POST' && (path === '/api/auth/login' || VIEW_COUNTER.test(path) || path === FEEDBACK || path === `${FEEDBACK}/`)) {
     return 'public';
   }
+  if (path === '/api/auth/change-password') return 'staff';
   if ((method === 'POST' || method === 'PUT') && (path.startsWith('/api/posts') || path.startsWith('/api/upload'))) return 'staff';
   return 'admin';
 }

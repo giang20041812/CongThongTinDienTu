@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { query, queryOne } from '../db.js';
-import { jsonObject, str } from '../http.js';
+import { badRequest, jsonObject, str } from '../http.js';
 import {
   type LoginAttemptLimiter,
   type Role,
@@ -65,6 +65,48 @@ export function authRoutes(tokens: TokenService, logins: LoginAttemptLimiter): R
       return;
     }
     res.json(user);
+  });
+
+  /** Allows any authenticated user (admin or editor) to change their own password. */
+  router.post('/change-password', async (req, res) => {
+    const current = currentUser(req);
+    if (!current) {
+      res.status(401).json({ message: 'Bạn chưa đăng nhập hoặc phiên làm việc đã hết hạn.' });
+      return;
+    }
+
+    const body = jsonObject(req.body);
+    const currentPassword = str(body.currentPassword) ?? '';
+    const newPassword = str(body.newPassword) ?? '';
+
+    if (!currentPassword) {
+      throw badRequest('Vui lòng nhập mật khẩu hiện tại.');
+    }
+    if (!newPassword || newPassword.length < 8) {
+      throw badRequest('Mật khẩu mới phải có ít nhất 8 ký tự.');
+    }
+
+    const user = await queryOne<UserRow>(
+      `SELECT id, username, password_hash, role FROM users WHERE id = $1`,
+      [current.id],
+    );
+    if (!user) {
+      res.status(401).json({ message: 'Tài khoản không tồn tại.' });
+      return;
+    }
+
+    if (!(await passwordMatches(currentPassword, user.password_hash))) {
+      throw badRequest('Mật khẩu hiện tại không chính xác.');
+    }
+
+    if (await passwordMatches(newPassword, user.password_hash)) {
+      throw badRequest('Mật khẩu mới không được trùng với mật khẩu hiện tại.');
+    }
+
+    const newHash = await hashPassword(newPassword);
+    await query(`UPDATE users SET password_hash = $2 WHERE id = $1`, [user.id, newHash]);
+
+    res.json({ success: true, message: 'Đổi mật khẩu thành công.' });
   });
 
   return router;
