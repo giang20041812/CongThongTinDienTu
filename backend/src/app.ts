@@ -64,7 +64,7 @@ function apiRouter(services: Services) {
 
   api.use('/auth', authRoutes(services.tokens, services.logins));
   api.use('/categories', categoryRoutes(services.categories));
-  api.use('/posts', postRoutes(services.posts));
+  api.use('/posts', postRoutes(services.posts, services.categories));
   api.use('/feedback', feedbackRoutes(services.submissions));
   api.use('/settings', settingsRoutes(services.cache));
   api.use('/timetable', timetableRoutes(services.timetable));
