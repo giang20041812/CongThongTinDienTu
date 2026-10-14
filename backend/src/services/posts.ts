@@ -256,8 +256,8 @@ export class PostService {
   ) {}
 
   /** Paged summaries. Visitors only get published posts in visible entries, pinned first then newest. */
-  list(q: PostQuery, admin: boolean): Promise<PageResponse<PostSummary>> {
-    if (admin) return this.search(q, true);
+  list(q: PostQuery, admin: boolean, scope: Set<string> | null = null): Promise<PageResponse<PostSummary>> {
+    if (admin) return this.search(q, true, scope);
     return this.cache.get(`posts:${JSON.stringify(q)}`, () => this.search(q, false));
   }
 
@@ -396,11 +396,11 @@ export class PostService {
   }
 
 
-  private async search(q: PostQuery, admin: boolean): Promise<PageResponse<PostSummary>> {
+  private async search(q: PostQuery, admin: boolean, scope: Set<string> | null = null): Promise<PageResponse<PostSummary>> {
     const size = Math.min(Math.max(q.size, 1), MAX_PAGE_SIZE);
     const page = Math.max(q.page, 0);
 
-    const categoryIds = await this.resolveCategoryIds(q, admin);
+    const categoryIds = await this.resolveCategoryIds(q, admin, scope);
     if (categoryIds != null && categoryIds.size === 0) return pageOf([], page, size, 0);
 
     const status = admin ? (q.status == null || isBlank(q.status) ? null : normalizeStatus(q.status)) : PUBLISHED;
@@ -446,7 +446,7 @@ export class PostService {
   }
 
   /** null = no category restriction; an empty set = nothing can match. */
-  private async resolveCategoryIds(q: PostQuery, admin: boolean): Promise<Set<string> | null> {
+  private async resolveCategoryIds(q: PostQuery, admin: boolean, scope: Set<string> | null): Promise<Set<string> | null> {
     const candidates = admin ? await this.categories.listAll() : await this.categories.listPublic();
     let ids: Set<string> | null = null;
 
@@ -459,6 +459,10 @@ export class PostService {
     if (q.types.length > 0) {
       const ofType = new Set(candidates.filter((c) => q.types.includes(c.pageType)).map((c) => c.id));
       ids = ids == null ? ofType : new Set([...ids].filter((id) => ofType.has(id)));
+    }
+    if (scope != null) {
+      // An editor only ever sees the entry they manage.
+      ids = ids == null ? new Set(scope) : new Set([...ids].filter((id) => scope.has(id)));
     }
     if (!admin) {
       // Visitors never see posts filed under hidden entries.

@@ -2,8 +2,9 @@ import crypto from 'node:crypto';
 import { promisify } from 'node:util';
 import type { Request, RequestHandler } from 'express';
 
-export type Role = 'ADMIN' | 'USER';
-export const ROLES: readonly Role[] = ['ADMIN', 'USER'];
+/** ADMIN manages everything; EDITOR only manages the posts of the one menu entry (and its children) assigned to them. */
+export type Role = 'ADMIN' | 'EDITOR' | 'USER';
+export const ROLES: readonly Role[] = ['ADMIN', 'EDITOR', 'USER'];
 
 export interface AuthUser {
   id: string;
@@ -18,6 +19,8 @@ declare module 'express-serve-static-core' {
 
 export const currentUser = (req: Request) => req.authUser ?? null;
 export const isAdmin = (req: Request) => req.authUser?.role === 'ADMIN';
+export const isEditor = (req: Request) => req.authUser?.role === 'EDITOR';
+export const isStaff = (req: Request) => isAdmin(req) || isEditor(req);
 
 // ---------------------------------------------------------------------------
 // Tokens: stateless HMAC-SHA256 bearer tokens base64url(userId|role|expiry).base64url(signature) – the format
@@ -178,7 +181,7 @@ export const clientIp = (req: Request) => req.ip ?? req.socket.remoteAddress ?? 
 
 // ---------------------------------------------------------------------------
 // Access rule: visitors may read (except feedback and post-by-id), submit feedback, count views and log in.
-// Every other request under /api needs an admin bearer token from POST /api/auth/login.
+// Post writes and uploads also accept an editor; every other request under /api needs an admin bearer token.
 // ---------------------------------------------------------------------------
 
 const VIEW_COUNTER = /^\/api\/posts\/[^/]+\/views\/?$/;
@@ -186,13 +189,20 @@ const VIEW_COUNTER = /^\/api\/posts\/[^/]+\/views\/?$/;
 const POST_BY_ID = /^\/api\/posts\/[0-9a-fA-F-]{36}\/?$/;
 const FEEDBACK = '/api/feedback';
 
-function requiresAdmin(method: string, path: string): boolean {
-  if (path.startsWith('/api/users')) return true;
-  if (method === 'GET' || method === 'HEAD') return path.startsWith(FEEDBACK) || POST_BY_ID.test(path);
-  return !(
-    method === 'POST' &&
-    (path === '/api/auth/login' || VIEW_COUNTER.test(path) || path === FEEDBACK || path === `${FEEDBACK}/`)
-  );
+type Access = 'public' | 'staff' | 'admin';
+
+/** 'staff' = an admin or an editor (editors are then confined to their entry by the post routes). */
+function requiredAccess(method: string, path: string): Access {
+  if (path.startsWith('/api/users')) return 'admin';
+  if (method === 'GET' || method === 'HEAD') {
+    if (path.startsWith(FEEDBACK)) return 'admin';
+    return POST_BY_ID.test(path) ? 'staff' : 'public';
+  }
+  if (method === 'POST' && (path === '/api/auth/login' || VIEW_COUNTER.test(path) || path === FEEDBACK || path === `${FEEDBACK}/`)) {
+    return 'public';
+  }
+  if ((method === 'POST' || method === 'PUT') && (path.startsWith('/api/posts') || path.startsWith('/api/upload'))) return 'staff';
+  return 'admin';
 }
 
 /** Mounted on /api: reads the bearer token, then rejects admin-only requests without a valid admin token. */
@@ -204,7 +214,12 @@ export function authenticate(tokens: TokenService): RequestHandler {
       const user = tokens.verify(header.slice(7).trim());
       if (user) req.authUser = user;
     }
-    if (!requiresAdmin(req.method, req.baseUrl + req.path) || isAdmin(req)) return next();
+    const access = requiredAccess(req.method, req.baseUrl + req.path);
+    if (access === 'public' || (access === 'staff' ? isStaff(req) : isAdmin(req))) return next();
+    if (req.authUser) {
+      res.status(403).json({ error: 'Forbidden', message: 'Tài khoản của bạn không có quyền thực hiện thao tác này.' });
+      return;
+    }
     res.status(401).json({ error: 'Unauthorized', message: 'Bạn cần đăng nhập quản trị để thực hiện thao tác này.' });
   };
 }

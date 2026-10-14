@@ -103,6 +103,14 @@ export class CategoryService {
     return ids;
   }
 
+  /** Ids an editor may manage: their assigned entry and its children (empty when none is assigned). */
+  async editorScope(userId: string): Promise<Set<string>> {
+    const row = await queryOne<{ categoryId: string | null }>(`SELECT category_id AS "categoryId" FROM users WHERE id = $1`, [userId]);
+    const all = await this.listAll();
+    const own = all.find((c) => c.id === row?.categoryId);
+    return own ? this.withChildren(own, all) : new Set();
+  }
+
   /** Resolves a category a post may be filed under, or fails with a readable message. */
   async requirePostTarget(id: string | null, db: Db = pool): Promise<Category> {
     if (!id) throw badRequest('Vui lòng chọn đầu mục cho bài viết.');

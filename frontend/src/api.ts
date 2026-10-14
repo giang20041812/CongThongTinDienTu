@@ -78,15 +78,32 @@ export const loginAdmin = async (username: string, password: string) => {
 
 export const logoutAdmin = () => setAdminToken(null);
 
-export const checkAdminSession = async (): Promise<boolean> => {
-  if (!getAdminToken()) return false;
+export type AdminRole = 'ADMIN' | 'EDITOR';
+export interface AdminMe {
+  username: string;
+  role: AdminRole;
+  /** Editors only: the menu entry they manage. */
+  categoryId: string | null;
+  categoryName: string | null;
+}
+
+/** The signed-in staff member, or null when there is no valid session. */
+export const fetchAdminMe = async (): Promise<AdminMe | null> => {
+  if (!getAdminToken()) return null;
   try {
-    await request('/auth/me');
-    return true;
+    return await request<AdminMe>('/auth/me');
   } catch {
-    return false;
+    return null;
   }
 };
+
+export interface AccountDto {
+  id: string;
+  username: string;
+  role: 'ADMIN' | 'EDITOR' | 'USER';
+  categoryId: string | null;
+  createdAt: string | null;
+}
 
 // ---------------------------------------------------------------------------
 // Shared public read cache: one network request per URL, shared by every
@@ -269,6 +286,13 @@ export const adminApi = {
   updateCategory: (id: string, body: Partial<Category>) => mutate<Category>(`${CATEGORIES_PATH}/${id}`, 'PUT', body),
   reorderCategories: (items: { id: string; parentId: string | null; sortOrder: number }[]) =>
     mutate<Category[]>(`${CATEGORIES_PATH}/order`, 'PUT', items),
+
+  users: () => request<AccountDto[]>('/users'),
+  createUser: (body: { username: string; password: string; role: AdminRole; categoryId?: string | null }) =>
+    mutate<AccountDto>('/users', 'POST', body),
+  updateUser: (id: string, body: { username?: string; password?: string; role?: AdminRole; categoryId?: string | null }) =>
+    mutate<AccountDto>(`/users/${id}`, 'PUT', body),
+  deleteUser: (id: string) => mutate<void>(`/users/${id}`, 'DELETE'),
 
   posts: (params: PostListParams) => request<PageResponse<PostSummaryDto>>(postsPath(params)),
   post: (id: string) => request<PostDetailDto>(`/posts/${id}`),

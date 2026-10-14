@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { badRequest, boolParam, intParam, notFound, queryParam, uuidParam } from '../http.js';
-import { currentUser, isAdmin } from '../security.js';
-import { PAGE_TYPES, type PageType } from '../services/categories.js';
+import type { Request } from 'express';
+import { HttpError, badRequest, boolParam, intParam, notFound, queryParam, uuid, uuidParam } from '../http.js';
+import { currentUser, isAdmin, isStaff } from '../security.js';
+import { PAGE_TYPES, type CategoryService, type PageType } from '../services/categories.js';
 import type { PostQuery, PostService } from '../services/posts.js';
 import { isBlank, trim } from '../text.js';
 
@@ -18,8 +19,22 @@ function parseTypes(raw: string | undefined): PageType[] {
   return [...types].sort((a, b) => PAGE_TYPES.indexOf(a) - PAGE_TYPES.indexOf(b));
 }
 
-export function postRoutes(posts: PostService): Router {
+const FORBIDDEN = 'Bạn chỉ được quản lý bài viết thuộc đầu mục được phân quyền cho tài khoản này.';
+
+export function postRoutes(posts: PostService, categories: CategoryService): Router {
   const router = Router();
+
+  /** null = unrestricted (admin or visitor); an editor gets the ids of their entry and its children. */
+  const scopeOf = async (req: Request): Promise<Set<string> | null> => {
+    const user = currentUser(req);
+    if (user?.role !== 'EDITOR') return null;
+    const scope = await categories.editorScope(user.id);
+    if (scope.size === 0) throw new HttpError(403, 'Tài khoản chưa được gán đầu mục nào để quản lý.');
+    return scope;
+  };
+  const requireInScope = (scope: Set<string> | null, categoryId: string | null | undefined) => {
+    if (scope && (!categoryId || !scope.has(categoryId))) throw new HttpError(403, FORBIDDEN);
+  };
 
   /**
    * Paged summaries, pinned first then newest. Visitors only get published posts in visible entries.
@@ -37,7 +52,7 @@ export function postRoutes(posts: PostService): Router {
       page: intParam(queryParam(req, 'page'), 0),
       size: intParam(queryParam(req, 'size'), 12),
     };
-    res.json(await posts.list(query, isAdmin(req)));
+    res.json(await posts.list(query, isStaff(req), await scopeOf(req)));
   });
 
   /** Public: newest photos (covers and body images) of published posts, for the home gallery. */
@@ -47,8 +62,9 @@ export function postRoutes(posts: PostService): Router {
 
   router.get('/by-slug/:slug', async (req, res) => {
     const slug = req.params.slug;
-    const post = isAdmin(req) ? await posts.findAnyBySlug(slug) : await posts.findPublishedBySlug(slug);
+    const post = isStaff(req) ? await posts.findAnyBySlug(slug) : await posts.findPublishedBySlug(slug);
     if (!post) throw notFound();
+    if (isStaff(req)) requireInScope(await scopeOf(req), post.category.id);
     res.json(post);
   });
 
@@ -56,6 +72,7 @@ export function postRoutes(posts: PostService): Router {
   router.get('/:id', async (req, res) => {
     const post = await posts.findAny(uuidParam(req.params.id));
     if (!post) throw notFound();
+    requireInScope(await scopeOf(req), post.category.id);
     res.json(post);
   });
 
@@ -66,11 +83,21 @@ export function postRoutes(posts: PostService): Router {
   });
 
   router.post('/', async (req, res) => {
+    requireInScope(await scopeOf(req), uuid((req.body as { categoryId?: unknown } | null)?.categoryId));
     res.json(await posts.create(req.body, currentUser(req)));
   });
 
   router.put('/:id', async (req, res) => {
-    const post = await posts.update(uuidParam(req.params.id), req.body);
+    const id = uuidParam(req.params.id);
+    const scope = await scopeOf(req);
+    if (scope) {
+      const existing = await posts.findAny(id);
+      if (!existing) throw notFound();
+      requireInScope(scope, existing.category.id);
+      const target = uuid((req.body as { categoryId?: unknown } | null)?.categoryId);
+      if (target) requireInScope(scope, target);
+    }
+    const post = await posts.update(id, req.body);
     if (!post) throw notFound();
     res.json(post);
   });

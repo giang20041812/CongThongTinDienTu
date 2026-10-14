@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { isAdminPath } from './lib/adminPath';
 import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { ArrowUp } from './components/icons';
 import { Header } from './components/Header';
@@ -22,7 +23,7 @@ import type { PageRoute } from './types';
 import { CategoryPage } from './pages/CategoryPage';
 import { PostDetailPage } from './pages/PostDetailPage';
 
-// The admin d workspace is only downloaded when someone opens /admin.
+// The admin workspace is only downloaded when someone opens ADMIN_PATH.
 const AdminApp = lazy(() => import('./pages/AdminPages').then((module) => ({ default: module.AdminApp })));
 
 const HomePage: React.FC = () => {
@@ -153,7 +154,7 @@ const PublicSite: React.FC = () => {
 };
 
 export default function App() {
-  if (window.location.pathname === '/admin' || window.location.pathname.startsWith('/admin/')) {
+  if (isAdminPath(window.location.pathname)) {
     return (
       <Suspense fallback={<div className="grid min-h-screen place-items-center text-sm text-muted">Đang tải trang quản trị…</div>}>
         <AdminApp />

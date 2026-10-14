@@ -4,14 +4,15 @@ import {
   LayoutDashboard, LogOut, Menu, MessageSquare, Paperclip, Pencil, Pin, Plus, Search, Settings, ShieldCheck,
   Trash2, Type, Upload, UserRound, X,
 } from 'lucide-react';
-import { adminApi, AUTH_EXPIRED_EVENT, checkAdminSession, EMPTY_TIMETABLE, getAdminToken, loginAdmin, logoutAdmin } from '../api';
+import { adminApi, AUTH_EXPIRED_EVENT, EMPTY_TIMETABLE, fetchAdminMe, getAdminToken, loginAdmin, logoutAdmin, type AccountDto, type AdminMe, type AdminRole } from '../api';
+import { ADMIN_LOGIN_PATH, ADMIN_PATH } from '../lib/adminPath';
 import { buildMenu, PAGE_TYPE_LABELS } from '../lib/menu';
 import { formatFileSize } from '../lib/content';
 import { DEFAULT_SITE, SETTING_FIELDS, type SiteInfo } from '../lib/site';
 import type { AttachmentDto, Category, FeedbackDto, MenuNode, PageResponse, PageType, PostDetailDto, PostSummaryDto, TimetablePeriod } from '../types';
 import { compareClassNames, DAY_LABELS, LAST_MORNING_PERIOD } from './SchedulePage';
 
-type AdminSection = 'dashboard' | 'menu' | 'posts' | 'timetable' | 'feedback' | 'settings';
+type AdminSection = 'dashboard' | 'menu' | 'posts' | 'timetable' | 'feedback' | 'settings' | 'users';
 type Notify = (message: string, tone?: 'ok' | 'error') => void;
 
 const errorMessage = (err: unknown, fallback: string) => (err instanceof Error && err.message ? err.message : fallback);
@@ -150,8 +151,10 @@ function UploadButton({ label, accept, onFile, busy }: { label: string; accept: 
 // Portal shell
 // ---------------------------------------------------------------------------
 
-function AdminPortal({ onLogout }: { onLogout: () => void }) {
-  const [section, setSection] = useState<AdminSection>('dashboard');
+function AdminPortal({ me, onLogout }: { me: AdminMe; onLogout: () => void }) {
+  const isEditor = me.role === 'EDITOR';
+  // Editors only get the posts screen, confined to the entry assigned to them (enforced by the API as well).
+  const [section, setSection] = useState<AdminSection>(isEditor ? 'posts' : 'dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; tone: 'ok' | 'error' } | null>(null);
 
@@ -161,14 +164,17 @@ function AdminPortal({ onLogout }: { onLogout: () => void }) {
     window.setTimeout(() => setToast(null), tone === 'error' ? 5000 : 2400);
   }, []);
 
-  const navItems: { id: AdminSection; label: string; icon: typeof LayoutDashboard }[] = [
-    { id: 'dashboard', label: 'Tổng quan', icon: LayoutDashboard },
-    { id: 'menu', label: 'Đầu mục & menu', icon: FolderTree },
-    { id: 'posts', label: 'Bài viết & văn bản', icon: FileText },
-    { id: 'timetable', label: 'Thời khóa biểu', icon: CalendarClock },
-    { id: 'feedback', label: 'Góp ý – Phản hồi', icon: MessageSquare },
-    { id: 'settings', label: 'Thông tin trường', icon: Settings },
-  ];
+  const navItems: { id: AdminSection; label: string; icon: typeof LayoutDashboard }[] = isEditor
+    ? [{ id: 'posts', label: 'Bài viết & văn bản', icon: FileText }]
+    : [
+        { id: 'dashboard', label: 'Tổng quan', icon: LayoutDashboard },
+        { id: 'menu', label: 'Đầu mục & menu', icon: FolderTree },
+        { id: 'posts', label: 'Bài viết & văn bản', icon: FileText },
+        { id: 'timetable', label: 'Thời khóa biểu', icon: CalendarClock },
+        { id: 'feedback', label: 'Góp ý – Phản hồi', icon: MessageSquare },
+        { id: 'settings', label: 'Thông tin trường', icon: Settings },
+        { id: 'users', label: 'Tài khoản', icon: UserRound },
+      ];
   const today = new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
 
   return <div className="min-h-screen bg-[#f5f8fb] text-[#17324d] flex">
@@ -179,14 +185,15 @@ function AdminPortal({ onLogout }: { onLogout: () => void }) {
       <div className="mt-auto p-4 border-t border-white/10 space-y-1"><a href="/" target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3 text-sm text-[#b8c9d8] hover:text-white px-3 py-3"><Home size={17} /> Xem trang công khai</a><button className="w-full flex items-center gap-3 text-sm text-[#b8c9d8] hover:text-white px-3 py-3" onClick={onLogout}><LogOut size={17} /> Đăng xuất</button></div>
     </aside>
     <div className="flex-1 min-w-0">
-      <header className="h-[76px] bg-white border-b border-[#e5edf4] flex items-center justify-between px-5 lg:px-9"><div className="flex items-center gap-4"><button className="lg:hidden text-[#17324d]" onClick={() => setSidebarOpen(true)} aria-label="Mở menu"><Menu /></button><div><p className="text-[11px] text-[#8495a6] first-letter:uppercase">{today}</p><h1 className="font-extrabold text-lg">{navItems.find(n => n.id === section)?.label}</h1></div></div><div className="hidden sm:flex items-center gap-2 text-sm"><div className="w-8 h-8 bg-[#e5f2fb] text-[#0052cc] grid place-items-center"><UserRound size={16} /></div><span className="font-bold">Quản trị viên</span></div></header>
+      <header className="h-[76px] bg-white border-b border-[#e5edf4] flex items-center justify-between px-5 lg:px-9"><div className="flex items-center gap-4"><button className="lg:hidden text-[#17324d]" onClick={() => setSidebarOpen(true)} aria-label="Mở menu"><Menu /></button><div><p className="text-[11px] text-[#8495a6] first-letter:uppercase">{today}</p><h1 className="font-extrabold text-lg">{navItems.find(n => n.id === section)?.label}</h1></div></div><div className="hidden sm:flex items-center gap-2 text-sm"><div className="w-8 h-8 bg-[#e5f2fb] text-[#0052cc] grid place-items-center"><UserRound size={16} /></div><span className="font-bold">{isEditor ? `${me.username} · ${me.categoryName ?? 'Chưa gán đầu mục'}` : 'Quản trị viên'}</span></div></header>
       <main className="p-5 lg:p-9 max-w-[1400px] mx-auto">
-        {section === 'dashboard' && <Dashboard onNavigate={navigate} />}
+        {!isEditor && section === 'dashboard' && <Dashboard onNavigate={navigate} />}
         {section === 'menu' && <MenuSection notify={notify} />}
         {section === 'posts' && <PostsSection notify={notify} />}
         {section === 'timetable' && <TimetableSection notify={notify} />}
         {section === 'feedback' && <FeedbackSection notify={notify} />}
         {section === 'settings' && <SettingsSection notify={notify} />}
+        {section === 'users' && <AccountsSection notify={notify} />}
       </main>
     </div>
     {toast && <div role="status" className={`fixed bottom-6 right-6 text-white px-4 py-3 text-sm shadow-xl flex items-center gap-2 z-50 max-w-md ${toast.tone === 'error' ? 'bg-[#a93226]' : 'bg-[#17324d]'}`}>{toast.tone === 'error' ? <AlertCircle size={16} /> : <Check size={16} className="text-[#69d493]" />}{toast.message}</div>}
@@ -550,6 +557,65 @@ function PostsSection({ notify }: { notify: Notify }) {
 }
 
 // ---------------------------------------------------------------------------
+// Accounts (admin only): editors manage the posts of exactly one top-level menu entry
+// ---------------------------------------------------------------------------
+
+function AccountsSection({ notify }: { notify: Notify }) {
+  const { data: categories } = useLoader(() => adminApi.categories(), [], [] as Category[]);
+  const { data: accounts, loading, error, reload } = useLoader(() => adminApi.users(), [], [] as AccountDto[]);
+  const roots = useMemo(() => categories.filter(c => !c.parentId), [categories]);
+  const [form, setForm] = useState<{ id: string | null; username: string; password: string; role: AdminRole; categoryId: string } | null>(null);
+  const [saving, setSaving] = useState(false);
+  const rootName = (id: string | null) => roots.find(c => c.id === id)?.name ?? '—';
+
+  const save = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!form) return;
+    setSaving(true);
+    try {
+      const categoryId = form.role === 'EDITOR' ? form.categoryId || null : null;
+      if (form.id) await adminApi.updateUser(form.id, { username: form.username, role: form.role, categoryId, ...(form.password ? { password: form.password } : {}) });
+      else await adminApi.createUser({ username: form.username, password: form.password, role: form.role, categoryId });
+      notify('Đã lưu tài khoản');
+      setForm(null);
+      await reload();
+    } catch (err) {
+      notify(errorMessage(err, 'Không lưu được tài khoản'), 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const remove = async (account: AccountDto) => {
+    if (!window.confirm(`Xóa tài khoản "${account.username}"?`)) return;
+    try { await adminApi.deleteUser(account.id); notify('Đã xóa tài khoản'); await reload(); } catch (err) { notify(errorMessage(err, 'Không xóa được tài khoản (tài khoản đã đăng bài không thể xóa)'), 'error'); }
+  };
+
+  return <>
+    <PageHeading eyebrow="Phân quyền" title="Tài khoản" description="Biên tập viên chỉ thấy và quản lý bài viết của đầu mục được gán. Quản trị viên có toàn quyền." action={<button onClick={() => setForm({ id: null, username: '', password: '', role: 'EDITOR', categoryId: '' })} className="admin-primary"><Plus size={16} /> Thêm tài khoản</button>} />
+    {form && <Panel title={form.id ? 'Sửa tài khoản' : 'Tài khoản mới'} onClose={() => setForm(null)}>
+      <form onSubmit={save} className="grid sm:grid-cols-2 gap-4">
+        <label className="block"><span className="label-admin">Tên đăng nhập</span><input value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} className="admin-input" autoComplete="off" required /></label>
+        <label className="block"><span className="label-admin">{form.id ? 'Mật khẩu mới (bỏ trống nếu giữ nguyên)' : 'Mật khẩu (tối thiểu 8 ký tự)'}</span><input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} className="admin-input" autoComplete="new-password" required={!form.id} /></label>
+        <label className="block"><span className="label-admin">Vai trò</span><select value={form.role} onChange={e => setForm({ ...form, role: e.target.value as AdminRole })} className="admin-select w-full bg-white"><option value="EDITOR">Biên tập viên (1 đầu mục)</option><option value="ADMIN">Quản trị viên</option></select></label>
+        {form.role === 'EDITOR' && <label className="block"><span className="label-admin">Đầu mục được quản lý</span><select value={form.categoryId} onChange={e => setForm({ ...form, categoryId: e.target.value })} className="admin-select w-full bg-white" required><option value="">— Chọn đầu mục —</option>{roots.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>}
+        <div className="sm:col-span-2 flex gap-2"><button disabled={saving} className="admin-primary">{saving ? 'Đang lưu...' : 'Lưu tài khoản'}</button><button type="button" onClick={() => setForm(null)} className="admin-secondary">Hủy</button></div>
+      </form>
+    </Panel>}
+    {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
+    {loading && accounts.length === 0 ? <p className="p-5 text-center text-sm text-[#8a9bad]">Đang tải dữ liệu...</p> : <DataTable
+      headers={['Tên đăng nhập', 'Vai trò', 'Đầu mục quản lý', 'Hành động']}
+      rows={accounts.map(a => [
+        <span className="font-bold text-sm">{a.username}</span>,
+        <StatusPill tone={a.role === 'ADMIN' ? 'blue' : 'green'}>{a.role === 'ADMIN' ? 'Quản trị viên' : a.role === 'EDITOR' ? 'Biên tập viên' : a.role}</StatusPill>,
+        <span className="text-xs">{a.role === 'EDITOR' ? rootName(a.categoryId) : 'Tất cả'}</span>,
+        <div className="flex gap-3 whitespace-nowrap"><button onClick={() => setForm({ id: a.id, username: a.username, password: '', role: a.role === 'EDITOR' ? 'EDITOR' : 'ADMIN', categoryId: a.categoryId ?? '' })} className="text-xs font-bold text-[#0052cc]">Sửa</button><button onClick={() => remove(a)} className="text-xs font-bold text-[#a93226]">Xóa</button></div>,
+      ])}
+    />}
+  </>;
+}
+
+// ---------------------------------------------------------------------------
 // Feedback
 // ---------------------------------------------------------------------------
 
@@ -756,15 +822,18 @@ function TimetableSection({ notify }: { notify: Notify }) {
 // ---------------------------------------------------------------------------
 
 export function AdminApp() {
-  const [authenticated, setAuthenticated] = useState(() => !!getAdminToken());
-  const login = () => { setAuthenticated(true); window.history.pushState({}, '', '/admin'); };
-  const logout = () => { logoutAdmin(); setAuthenticated(false); window.history.pushState({}, '', '/admin/login'); };
+  // undefined = checking the stored token, null = signed out.
+  const [me, setMe] = useState<AdminMe | null | undefined>(() => (getAdminToken() ? undefined : null));
+  const refresh = useCallback(() => { void fetchAdminMe().then(setMe); }, []);
+  const login = () => { window.history.pushState({}, '', ADMIN_PATH); setMe(undefined); refresh(); };
+  const logout = () => { logoutAdmin(); setMe(null); window.history.pushState({}, '', ADMIN_LOGIN_PATH); };
   useEffect(() => {
     // Drop back to the login screen when the token is missing, expired or rejected by the API.
-    checkAdminSession().then(valid => { if (!valid) setAuthenticated(false); });
-    const onExpired = () => setAuthenticated(false);
+    if (getAdminToken()) refresh();
+    const onExpired = () => setMe(null);
     window.addEventListener(AUTH_EXPIRED_EVENT, onExpired);
     return () => window.removeEventListener(AUTH_EXPIRED_EVENT, onExpired);
-  }, []);
-  return authenticated ? <AdminPortal onLogout={logout} /> : <AdminLogin onLogin={login} />;
+  }, [refresh]);
+  if (me === undefined) return <div className="grid min-h-screen place-items-center text-sm text-[#71849b]">Đang kiểm tra phiên đăng nhập…</div>;
+  return me ? <AdminPortal me={me} onLogout={logout} /> : <AdminLogin onLogin={login} />;
 }

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { notFound, queryParam, uuidParam } from '../http.js';
-import { isAdmin } from '../security.js';
+import { currentUser, isAdmin, isEditor } from '../security.js';
 import type { CategoryService } from '../services/categories.js';
 
 /**
@@ -11,6 +11,12 @@ export function categoryRoutes(categories: CategoryService): Router {
   const router = Router();
 
   router.get('/', async (req, res) => {
+    if (isEditor(req)) {
+      // An editor sees only the entry they manage (and its children), hidden ones included.
+      const scope = await categories.editorScope(currentUser(req)!.id);
+      res.json((await categories.listAll()).filter((c) => scope.has(c.id)));
+      return;
+    }
     res.json(isAdmin(req) ? await categories.listAll() : await categories.listPublic());
   });
 

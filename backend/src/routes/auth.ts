@@ -36,7 +36,7 @@ export function authRoutes(tokens: TokenService, logins: LoginAttemptLimiter): R
     const user = username
       ? await queryOne<UserRow>(`SELECT id, username, password_hash, role FROM users WHERE username = $1`, [username])
       : undefined;
-    if (!user || user.role !== 'ADMIN' || !(await passwordMatches(password, user.password_hash))) {
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'EDITOR') || !(await passwordMatches(password, user.password_hash))) {
       logins.recordFailure(limiterKey);
       res.status(401).json({ message: 'Tài khoản hoặc mật khẩu chưa đúng.' });
       return;
@@ -53,12 +53,18 @@ export function authRoutes(tokens: TokenService, logins: LoginAttemptLimiter): R
   /** Lets the admin app check whether a stored token is still valid. */
   router.get('/me', async (req, res) => {
     const current = currentUser(req);
-    const user = current && (await queryOne<UserRow>(`SELECT username, role FROM users WHERE id = $1`, [current.id]));
-    if (!user) {
+    const user =
+      current &&
+      (await queryOne<{ username: string; role: Role; categoryId: string | null; categoryName: string | null }>(
+        `SELECT u.username, u.role, u.category_id AS "categoryId", c.name AS "categoryName"
+         FROM users u LEFT JOIN categories c ON c.id = u.category_id WHERE u.id = $1`,
+        [current.id],
+      ));
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'EDITOR')) {
       res.status(401).end();
       return;
     }
-    res.json({ username: user.username, role: user.role });
+    res.json(user);
   });
 
   return router;
