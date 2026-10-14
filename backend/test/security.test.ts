@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { test } from 'node:test';
-import { LoginAttemptLimiter, SubmissionRateLimiter, TokenService, hashPassword, isHashed, passwordMatches } from '../src/security.js';
+import { LoginAttemptLimiter, SubmissionRateLimiter, TokenService, authenticate, hashPassword, isHashed, passwordMatches } from '../src/security.js';
 
 // Produced by the former Java backend (PasswordHasher) for the password "admin123".
 const JAVA_HASH = 'pbkdf2$120000$ee5CGhBwYL8k50hcCwpifg$SONscMr2i2+v5kVsNQnnU33hSGOlbptECwU74O8kPRg';
@@ -73,3 +73,33 @@ test('feedback limiter allows 5 submissions per client', () => {
   assert.deepEqual(results, [true, true, true, true, true, false]);
   assert.equal(limiter.tryAcquire('5.6.7.8'), true);
 });
+
+test('change-password allows staff (admin and editor) and rejects guests', () => {
+  const tokens = new TokenService(JAVA_SECRET, 8);
+  const auth = authenticate(tokens);
+
+  const makeReq = (bearer?: string) => ({
+    method: 'POST',
+    baseUrl: '/api',
+    path: '/auth/change-password',
+    get: (h: string) => (h.toLowerCase() === 'authorization' && bearer ? `Bearer ${bearer}` : undefined),
+  });
+
+  // Guest
+  let status = 0;
+  auth(makeReq() as any, { status: (s: number) => { status = s; return { json: () => {} }; } } as any, () => { status = 200; });
+  assert.equal(status, 401);
+
+  // Editor
+  const editor = tokens.issue({ id: '3dc0b7ec-2d9f-40ea-934d-27ce330dd785', role: 'EDITOR' });
+  let editorCalledNext = false;
+  auth(makeReq(editor.token) as any, { status: () => ({ json: () => {} }) } as any, () => { editorCalledNext = true; });
+  assert.equal(editorCalledNext, true);
+
+  // Admin
+  const admin = tokens.issue({ id: 'da46fcad-10ef-4eaa-8cfe-654367a7edb5', role: 'ADMIN' });
+  let adminCalledNext = false;
+  auth(makeReq(admin.token) as any, { status: () => ({ json: () => {} }) } as any, () => { adminCalledNext = true; });
+  assert.equal(adminCalledNext, true);
+});
+
