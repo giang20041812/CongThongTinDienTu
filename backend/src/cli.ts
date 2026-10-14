@@ -1,12 +1,15 @@
+import crypto from 'node:crypto';
 import { config } from './config.js';
-import { describeDb, pool } from './db.js';
+import { describeDb, pool, query } from './db.js';
 import { migrate } from './migrations.js';
+import { hashPassword } from './security.js';
 import { importCloudinaryFiles } from './storage/importCloudinary.js';
 import { localStorage } from './storage/local.js';
 
 /**
  * `node dist/cli.js <command>`:
  *   migrate            applies pending db/migrations without starting the server (`npm run db:migrate`)
+ *   create-editors     creates one editor account per top-level menu entry that has none (random passwords, printed once)
  *   import-cloudinary  copies the Cloudinary files the content uses to UPLOAD_DIR and rewrites their links
  */
 async function main(command: string | undefined) {
@@ -15,6 +18,28 @@ async function main(command: string | undefined) {
       console.log(`[db] Cơ sở dữ liệu: ${describeDb()}`);
       const ran = await migrate();
       console.log(ran.length ? `[db] Xong, đã áp dụng ${ran.length} migration.` : '[db] Không có migration mới.');
+      return;
+    }
+    case 'create-editors': {
+      const entries = await query<{ id: string; slug: string; name: string; username: string | null }>(
+        `SELECT c.id, c.slug, c.name, (SELECT u.username FROM users u WHERE u.category_id = c.id AND u.role = 'EDITOR' LIMIT 1) AS username
+         FROM categories c WHERE c.parent_id IS NULL AND c.page_type = 'GROUP' ORDER BY c.sort_order`,
+      );
+      for (const entry of entries) {
+        if (entry.username) {
+          console.log(`[editors] ${entry.name}: đã có tài khoản "${entry.username}" – bỏ qua.`);
+          continue;
+        }
+        const username = `bt-${entry.slug}`.slice(0, 50);
+        const password = crypto.randomBytes(9).toString('base64url');
+        await query(`INSERT INTO users (username, password_hash, role, category_id) VALUES ($1, $2, 'EDITOR', $3) ON CONFLICT (username) DO NOTHING`, [
+          username,
+          await hashPassword(password),
+          entry.id,
+        ]);
+        console.log(`[editors] ${entry.name}: ${username} / ${password}`);
+      }
+      console.log('[editors] Hãy lưu lại mật khẩu ở trên – sẽ không hiển thị lại.');
       return;
     }
     case 'import-cloudinary': {
@@ -26,7 +51,7 @@ async function main(command: string | undefined) {
       return;
     }
     default:
-      console.log('Cách dùng: node dist/cli.js migrate | import-cloudinary');
+      console.log('Cách dùng: node dist/cli.js migrate | create-editors | import-cloudinary');
       process.exitCode = 1;
   }
 }

@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { query, queryOne } from '../db.js';
-import { badRequest, conflict, enumValue, jsonObject, notFound, str, uuidParam } from '../http.js';
+import { badRequest, conflict, enumValue, jsonObject, notFound, str, uuid, uuidParam } from '../http.js';
 import { ROLES, hashPassword } from '../security.js';
 import { isBlank, localNow, trim } from '../text.js';
 
 const MIN_PASSWORD_LENGTH = 8;
 /** Never the password hash. */
-const COLUMNS = `id, username, role, created_at AS "createdAt"`;
+const COLUMNS = `id, username, role, category_id AS "categoryId", created_at AS "createdAt"`;
 
 function requireUsername(username: string | null): string {
   if (username == null || isBlank(username)) throw badRequest('Tên đăng nhập không được để trống.');
@@ -20,7 +20,18 @@ function requirePassword(password: string | null): string {
   return password;
 }
 
-/** Admin accounts (admin-only). Passwords are always stored hashed. */
+/** An editor manages exactly one menu entry (and its children); other roles have none. */
+async function categoryFor(role: string, raw: unknown): Promise<string | null> {
+  if (role !== 'EDITOR') return null;
+  const id = uuid(raw);
+  if (!id) throw badRequest('Tài khoản biên tập viên phải được gán một đầu mục.');
+  if (!(await queryOne(`SELECT 1 FROM categories WHERE id = $1 AND parent_id IS NULL`, [id]))) {
+    throw badRequest('Chỉ gán được đầu mục cấp trên cùng của menu.');
+  }
+  return id;
+}
+
+/** Accounts (admin-only): admins and per-entry editors. Passwords are always stored hashed. */
 export function userRoutes(): Router {
   const router = Router();
 
@@ -39,14 +50,13 @@ export function userRoutes(): Router {
     const role = enumValue(body.role, ROLES) ?? 'USER';
     const username = requireUsername(str(body.username));
     if (await queryOne(`SELECT 1 FROM users WHERE username = $1`, [username])) throw conflict('Tên đăng nhập đã tồn tại.');
+    const categoryId = await categoryFor(role, body.categoryId);
     const passwordHash = await hashPassword(requirePassword(str(body.password)));
     res.json(
-      await queryOne(`INSERT INTO users (username, password_hash, role, created_at) VALUES ($1, $2, $3, $4) RETURNING ${COLUMNS}`, [
-        username,
-        passwordHash,
-        role,
-        localNow(),
-      ]),
+      await queryOne(
+        `INSERT INTO users (username, password_hash, role, category_id, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING ${COLUMNS}`,
+        [username, passwordHash, role, categoryId, localNow()],
+      ),
     );
   });
 
@@ -57,14 +67,20 @@ export function userRoutes(): Router {
     const role = enumValue(body.role, ROLES);
     const usernameInput = str(body.username);
     const password = str(body.password);
-    const current = await queryOne<{ username: string; role: string }>(`SELECT username, role FROM users WHERE id = $1`, [id]);
+    const current = await queryOne<{ username: string; role: string; categoryId: string | null }>(
+      `SELECT username, role, category_id AS "categoryId" FROM users WHERE id = $1`,
+      [id],
+    );
     if (!current) throw notFound();
     const username = usernameInput != null ? requireUsername(usernameInput) : current.username;
     const passwordHash = password != null && password !== '' ? await hashPassword(requirePassword(password)) : null;
+    const newRole = role ?? current.role;
+    const categoryId = await categoryFor(newRole, body.categoryId !== undefined ? body.categoryId : current.categoryId);
     res.json(
       await queryOne(
-        `UPDATE users SET username = $2, role = $3, password_hash = COALESCE($4, password_hash) WHERE id = $1 RETURNING ${COLUMNS}`,
-        [id, username, role ?? current.role, passwordHash],
+        `UPDATE users SET username = $2, role = $3, category_id = $5, password_hash = COALESCE($4, password_hash)
+         WHERE id = $1 RETURNING ${COLUMNS}`,
+        [id, username, newRole, passwordHash, categoryId],
       ),
     );
   });

@@ -67,3 +67,5 @@ Dự án gồm hai workspace nằm song song: `frontend/` và `backend/`; `packa
 - Lỗi nghiệp vụ: `throw badRequest('…')` / `conflict('…')` / `notFound()` (http.ts) → JSON `{message}`; Express 5 tự bắt lỗi của handler async.
 - Trạng thái nội dung luôn là mã `PUBLISHED` / `DRAFT` / `HIDDEN`. Đầu mục bị ẩn (`visible=false`) thì bài của nó cũng không hiển thị công khai.
 - Không bao giờ commit `.env` (hosting có thể gửi mã nguồn cho AI bên ngoài phân tích lỗi deploy).
+
+- **Phân quyền & URL admin**: trang quản trị ở `/admindangtranduc` (đăng nhập `/admindangtranduc/login`; hằng số ở `frontend/src/lib/adminPath.ts`). Vai trò `ADMIN` (toàn quyền) và `EDITOR` (`users.category_id` = 1 đầu mục cấp trên cùng; chỉ xem/đăng/sửa bài của đầu mục đó và mục con, chỉ thấy màn Bài viết). Quyền kiểm ở `security.ts` (`requiredAccess`) và `routes/posts.ts` (`scopeOf`). Tạo sẵn tài khoản mỗi đầu mục: `node dist/cli.js create-editors` (mật khẩu ngẫu nhiên in một lần); hoặc dùng màn Tài khoản.
