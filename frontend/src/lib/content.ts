@@ -1,4 +1,5 @@
 import type { AttachmentDto, CategoryRef, PageRoute, PostDetailDto, PostSummaryDto } from '../types';
+import { hasText } from './richText';
 
 export interface ContentBlock {
   type: 'TEXT' | 'IMAGE';
@@ -20,12 +21,15 @@ export interface PostView {
   views: number;
   author: string;
   pinned: boolean;
+  featured: boolean;
   documentNumber?: string;
   issuer?: string;
   issuedDate: Date | null;
   recipient?: string;
   actionRequired?: string;
   attachmentCount: number;
+  /** Photos in the post (summaries carry the count, details the blocks). */
+  imageCount: number;
   blocks: ContentBlock[];
   attachments: AttachmentDto[];
 }
@@ -62,7 +66,7 @@ export const toPostView = (raw: PostSummaryDto | PostDetailDto): PostView => {
       content: b?.content ?? undefined,
       imageUrl: b?.imageUrl ?? undefined,
     }))
-    .filter((b) => (b.type === 'TEXT' ? !!b.content?.trim() : !!b.imageUrl));
+    .filter((b) => (b.type === 'TEXT' ? hasText(b.content) : !!b.imageUrl));
 
   const publishedAt = parseDate(raw.publishedAt);
   const firstImage = blocks.find((b) => b.type === 'IMAGE')?.imageUrl;
@@ -81,12 +85,14 @@ export const toPostView = (raw: PostSummaryDto | PostDetailDto): PostView => {
     views: Number(raw.views ?? 0),
     author: raw.author ?? 'Ban biên tập',
     pinned: !!raw.pinned,
+    featured: !!raw.featured,
     documentNumber: raw.documentNumber || undefined,
     issuer: raw.issuer || undefined,
     issuedDate: parseDate(raw.issuedDate),
     recipient: detail?.recipient || undefined,
     actionRequired: detail?.actionRequired || undefined,
     attachmentCount: 'attachmentCount' in raw ? raw.attachmentCount : attachments.length,
+    imageCount: 'imageCount' in raw ? raw.imageCount : blocks.filter((b) => b.type === 'IMAGE').length,
     blocks,
     attachments,
   };

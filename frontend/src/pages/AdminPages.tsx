@@ -2,8 +2,9 @@ import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'rea
 import {
   AlertCircle, ArrowDown, ArrowUp, CalendarClock, Check, ExternalLink, Eye, EyeOff, FileText, FolderTree, Home, ImagePlus,
   KeyRound, LayoutDashboard, LogOut, Menu, MessageSquare, Paperclip, Pencil, Pin, Plus, Search, Settings, ShieldCheck,
-  Trash2, Type, Upload, UserRound, X,
+  Star, Trash2, Type, Upload, UserRound, X,
 } from 'lucide-react';
+import { RichTextEditor } from '../components/RichTextEditor';
 import { adminApi, AUTH_EXPIRED_EVENT, EMPTY_TIMETABLE, fetchAdminMe, getAdminToken, loginAdmin, logoutAdmin, type AccountDto, type AdminMe, type AdminRole } from '../api';
 import { ADMIN_LOGIN_PATH, ADMIN_PATH } from '../lib/adminPath';
 import { buildMenu, PAGE_TYPE_LABELS } from '../lib/menu';
@@ -145,10 +146,15 @@ function CategorySelect({ tree, value, onChange, onlyPostTargets, emptyLabel, al
   </select>;
 }
 
-function UploadButton({ label, accept, onFile, busy }: { label: string; accept: string; onFile: (file: File) => void; busy?: boolean }) {
+/** One file (`onFile`) or, with `onFiles`, several chosen at once. */
+function UploadButton({ label, accept, onFile, onFiles, busy }: { label: string; accept: string; onFile?: (file: File) => void; onFiles?: (files: File[]) => void; busy?: boolean }) {
   return <label className={`admin-secondary cursor-pointer ${busy ? 'opacity-60 pointer-events-none' : ''}`}>
     <Upload size={14} /> {busy ? 'Đang tải lên...' : label}
-    <input type="file" accept={accept} className="hidden" onChange={e => { const file = e.target.files?.[0]; e.target.value = ''; if (file) onFile(file); }} />
+    <input type="file" accept={accept} multiple={!!onFiles} className="hidden" onChange={e => {
+      const files = Array.from(e.target.files ?? []);
+      e.target.value = '';
+      if (onFiles) { if (files.length) onFiles(files); } else if (files[0]) onFile?.(files[0]);
+    }} />
   </label>;
 }
 
@@ -614,13 +620,14 @@ interface BlockDraft { key: string; type: 'TEXT' | 'IMAGE'; content: string; ima
 const newKey = () => Math.random().toString(36).slice(2);
 const toLocalInput = (value?: string | null) => (value ? value.slice(0, 16) : '');
 
-function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedScopeIds }: { postId: string | null; tree: MenuNode[]; categories: Category[]; onClose: () => void; onSaved: () => void; notify: Notify; allowedScopeIds?: Set<string> }) {
+function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedScopeIds, canFeature }: { postId: string | null; tree: MenuNode[]; categories: Category[]; onClose: () => void; onSaved: () => void; notify: Notify; allowedScopeIds?: Set<string>; canFeature: boolean }) {
   const [loaded, setLoaded] = useState(!postId);
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [status, setStatus] = useState('PUBLISHED');
   const [pinned, setPinned] = useState(false);
+  const [featured, setFeatured] = useState(false);
   const [publishedAt, setPublishedAt] = useState('');
   const [summary, setSummary] = useState('');
   const [coverUrl, setCoverUrl] = useState('');
@@ -640,7 +647,7 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedS
   useEffect(() => {
     if (!postId) return;
     adminApi.post(postId).then((post: PostDetailDto) => {
-      setTitle(post.title); setSlug(post.slug); setCategoryId(post.category?.id ?? ''); setStatus(post.status); setPinned(post.pinned);
+      setTitle(post.title); setSlug(post.slug); setCategoryId(post.category?.id ?? ''); setStatus(post.status); setPinned(post.pinned); setFeatured(post.featured);
       setPublishedAt(toLocalInput(post.publishedAt)); setSummary(post.summary ?? ''); setCoverUrl(post.coverUrl ?? '');
       setBlocks(post.blocks.length ? post.blocks.map(b => ({ key: newKey(), type: b.type, content: b.content ?? '', imageUrl: b.imageUrl ?? '' })) : [{ key: newKey(), type: 'TEXT', content: '', imageUrl: '' }]);
       setAttachments(post.attachments);
@@ -651,6 +658,8 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedS
 
   const category = categories.find(c => c.id === categoryId);
   const isDocument = category?.pageType === 'DOCUMENT_LIST';
+  /** Photo-library post: photos only, no text and no attached files. */
+  const isGallery = category?.pageType === 'GALLERY';
 
   const upload = async (key: string, file: File, kind: 'image' | 'file', apply: (result: any) => void) => {
     setUploading(key);
@@ -666,15 +675,52 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedS
   const updateBlock = (key: string, patch: Partial<BlockDraft>) => setBlocks(list => list.map(b => (b.key === key ? { ...b, ...patch } : b)));
   const moveBlock = (index: number, delta: number) => setBlocks(list => { const next = [...list]; const [item] = next.splice(index, 1); next.splice(index + delta, 0, item); return next; });
 
+  /** Moves a photo past the next/previous photo, skipping any (hidden) text blocks in between. */
+  const moveImage = (key: string, delta: number) => setBlocks(list => {
+    const images = list.filter(b => b.type === 'IMAGE');
+    const from = images.findIndex(b => b.key === key);
+    const to = from + delta;
+    if (from < 0 || to < 0 || to >= images.length) return list;
+    const next = [...list];
+    const a = list.indexOf(images[from]);
+    const b = list.indexOf(images[to]);
+    [next[a], next[b]] = [next[b], next[a]];
+    return next;
+  });
+
+  /** Uploads the chosen photos one after another; each becomes an image block (failures are reported, the rest go on). */
+  const uploadPhotos = async (files: File[]) => {
+    setUploading('gallery');
+    let failed = 0;
+    try {
+      for (const file of files) {
+        try {
+          const { url } = await adminApi.uploadImage(file);
+          setBlocks(list => [...list, { key: newKey(), type: 'IMAGE', content: '', imageUrl: url }]);
+        } catch (err) {
+          failed++;
+          notify(`${file.name}: ${errorMessage(err, 'Tải ảnh lên thất bại')}`, 'error');
+        }
+      }
+    } finally {
+      setUploading('');
+    }
+    if (files.length - failed > 0) notify(`Đã tải lên ${files.length - failed} ảnh`);
+  };
+
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!title.trim()) return notify('Vui lòng nhập tiêu đề', 'error');
     if (!categoryId) return notify('Vui lòng chọn đầu mục', 'error');
+    const sent = isGallery ? blocks.filter(b => b.type === 'IMAGE' && b.imageUrl.trim()) : blocks;
+    if (isGallery && sent.length === 0 && !coverUrl.trim()) return notify('Bài viết trong Kho ảnh cần ít nhất một ảnh', 'error');
     const body = {
       title, slug, categoryId, status, pinned, summary, coverUrl,
+      // Only an admin picks the home-slider posts; an editor's request leaves the flag as it is.
+      ...(canFeature ? { featured } : {}),
       publishedAt: publishedAt ? `${publishedAt}:00` : null,
-      blocks: blocks.map(b => ({ type: b.type, content: b.type === 'TEXT' ? b.content : null, imageUrl: b.type === 'IMAGE' ? b.imageUrl : null })),
-      attachments,
+      blocks: sent.map(b => ({ type: b.type, content: b.type === 'TEXT' ? b.content : null, imageUrl: b.type === 'IMAGE' ? b.imageUrl : null })),
+      attachments: isGallery ? [] : attachments,
       documentNumber: doc.documentNumber, issuer: doc.issuer, issuedDate: doc.issuedDate || null, recipient: doc.recipient, actionRequired: doc.actionRequired,
     };
     setSaving(true);
@@ -703,8 +749,9 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedS
         <label className="block"><span className="label-admin">Trạng thái</span><select value={status} onChange={e => setStatus(e.target.value)} className="admin-select w-full bg-white">{Object.entries(STATUS_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
         <label className="block"><span className="label-admin">Ngày đăng (để trống = bây giờ)</span><input type="datetime-local" value={publishedAt} onChange={e => setPublishedAt(e.target.value)} className="admin-input" /></label>
         <label className="flex items-center gap-2 text-sm md:col-span-2"><input type="checkbox" checked={pinned} onChange={e => setPinned(e.target.checked)} /> Ghim lên đầu / đánh dấu quan trọng</label>
-        <label className="block md:col-span-2"><span className="label-admin">Tóm tắt (để trống = lấy đoạn đầu nội dung)</span><textarea value={summary} onChange={e => setSummary(e.target.value)} className="admin-input min-h-16" /></label>
-        <div className="md:col-span-2"><span className="label-admin">Ảnh bìa</span><div className="flex flex-col sm:flex-row gap-2"><input value={coverUrl} onChange={e => setCoverUrl(e.target.value)} className="admin-input flex-1" placeholder="https://... hoặc tải ảnh lên" /><UploadButton label="Tải ảnh" accept="image/*" busy={uploading === 'cover'} onFile={file => upload('cover', file, 'image', r => setCoverUrl(r.url))} /></div>{coverUrl && <img src={coverUrl} alt="" className="mt-2 h-28 object-cover border border-[#e3ebf3]" />}</div>
+        {canFeature && <label className="flex items-center gap-2 text-sm md:col-span-2"><input type="checkbox" checked={featured} onChange={e => setFeatured(e.target.checked)} /> <Star size={14} className="text-[#a76500]" /> Hiện trên slide trang chủ (sau ảnh banner)</label>}
+        <label className="block md:col-span-2"><span className="label-admin">{isGallery ? 'Mô tả ngắn (không bắt buộc)' : 'Tóm tắt (để trống = lấy đoạn đầu nội dung)'}</span><textarea value={summary} onChange={e => setSummary(e.target.value)} className="admin-input min-h-16" /></label>
+        <div className="md:col-span-2"><span className="label-admin">{isGallery ? 'Ảnh bìa (để trống = ảnh đầu tiên của album)' : 'Ảnh bìa'}</span><div className="flex flex-col sm:flex-row gap-2"><input value={coverUrl} onChange={e => setCoverUrl(e.target.value)} className="admin-input flex-1" placeholder="https://... hoặc tải ảnh lên" /><UploadButton label="Tải ảnh" accept="image/*" busy={uploading === 'cover'} onFile={file => upload('cover', file, 'image', r => setCoverUrl(r.url))} /></div>{coverUrl && <img src={coverUrl} alt="" className="mt-2 h-28 object-cover border border-[#e3ebf3]" />}</div>
       </div>
 
       {isDocument && <fieldset className="grid gap-4 md:grid-cols-2 border border-[#e3ebf3] p-4"><legend className="px-2 text-xs font-extrabold text-[#0052cc]">Thông tin văn bản</legend>
@@ -715,11 +762,22 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedS
         <label className="block md:col-span-2"><span className="label-admin">Yêu cầu thực hiện</span><textarea value={doc.actionRequired} onChange={e => setDoc({ ...doc, actionRequired: e.target.value })} className="admin-input min-h-16" /></label>
       </fieldset>}
 
+      {isGallery ? <div><span className="label-admin">Ảnh trong album ({blocks.filter(b => b.type === 'IMAGE' && b.imageUrl).length})</span>
+        <p className="text-[11px] text-[#8a9bad] mb-2">Bài viết trong Kho ảnh chỉ chứa ảnh. Có thể chọn nhiều ảnh cùng lúc.</p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">{blocks.filter(b => b.type === 'IMAGE').map((block, index, images) => <div key={block.key} className="border border-[#e3ebf3] bg-[#fbfdff]">
+          {block.imageUrl ? <img src={block.imageUrl} alt="" className="w-full aspect-[4/3] object-cover" /> : <div className="aspect-[4/3] grid place-items-center text-[11px] text-[#8a9bad]">Chưa có ảnh</div>}
+          <div className="flex items-center justify-between gap-1 p-1.5">
+            <div className="flex gap-1"><IconButton title="Lùi lên trước" disabled={index === 0} onClick={() => moveImage(block.key, -1)}><ArrowUp size={13} /></IconButton><IconButton title="Lùi xuống sau" disabled={index === images.length - 1} onClick={() => moveImage(block.key, 1)}><ArrowDown size={13} /></IconButton></div>
+            <div className="flex gap-1">{block.imageUrl && <IconButton title="Đặt làm ảnh bìa" onClick={() => setCoverUrl(block.imageUrl)}><Star size={13} className={coverUrl === block.imageUrl ? 'text-[#a76500]' : ''} /></IconButton>}<IconButton title="Xoá ảnh" danger onClick={() => setBlocks(list => list.filter(b => b.key !== block.key))}><X size={13} /></IconButton></div>
+          </div>
+        </div>)}</div>
+        <div className="flex flex-wrap gap-2 mt-3"><UploadButton label="Tải nhiều ảnh lên" accept="image/*" busy={uploading === 'gallery'} onFiles={uploadPhotos} /><button type="button" className="admin-secondary" onClick={() => { const url = window.prompt('Dán đường dẫn ảnh (https://...)'); if (url?.trim()) setBlocks(list => [...list, { key: newKey(), type: 'IMAGE', content: '', imageUrl: url.trim() }]); }}><Plus size={14} /> Thêm bằng đường dẫn</button></div>
+      </div> : <>
       <div><span className="label-admin">Nội dung</span>
         <div className="space-y-3">{blocks.map((block, index) => <div key={block.key} className="border border-[#e3ebf3] p-3 bg-[#fbfdff]">
           <div className="flex items-center justify-between mb-2"><span className="text-[11px] font-bold text-[#536b80] flex items-center gap-1">{block.type === 'TEXT' ? <><Type size={12} /> Đoạn văn</> : <><ImagePlus size={12} /> Hình ảnh</>}</span><div className="flex gap-1"><IconButton title="Lên" disabled={index === 0} onClick={() => moveBlock(index, -1)}><ArrowUp size={13} /></IconButton><IconButton title="Xuống" disabled={index === blocks.length - 1} onClick={() => moveBlock(index, 1)}><ArrowDown size={13} /></IconButton><IconButton title="Xoá khối" danger onClick={() => setBlocks(list => list.filter(b => b.key !== block.key))}><X size={13} /></IconButton></div></div>
           {block.type === 'TEXT'
-            ? <textarea value={block.content} onChange={e => updateBlock(block.key, { content: e.target.value })} className="admin-input min-h-32" placeholder="Nhập nội dung. Để trống một dòng giữa các đoạn." />
+            ? <RichTextEditor initial={block.content} onChange={html => updateBlock(block.key, { content: html })} placeholder="Nhập nội dung. Bôi đen chữ rồi dùng thanh công cụ để in đậm, in nghiêng, gạch dưới hoặc gắn liên kết." />
             : <div className="flex flex-col sm:flex-row gap-2"><input value={block.imageUrl} onChange={e => updateBlock(block.key, { imageUrl: e.target.value })} className="admin-input flex-1" placeholder="https://..." /><UploadButton label="Tải ảnh" accept="image/*" busy={uploading === block.key} onFile={file => upload(block.key, file, 'image', r => updateBlock(block.key, { imageUrl: r.url }))} /></div>}
           {block.type === 'IMAGE' && block.imageUrl && <img src={block.imageUrl} alt="" className="mt-2 h-28 object-cover border border-[#e3ebf3]" />}
         </div>)}</div>
@@ -736,6 +794,7 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedS
         </li>)}</ul>}
         <div className="flex flex-wrap gap-2"><UploadButton label="Tải tệp lên (PDF, Word, Excel… ≤ 10MB)" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.txt,.zip,.rar" busy={uploading === 'attachment'} onFile={file => upload('attachment', file, 'file', r => setAttachments(list => [...list, r]))} /><button type="button" className="admin-secondary" onClick={() => { const url = window.prompt('Dán đường dẫn tệp (https://...)'); if (url) setAttachments(list => [...list, { name: decodeURIComponent(url.split('/').pop() || 'Tệp đính kèm'), url }]); }}><Plus size={14} /> Thêm bằng đường dẫn</button></div>
       </div>
+      </>}
 
       <div className="flex justify-end gap-2 border-t border-[#edf1f5] pt-4"><button type="button" onClick={onClose} className="admin-secondary">Hủy</button><button disabled={saving || !!uploading} className="admin-primary disabled:opacity-60"><Check size={15} /> {saving ? 'Đang lưu...' : 'Lưu bài viết'}</button></div>
     </form>
@@ -769,11 +828,16 @@ function PostsSection({ notify, me }: { notify: Notify; me?: AdminMe }) {
     { items: [], page: 0, size: 20, total: 0, totalPages: 0 },
   );
 
+  const canFeature = me?.role !== 'EDITOR';
+  const toggleFeatured = async (post: PostSummaryDto) => {
+    try { await adminApi.updatePost(post.id, { featured: !post.featured }); notify(post.featured ? 'Đã gỡ khỏi slide trang chủ' : 'Đã đưa lên slide trang chủ'); await reload(); } catch (err) { notify(errorMessage(err, 'Không cập nhật được'), 'error'); }
+  };
+
   const toggleStatus = async (post: PostSummaryDto) => {
     try { await adminApi.updatePost(post.id, { status: post.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED' }); await reload(); } catch (err) { notify(errorMessage(err, 'Không cập nhật được'), 'error'); }
   };
 
-  if (form) return <PostForm postId={form.id} tree={tree} categories={categories} notify={notify} onClose={() => setForm(null)} onSaved={() => { setForm(null); void reload(); }} allowedScopeIds={allowedScopeIds} />;
+  if (form) return <PostForm postId={form.id} tree={tree} categories={categories} notify={notify} onClose={() => setForm(null)} onSaved={() => { setForm(null); void reload(); }} allowedScopeIds={allowedScopeIds} canFeature={me?.role !== 'EDITOR'} />;
 
   return <>
     <PageHeading eyebrow="Nội dung website" title="Bài viết & văn bản" description="Mọi nội dung (tin, trang giới thiệu, thông báo, văn bản, tài liệu) đều là bài viết thuộc một đầu mục." action={<button onClick={() => setForm({ id: null })} className="admin-primary"><Plus size={16} /> Thêm bài viết</button>} />
@@ -788,12 +852,12 @@ function PostsSection({ notify, me }: { notify: Notify; me?: AdminMe }) {
     {loading && data.items.length === 0 ? <p className="p-5 text-center text-sm text-[#8a9bad]">Đang tải dữ liệu...</p> : <DataTable
       headers={['Bài viết', 'Đầu mục', 'Ngày đăng', 'Lượt xem', 'Trạng thái', 'Hành động']}
       rows={data.items.map(item => [
-        <div><p className="font-bold text-sm line-clamp-1 flex items-center gap-1.5">{item.pinned && <Pin size={12} className="text-[#a76500] shrink-0" />}{item.title}</p><p className="text-[11px] text-[#8a9bad] mt-1">{item.documentNumber ? `Số ${item.documentNumber} · ` : ''}{item.author || 'admin'}{item.attachmentCount ? ` · ${item.attachmentCount} tệp` : ''}</p></div>,
+        <div><p className="font-bold text-sm line-clamp-1 flex items-center gap-1.5">{item.pinned && <Pin size={12} className="text-[#a76500] shrink-0" />}{item.featured && <span title="Đang hiện trên slide trang chủ" className="shrink-0"><Star size={12} className="text-[#a76500] fill-[#f8c108]" /></span>}{item.title}</p><p className="text-[11px] text-[#8a9bad] mt-1">{item.documentNumber ? `Số ${item.documentNumber} · ` : ''}{item.author || 'admin'}{item.attachmentCount ? ` · ${item.attachmentCount} tệp` : ''}</p></div>,
         <span className="text-xs">{item.category?.name}</span>,
         <span className="text-xs whitespace-nowrap">{item.publishedAt ? new Date(item.publishedAt).toLocaleDateString('vi-VN') : ''}</span>,
         <span className="text-xs">{item.views.toLocaleString('vi-VN')}</span>,
         <button onClick={() => toggleStatus(item)} title="Bấm để đổi Đã đăng / Bản nháp"><StatusPill tone={item.status === 'PUBLISHED' ? 'green' : 'gray'}>{STATUS_LABELS[item.status] ?? item.status}</StatusPill></button>,
-        <div className="flex gap-3 whitespace-nowrap">{item.status === 'PUBLISHED' && <a href={`/bai-viet/${item.slug}`} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#536b80]">Xem</a>}<button onClick={() => setForm({ id: item.id })} className="text-xs font-bold text-[#0052cc]">Sửa</button></div>,
+        <div className="flex gap-3 whitespace-nowrap">{item.status === 'PUBLISHED' && <a href={`/bai-viet/${item.slug}`} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#536b80]">Xem</a>}{canFeature && item.status === 'PUBLISHED' && <button onClick={() => toggleFeatured(item)} title="Bật/tắt hiện trên slide trang chủ" className="text-xs font-bold text-[#a76500]">{item.featured ? 'Gỡ slide' : 'Lên slide'}</button>}<button onClick={() => setForm({ id: item.id })} className="text-xs font-bold text-[#0052cc]">Sửa</button></div>,
       ])}
     />}
     {data.totalPages > 1 && <div className="flex items-center justify-between mt-4 text-xs text-[#71849b]"><span>Tổng {data.total} bài · trang {page + 1}/{data.totalPages}</span><div className="flex gap-2"><button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="admin-secondary disabled:opacity-40">← Trước</button><button disabled={page + 1 >= data.totalPages} onClick={() => setPage(p => p + 1)} className="admin-secondary disabled:opacity-40">Sau →</button></div></div>}

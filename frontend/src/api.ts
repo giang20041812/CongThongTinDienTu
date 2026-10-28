@@ -223,17 +223,20 @@ export interface PostListParams {
   page?: number;
   size?: number;
   status?: string;
-  /** Only pinned (featured) posts. */
+  /** Only pinned posts. */
   pinned?: boolean;
+  /** Only the posts an admin picked for the home slider. */
+  featured?: boolean;
 }
 
-export const postsPath = ({ category, type, q, page = 0, size = 12, status, pinned }: PostListParams) => {
+export const postsPath = ({ category, type, q, page = 0, size = 12, status, pinned, featured }: PostListParams) => {
   const params = new URLSearchParams();
   if (category) params.set('category', category);
   if (type && type.length) params.set('type', type.join(','));
   if (q && q.trim()) params.set('q', q.trim());
   if (status) params.set('status', status);
   if (pinned) params.set('pinned', 'true');
+  if (featured) params.set('featured', 'true');
   params.set('page', String(page));
   params.set('size', String(size));
   return `/posts?${params.toString()}`;
