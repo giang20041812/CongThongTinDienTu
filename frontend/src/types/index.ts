@@ -1,5 +1,5 @@
 /** How a menu entry is rendered (mirrors the backend PageType enum). */
-export type PageType = 'GROUP' | 'PAGE' | 'POST_LIST' | 'DOCUMENT_LIST' | 'SCHEDULE' | 'CONTACT' | 'MAP' | 'FEEDBACK' | 'LINK';
+export type PageType = 'GROUP' | 'PAGE' | 'POST_LIST' | 'DOCUMENT_LIST' | 'GALLERY' | 'SCHEDULE' | 'CONTACT' | 'MAP' | 'FEEDBACK' | 'LINK';
 
 /** A menu entry. Top-level entries have parentId = null; the menu has two levels. */
 export interface Category {
@@ -34,6 +34,8 @@ export interface PostSummaryDto {
   coverUrl: string | null;
   status: string;
   pinned: boolean;
+  /** Picked by an admin for the home-page slider. */
+  featured: boolean;
   views: number;
   publishedAt: string | null;
   category: CategoryRef | null;
@@ -42,6 +44,8 @@ export interface PostSummaryDto {
   issuer: string | null;
   issuedDate: string | null;
   attachmentCount: number;
+  /** Photos in the post body (an album of the photo library). */
+  imageCount: number;
 }
 
 /** A home-gallery photo (post cover or body image) and the post it belongs to. */
@@ -65,7 +69,7 @@ export interface AttachmentDto {
   mimeType?: string | null;
 }
 
-export interface PostDetailDto extends Omit<PostSummaryDto, 'attachmentCount'> {
+export interface PostDetailDto extends Omit<PostSummaryDto, 'attachmentCount' | 'imageCount'> {
   updatedAt: string | null;
   recipient: string | null;
   actionRequired: string | null;

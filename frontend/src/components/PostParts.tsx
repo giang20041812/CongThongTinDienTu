@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from '../lib/router';
 import { formatFileSize, formatNumber, postRoute, splitParagraphs, type PostView } from '../lib/content';
+import { isRichHtml, sanitizeHtml } from '../lib/richText';
 import { TONES, toneStyle, type Tone } from '../lib/tones';
 import type { AttachmentDto } from '../types';
-import { ArrowRight, CalendarDots, Check, DownloadSimple, Eye, FileText, LinkSimple, Paperclip, Printer, PushPin } from './icons';
+import { ArrowRight, CalendarDots, Check, DownloadSimple, Eye, FileText, ImageIcon, LinkSimple, Paperclip, Printer, PushPin } from './icons';
 import { CategoryBadge, Reveal, SmartImage, cardClass, cx, secondaryButton } from './ui';
 
 /** Card for article listings. */
@@ -52,6 +53,38 @@ export const PostCard: React.FC<{ post: PostView; index?: number; showCategory?:
   </Reveal>
 );
 
+/** Card of the photo library: an album with its cover and photo count. */
+export const AlbumCard: React.FC<{ post: PostView; index?: number }> = ({ post, index = 0 }) => (
+  <Reveal delay={(index % 3) * 70} className="h-full">
+    <Link to={postRoute(post)} className={cx(cardClass, 'h-full')}>
+      <div className="relative">
+        <SmartImage src={post.image} alt={post.title} width={640} className="aspect-[4/3]" imgClassName="group-hover:scale-[1.05]" placeholderLabel={post.categoryName} />
+        {post.imageCount > 0 && (
+          <span className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-brand-950/70 px-2.5 py-1 text-[12px] font-semibold text-white backdrop-blur">
+            <ImageIcon className="size-3.5" />
+            {post.imageCount} ảnh
+          </span>
+        )}
+      </div>
+      <div className="flex flex-1 flex-col p-5">
+        <span className="inline-flex items-center gap-1.5 text-[12.5px] text-muted">
+          <CalendarDots className="size-3.5 text-gold-600" />
+          {post.date}
+        </span>
+        <h3 className="mt-2 line-clamp-2 text-[16px] font-bold leading-snug transition-colors duration-300 group-hover:text-brand-600">{post.title}</h3>
+        {post.summary && <p className="mt-2 line-clamp-2 text-[14px] leading-relaxed text-body">{post.summary}</p>}
+      </div>
+    </Link>
+  </Reveal>
+);
+
+/** A text block: editor HTML (sanitised again here) or the plain text of older posts. */
+const RichText: React.FC<{ content: string }> = ({ content }) => {
+  const html = useMemo(() => (isRichHtml(content) ? sanitizeHtml(content) : null), [content]);
+  if (html == null) return <>{splitParagraphs(content).map((paragraph, i) => <p key={i}>{paragraph}</p>)}</>;
+  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+};
+
 /** Renders a post's ordered blocks (paragraphs and figures). */
 export const ArticleBody: React.FC<{ post: PostView; emptyText?: string }> = ({ post, emptyText = 'Nội dung đang được cập nhật.' }) => {
   if (post.blocks.length === 0) {
@@ -65,7 +98,7 @@ export const ArticleBody: React.FC<{ post: PostView; emptyText?: string }> = ({ 
             <SmartImage src={block.imageUrl} alt={post.title} width={1100} className="aspect-[16/9] rounded-xl" />
           </figure>
         ) : (
-          splitParagraphs(block.content ?? '').map((paragraph, i) => <p key={`${index}-${i}`}>{paragraph}</p>)
+          <RichText key={index} content={block.content ?? ''} />
         ),
       )}
     </div>

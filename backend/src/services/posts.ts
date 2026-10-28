@@ -2,7 +2,7 @@ import type { ContentCache } from '../cache.js';
 import { type Db, pool, query, queryOne, transaction } from '../db.js';
 import { HttpError, badRequest, bool, enumValue, jsonArray, jsonObject, localDate, localDateTime, long, str, uuid } from '../http.js';
 import type { AuthUser } from '../security.js';
-import { blankToNull, excerpt, isBlank, localNow, searchable, slugOf, trim } from '../text.js';
+import { blankToNull, blockText, excerpt, isBlank, isRichHtml, localNow, sanitizeHtml, searchable, slugOf, trim } from '../text.js';
 import type { CategoryService, PageType } from './categories.js';
 
 const MAX_PAGE_SIZE = 50;
@@ -51,6 +51,8 @@ export interface PostQuery {
   status: string | null;
   /** Only pinned (true) or unpinned (false) posts. */
   pinned: boolean | null;
+  /** Only posts picked for the home slider (true) or not (false). */
+  featured: boolean | null;
   page: number;
   size: number;
 }
@@ -79,6 +81,7 @@ export interface PostSummary {
   coverUrl: string | null;
   status: string;
   pinned: boolean;
+  featured: boolean;
   views: number;
   publishedAt: string;
   category: CategoryRef;
@@ -87,6 +90,8 @@ export interface PostSummary {
   issuer: string | null;
   issuedDate: string | null;
   attachmentCount: number;
+  /** Photos in the post body (what an album of the photo library holds). */
+  imageCount: number;
 }
 
 interface Block {
@@ -103,7 +108,7 @@ interface Attachment {
   mimeType: string | null;
 }
 
-export interface PostDetail extends Omit<PostSummary, 'attachmentCount'> {
+export interface PostDetail extends Omit<PostSummary, 'attachmentCount' | 'imageCount'> {
   updatedAt: string | null;
   recipient: string | null;
   actionRequired: string | null;
@@ -120,13 +125,14 @@ export interface PhotoItem {
 // JSON shapes: same fields, in the same order, as the DTOs of the Java API.
 const CATEGORY_REF = `json_build_object('id', c.id, 'name', c.name, 'slug', c.slug, 'pageType', c.page_type)`;
 
-const SUMMARY_COLUMNS = `p.id, p.title, p.slug, p.summary, p.cover_url AS "coverUrl", p.status, p.pinned, p.views,
+const SUMMARY_COLUMNS = `p.id, p.title, p.slug, p.summary, p.cover_url AS "coverUrl", p.status, p.pinned, p.featured, p.views,
   p.published_at AS "publishedAt", ${CATEGORY_REF} AS category, u.username AS author,
   p.document_number AS "documentNumber", p.issuer, p.issued_date AS "issuedDate",
-  (SELECT count(*) FROM post_attachments a WHERE a.post_id = p.id)::int AS "attachmentCount"`;
+  (SELECT count(*) FROM post_attachments a WHERE a.post_id = p.id)::int AS "attachmentCount",
+  (SELECT count(*) FROM post_blocks b WHERE b.post_id = p.id AND b.type = 'IMAGE')::int AS "imageCount"`;
 
 /** A whole post – blocks and attachments included – in one query. */
-const SELECT_DETAIL = `SELECT p.id, p.title, p.slug, p.summary, p.cover_url AS "coverUrl", p.status, p.pinned, p.views,
+const SELECT_DETAIL = `SELECT p.id, p.title, p.slug, p.summary, p.cover_url AS "coverUrl", p.status, p.pinned, p.featured, p.views,
   p.published_at AS "publishedAt", p.updated_at AS "updatedAt", ${CATEGORY_REF} AS category, u.username AS author,
   p.document_number AS "documentNumber", p.issuer, p.issued_date AS "issuedDate", p.recipient,
   p.action_required AS "actionRequired",
@@ -150,6 +156,7 @@ interface PostRequest {
   coverUrl: string | null;
   status: string | null;
   pinned: boolean | null;
+  featured: boolean | null;
   publishedAt: string | null;
   documentNumber: string | null;
   issuer: string | null;
@@ -177,6 +184,7 @@ function readRequest(body: unknown): PostRequest {
     coverUrl: str(b.coverUrl),
     status: str(b.status),
     pinned: bool(b.pinned),
+    featured: bool(b.featured),
     publishedAt: localDateTime(b.publishedAt),
     documentNumber: str(b.documentNumber),
     issuer: str(b.issuer),
@@ -188,16 +196,17 @@ function readRequest(body: unknown): PostRequest {
   };
 }
 
-/** Empty blocks (no text, no image) are dropped; the rest keep their order. Text is stored as typed. */
+/** Empty blocks (no text, no image) are dropped; the rest keep their order. Editor HTML is sanitised, plain text kept. */
 function readBlocks(list: unknown[]): Block[] {
   const blocks: Block[] = [];
   for (const raw of list) {
     if (raw == null) continue;
     const source = jsonObject(raw);
     const type = blockType(source.type);
-    const content = str(source.content);
-    const imageUrl = blankToNull(str(source.imageUrl));
-    if ((content == null || isBlank(content)) && imageUrl == null) continue;
+    const text = type === 'TEXT' ? str(source.content) : null;
+    const content = text != null && isRichHtml(text) ? sanitizeHtml(text) : text;
+    const imageUrl = type === 'IMAGE' ? blankToNull(str(source.imageUrl)) : null;
+    if (type === 'IMAGE' ? imageUrl == null : content == null || isBlank(blockText(content))) continue;
     blocks.push({ type, content, imageUrl });
   }
   return blocks;
@@ -234,9 +243,19 @@ function requireText(value: string | null, field: string): string {
 
 /** The summary derived from the first text block when the editor left it empty. */
 function summaryFrom(blocks: Block[]): string | null {
-  const first = blocks.find((b) => b.type === 'TEXT' && b.content != null && !isBlank(b.content));
-  return first ? excerpt(first.content!) : null;
+  const first = blocks.find((b) => b.type === 'TEXT' && b.content != null && !isBlank(blockText(b.content)));
+  return first ? excerpt(blockText(first.content!)) : null;
 }
+
+/** A photo-library post is photos only: no text, no attached files, at least one image. */
+function checkGalleryPost(blocks: Block[], attachments: Attachment[], coverUrl: string | null) {
+  if (blocks.some((b) => b.type !== 'IMAGE') || attachments.length > 0) {
+    throw badRequest('Bài viết trong Kho ảnh chỉ chứa ảnh (không có đoạn văn hay tệp đính kèm).');
+  }
+  if (coverUrl == null && blocks.length === 0) throw badRequest('Bài viết trong Kho ảnh cần ít nhất một ảnh.');
+}
+
+const firstImage = (blocks: Block[]) => blocks.find((b) => b.imageUrl != null)?.imageUrl ?? null;
 
 /** An optional text field on update: null = unchanged, blank = cleared. */
 const changed = (value: string | null, current: string | null) => (value != null ? blankToNull(value) : current);
@@ -279,11 +298,11 @@ export class PostService {
     return (await queryOne<PostDetail>(`${SELECT_DETAIL} WHERE p.id = $1`, [id], db)) ?? null;
   }
 
-  /** Newest photos (covers and body images) of published posts in visible entries, for the home gallery. */
+  /** Newest photos (covers and body images) of published posts in visible photo-library (GALLERY) entries, for the home gallery. */
   recentPhotos(limit: number): Promise<PhotoItem[]> {
     const size = Math.min(Math.max(limit, 1), MAX_PHOTOS);
     return this.cache.get(`photos:${size}`, async () => {
-      const visible = (await this.categories.listPublic()).map((c) => c.id);
+      const visible = (await this.categories.listPublic()).filter((c) => c.pageType === 'GALLERY').map((c) => c.id);
       if (visible.length === 0) return [];
       // Covers and body images of the matching posts, newest post first, each post's photos in reading order.
       const rows = await query<PhotoItem>(
@@ -332,19 +351,24 @@ export class PostService {
       checkAttachmentUrls(input.attachments);
 
       const blocks = input.blocks ?? [];
+      let coverUrl = blankToNull(input.coverUrl);
+      if (category.pageType === 'GALLERY') {
+        checkGalleryPost(blocks, input.attachments ?? [], coverUrl);
+        coverUrl ??= firstImage(blocks);
+      }
       const summary = blankToNull(input.summary) ?? summaryFrom(blocks);
       const documentNumber = blankToNull(input.documentNumber);
       const issuer = blankToNull(input.issuer);
       const now = localNow();
       const row = await queryOne<{ id: string }>(
-        `INSERT INTO posts (title, slug, category_id, author_id, summary, cover_url, status, pinned, views, published_at,
+        `INSERT INTO posts (title, slug, category_id, author_id, summary, cover_url, status, pinned, featured, views, published_at,
            document_number, issuer, issued_date, recipient, action_required, search_text, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 0, $9, $10, $11, $12, $13, $14, $15, $16, $16) RETURNING id`,
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $17, 0, $9, $10, $11, $12, $13, $14, $15, $16, $16) RETURNING id`,
         [
-          title, slug, category.id, authorId, summary, blankToNull(input.coverUrl), normalizeStatus(input.status),
+          title, slug, category.id, authorId, summary, coverUrl, normalizeStatus(input.status),
           input.pinned === true, input.publishedAt ?? now, documentNumber, issuer, input.issuedDate,
           blankToNull(input.recipient), blankToNull(input.actionRequired),
-          searchable(title, summary, documentNumber, issuer), now,
+          searchable(title, summary, documentNumber, issuer), now, input.featured === true,
         ],
         db,
       );
@@ -363,8 +387,9 @@ export class PostService {
       if (!current) return false;
 
       const title = input.title != null ? requireText(input.title, 'Tiêu đề bài viết') : current.title;
-      const categoryId =
-        input.categoryId != null ? (await this.categories.requirePostTarget(input.categoryId, db)).id : current.category.id;
+      const target =
+        input.categoryId != null ? await this.categories.requirePostTarget(input.categoryId, db) : null;
+      const categoryId = target?.id ?? current.category.id;
       const slug =
         input.slug != null && !isBlank(input.slug) ? await this.uniqueSlug(input.slug, title, id, current.slug, db) : current.slug;
       checkAttachmentUrls(input.attachments);
@@ -372,19 +397,26 @@ export class PostService {
       const summary = changed(input.summary, current.summary) ?? summaryFrom(input.blocks ?? current.blocks);
       const documentNumber = changed(input.documentNumber, current.documentNumber);
       const issuer = changed(input.issuer, current.issuer);
+      let coverUrl = changed(input.coverUrl, current.coverUrl);
+      const pageType = target?.pageType ?? current.category.pageType;
+      if (pageType === 'GALLERY') {
+        const blocks = input.blocks ?? current.blocks;
+        checkGalleryPost(blocks, input.attachments ?? current.attachments, coverUrl);
+        coverUrl ??= firstImage(blocks);
+      }
       await db.query(
         `UPDATE posts SET title = $2, slug = $3, category_id = $4, summary = $5, cover_url = $6, status = $7, pinned = $8,
            published_at = $9, document_number = $10, issuer = $11, issued_date = $12, recipient = $13, action_required = $14,
-           search_text = $15, updated_at = $16
+           search_text = $15, updated_at = $16, featured = $17
          WHERE id = $1`,
         [
-          id, title, slug, categoryId, summary, changed(input.coverUrl, current.coverUrl),
+          id, title, slug, categoryId, summary, coverUrl,
           input.status != null ? normalizeStatus(input.status) : current.status,
           input.pinned ?? current.pinned,
           input.publishedAt ?? current.publishedAt,
           documentNumber, issuer, input.issuedDate ?? current.issuedDate,
           changed(input.recipient, current.recipient), changed(input.actionRequired, current.actionRequired),
-          searchable(title, summary, documentNumber, issuer), localNow(),
+          searchable(title, summary, documentNumber, issuer), localNow(), input.featured ?? current.featured,
         ],
       );
       await this.replaceChildren(id, input.blocks, input.attachments, db, true);
@@ -412,6 +444,7 @@ export class PostService {
     if (categoryIds != null) where.push(`x.category_id = ANY(${param([...categoryIds])}::uuid[])`);
     if (status != null) where.push(`x.status = ${param(status)}`);
     if (q.pinned != null) where.push(`x.pinned = ${param(q.pinned)}`);
+    if (q.featured != null) where.push(`x.featured = ${param(q.featured)}`);
     for (const term of terms) where.push(`x.search_text LIKE ${param(`%${term}%`)}`);
     const filter = where.length ? `WHERE ${where.join(' AND ')}` : '';
     const filterParams = params.length;

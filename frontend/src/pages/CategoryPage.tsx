@@ -6,7 +6,7 @@ import { categoryIcon, categoryRoute, MenuLink, PAGE_TYPE_LABELS, useMenu } from
 import { formatDate, postRoute, toPostView } from '../lib/content';
 import { usePageTitle } from '../lib/site';
 import type { Category } from '../types';
-import { ArticleActions, ArticleBody, AttachmentList, PostCard } from '../components/PostParts';
+import { AlbumCard, ArticleActions, ArticleBody, AttachmentList, PostCard } from '../components/PostParts';
 import {
   CardGridSkeleton,
   Container,
@@ -56,6 +56,8 @@ export const CategoryPage: React.FC<{ slug: string }> = ({ slug }) => {
       return <StaticPage {...props} />;
     case 'DOCUMENT_LIST':
       return <DocumentListPage {...props} />;
+    case 'GALLERY':
+      return <GalleryListPage {...props} />;
     case 'SCHEDULE':
       return <SchedulePage {...props} />;
     case 'CONTACT':
@@ -125,6 +127,36 @@ const PostListPage: React.FC<SectionProps> = (props) => {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {posts.map((post, index) => (
               <PostCard key={post.id} post={post} index={index} showCategory={false} />
+            ))}
+          </div>
+        )}
+        <Pagination page={page} totalPages={data.totalPages} onChange={setPage} />
+      </Container>
+    </>
+  );
+};
+
+/** Photo library: albums (posts that hold only photos) as a grid of covers. */
+const GalleryListPage: React.FC<SectionProps> = (props) => {
+  const { posts, data, loading, page, setPage, query, setQuery, searching } = usePagedPosts(props.category.slug, 12);
+  return (
+    <>
+      <SectionHeader {...props} aside={data.total > 0 ? <StatPill label="Album" value={String(data.total)} /> : undefined} />
+      <Container className="py-10 sm:py-12">
+        <div className="mb-8 flex justify-end">
+          <SearchField value={query} onChange={setQuery} placeholder="Tìm album ảnh..." />
+        </div>
+        {loading ? (
+          <CardGridSkeleton />
+        ) : posts.length === 0 ? (
+          <EmptyState
+            title={searching ? 'Không tìm thấy album phù hợp' : 'Chưa có ảnh'}
+            description={searching ? 'Hãy thử thay đổi từ khóa tìm kiếm.' : 'Hình ảnh sẽ sớm được cập nhật.'}
+          />
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {posts.map((post, index) => (
+              <AlbumCard key={post.id} post={post} index={index} />
             ))}
           </div>
         )}

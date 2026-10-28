@@ -39,7 +39,7 @@ export function postRoutes(posts: PostService, categories: CategoryService): Rou
   /**
    * Paged summaries, pinned first then newest. Visitors only get published posts in visible entries.
    * ?category= (slug; a GROUP also includes its children) &descendants= &type=POST_LIST,DOCUMENT_LIST
-   * &q= (accent-insensitive) &status= (admin) &pinned= &page= &size=
+   * &q= (accent-insensitive) &status= (admin) &pinned= &featured= (home slider picks) &page= &size=
    */
   router.get('/', async (req, res) => {
     const query: PostQuery = {
@@ -49,6 +49,7 @@ export function postRoutes(posts: PostService, categories: CategoryService): Rou
       q: queryParam(req, 'q') ?? null,
       status: queryParam(req, 'status') ?? null,
       pinned: boolParam(queryParam(req, 'pinned')),
+      featured: boolParam(queryParam(req, 'featured')),
       page: intParam(queryParam(req, 'page'), 0),
       size: intParam(queryParam(req, 'size'), 12),
     };
@@ -82,9 +83,17 @@ export function postRoutes(posts: PostService, categories: CategoryService): Rou
     res.status(204).end();
   });
 
+  /** Picking posts for the home slider is the admin's call: an editor's request never changes it. */
+  const withoutFeatured = (body: unknown) => {
+    if (body == null || typeof body !== 'object' || Array.isArray(body)) return body;
+    const { featured: _featured, ...rest } = body as Record<string, unknown>;
+    return rest;
+  };
+
   router.post('/', async (req, res) => {
-    requireInScope(await scopeOf(req), uuid((req.body as { categoryId?: unknown } | null)?.categoryId));
-    res.json(await posts.create(req.body, currentUser(req)));
+    const scope = await scopeOf(req);
+    requireInScope(scope, uuid((req.body as { categoryId?: unknown } | null)?.categoryId));
+    res.json(await posts.create(scope ? withoutFeatured(req.body) : req.body, currentUser(req)));
   });
 
   router.put('/:id', async (req, res) => {
@@ -97,7 +106,7 @@ export function postRoutes(posts: PostService, categories: CategoryService): Rou
       const target = uuid((req.body as { categoryId?: unknown } | null)?.categoryId);
       if (target) requireInScope(scope, target);
     }
-    const post = await posts.update(id, req.body);
+    const post = await posts.update(id, scope ? withoutFeatured(req.body) : req.body);
     if (!post) throw notFound();
     res.json(post);
   });

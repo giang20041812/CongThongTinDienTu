@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { blankToNull, excerpt, isBlank, searchable, slugOf, trim } from '../src/text.js';
+import { blankToNull, blockText, excerpt, htmlToText, isBlank, isRichHtml, sanitizeHtml, searchable, slugOf, trim } from '../src/text.js';
 
 const NBSP = String.fromCodePoint(0xa0);
 const IDEOGRAPHIC_SPACE = String.fromCodePoint(0x3000);
@@ -47,4 +47,38 @@ test('isBlank, trim and blankToNull follow Java String semantics', () => {
   assert.equal(blankToNull('  '), null);
   assert.equal(blankToNull(' a '), 'a');
   assert.equal(blankToNull(undefined), null);
+});
+
+test('sanitizeHtml keeps the editor formatting and drops everything else', () => {
+  assert.equal(sanitizeHtml('<p>Xin <b>chào</b> <i>các</i> <u>em</u></p>'), '<p>Xin <strong>chào</strong> <em>các</em> <u>em</u></p>');
+  assert.equal(sanitizeHtml('<div>một</div><div>hai<br></div>'), '<p>một</p><p>hai<br></p>');
+  assert.equal(
+    sanitizeHtml('<p onclick="x()" style="color:red">a<script>alert(1)</script><img src=x onerror=y></p>'),
+    '<p>aalert(1)</p>',
+  );
+  assert.equal(sanitizeHtml('a < b && c > d'), 'a &lt; b && c &gt; d');
+  assert.equal(sanitizeHtml('<p><strong>mở mà không đóng'), '<p><strong>mở mà không đóng</strong></p>');
+});
+
+test('sanitizeHtml only keeps safe link targets', () => {
+  assert.equal(
+    sanitizeHtml('<a href="https://moet.gov.vn/a?b=1&amp;c=2" class="x">Bộ</a>'),
+    '<a href="https://moet.gov.vn/a?b=1&amp;c=2" target="_blank" rel="noopener noreferrer">Bộ</a>',
+  );
+  assert.equal(sanitizeHtml('<a href="/tin-tuc">trong trang</a>'), '<a href="/tin-tuc">trong trang</a>');
+  assert.equal(sanitizeHtml('<a href="mailto:a@b.vn">mail</a>'), '<a href="mailto:a@b.vn">mail</a>');
+  assert.equal(sanitizeHtml('<a href="javascript:alert(1)">x</a>'), 'x');
+  assert.equal(sanitizeHtml('<a href=" JavaScript:alert(1)">x</a>'), 'x');
+  assert.equal(sanitizeHtml('<a href="&#106;avascript:alert(1)">x</a>'), 'x');
+  assert.equal(sanitizeHtml('<a href="//evil.example">x</a>'), 'x');
+  assert.equal(sanitizeHtml('<a>không có href</a>'), 'không có href');
+});
+
+test('htmlToText and blockText give readable text for summaries', () => {
+  assert.equal(htmlToText('<p>Lễ&nbsp;khai giảng &amp; <b>tựu trường</b></p><p>Hai</p>'), 'Lễ khai giảng & tựu trường Hai');
+  assert.equal(htmlToText('<p><br></p>'), '');
+  assert.equal(blockText('Văn bản thuần <3 không phải HTML'), 'Văn bản thuần <3 không phải HTML');
+  assert.equal(blockText('<p>Có <u>HTML</u></p>'), 'Có HTML');
+  assert.ok(isRichHtml('<p>x</p>'));
+  assert.ok(!isRichHtml('x < y và y > z'));
 });

@@ -4,7 +4,7 @@ import { badRequest, bool, conflict, enumValue, int, jsonArray, jsonObject, str,
 import { blankToNull, isBlank, localNow, slugOf, trim } from '../text.js';
 
 /** How a menu entry is rendered (frontend: types/index.ts). Declaration order matters for sorting. */
-export const PAGE_TYPES = ['GROUP', 'PAGE', 'POST_LIST', 'DOCUMENT_LIST', 'SCHEDULE', 'CONTACT', 'MAP', 'FEEDBACK', 'LINK'] as const;
+export const PAGE_TYPES = ['GROUP', 'PAGE', 'POST_LIST', 'DOCUMENT_LIST', 'GALLERY', 'SCHEDULE', 'CONTACT', 'MAP', 'FEEDBACK', 'LINK'] as const;
 export type PageType = (typeof PAGE_TYPES)[number];
 
 /** Whether posts may be filed under a category of this type (GROUP and LINK hold none). */
