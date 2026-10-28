@@ -1,11 +1,12 @@
-import React, { useEffect, useMemo } from 'react';
-import { ArrowRight, CalendarDots, Eye, UserCircle } from '../components/icons';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ArrowRight, CalendarDots, Eye, ImageIcon, UserCircle } from '../components/icons';
+import { Lightbox } from '../components/Lightbox';
 import { registerPostView, usePost, usePostPage } from '../api';
 import { categoryRoute, useMenu } from '../lib/menu';
 import { formatDate, formatNumber, toPostView, type PostView } from '../lib/content';
 import { usePageTitle, useSite } from '../lib/site';
 import { Link } from '../lib/router';
-import { ArticleActions, ArticleBody, AttachmentList, DocumentRow, PostCard, SidebarPostList } from '../components/PostParts';
+import { AlbumCard, ArticleActions, ArticleBody, AttachmentList, DocumentRow, PostCard, SidebarPostList } from '../components/PostParts';
 import { CategoryBadge, Container, DetailBar, ListSkeleton, NotFound, SmartImage, cx, primaryButton, type Crumb } from '../components/ui';
 
 /** /bai-viet/{slug}. Documents (posts in a DOCUMENT_LIST entry) get the official-letter layout. */
@@ -44,23 +45,24 @@ export const PostDetailPage: React.FC<{ slug: string }> = ({ slug }) => {
     ...(post.category ? [{ label: post.category.name, to: categoryRoute(post.category) }] : []),
   ];
   const isDocument = post.category?.pageType === 'DOCUMENT_LIST';
+  const isGallery = post.category?.pageType === 'GALLERY';
 
   return (
     <>
       <DetailBar crumbs={crumbs} />
       <Container className="grid gap-8 py-10 lg:grid-cols-12 lg:py-12">
         <article className="animate-fade-up lg:col-span-8">
-          {isDocument ? <DocumentBody post={post} /> : <ArticleView post={post} />}
+          {isDocument ? <DocumentBody post={post} /> : isGallery ? <GalleryBody post={post} /> : <ArticleView post={post} />}
           {!isDocument && otherPosts.length > 0 && (
             <section className="mt-10">
               <h2 className="flex items-center gap-2 text-xl font-bold">
                 <span className="h-5 w-1 rounded-full bg-gold-400" aria-hidden="true" />
-                Cùng chuyên mục
+                {isGallery ? 'Album khác' : 'Cùng chuyên mục'}
               </h2>
               <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                {otherPosts.slice(0, 3).map((item, index) => (
-                  <PostCard key={item.id} post={item} index={index} showCategory={false} />
-                ))}
+                {otherPosts.slice(0, 3).map((item, index) =>
+                  isGallery ? <AlbumCard key={item.id} post={item} index={index} /> : <PostCard key={item.id} post={item} index={index} showCategory={false} />,
+                )}
               </div>
             </section>
           )}
@@ -123,6 +125,59 @@ const ArticleView: React.FC<{ post: PostView }> = ({ post }) => {
         <ArticleBody post={post} />
       </div>
       <AttachmentList items={post.attachments} className="mt-8" />
+      <div className="mt-10 flex flex-col gap-4 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-[13px] text-muted">
+          Nguồn: <span className="font-semibold text-ink">Trường {site.school_name}</span>
+        </p>
+        <ArticleActions />
+      </div>
+    </div>
+  );
+};
+
+/** A photo-library album: the photos in a grid, each opening the full-screen viewer. */
+const GalleryBody: React.FC<{ post: PostView }> = ({ post }) => {
+  const site = useSite();
+  const [open, setOpen] = useState<number | null>(null);
+  const photos = useMemo(() => {
+    const urls = post.blocks.filter((b) => b.type === 'IMAGE' && b.imageUrl).map((b) => b.imageUrl!);
+    return urls.length > 0 ? urls : post.image ? [post.image] : [];
+  }, [post.blocks, post.image]);
+
+  return (
+    <div className="rounded-2xl border border-line bg-white p-5 shadow-card sm:p-8 lg:p-10">
+      {post.categoryName && <CategoryBadge>{post.categoryName}</CategoryBadge>}
+      <h1 className="mt-4 text-[1.6rem] font-bold leading-tight sm:text-[2.1rem]">{post.title}</h1>
+      <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-line pb-5 text-[13px] text-muted">
+        <span className="inline-flex items-center gap-1.5">
+          <CalendarDots className="size-4 text-gold-600" />
+          {formatDate(post.publishedAt)}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <ImageIcon className="size-4 text-gold-600" />
+          {photos.length} ảnh
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <Eye className="size-4 text-gold-600" />
+          {formatNumber(post.views)} lượt xem
+        </span>
+      </div>
+      {post.summary && <p className="mt-5 text-[15px] leading-relaxed text-body">{post.summary}</p>}
+      <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {photos.map((url, index) => (
+          <li key={`${url}-${index}`}>
+            <button
+              type="button"
+              onClick={() => setOpen(index)}
+              aria-label={`Xem ảnh ${index + 1}`}
+              className="group block w-full overflow-hidden rounded-xl shadow-card transition-shadow duration-300 hover:shadow-card-hover"
+            >
+              <SmartImage src={url} alt={`${post.title} – ảnh ${index + 1}`} width={600} className="aspect-[4/3]" imgClassName="group-hover:scale-105" />
+            </button>
+          </li>
+        ))}
+      </ul>
+      <Lightbox images={photos} index={open} title={post.title} onChange={setOpen} />
       <div className="mt-10 flex flex-col gap-4 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[13px] text-muted">
           Nguồn: <span className="font-semibold text-ink">Trường {site.school_name}</span>

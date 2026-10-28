@@ -1,6 +1,7 @@
 import React from 'react';
 import { usePhotos } from '../api';
 import { postRoute } from '../lib/content';
+import { categoryRoute, useMenu } from '../lib/menu';
 import { Link } from '../lib/router';
 import { ImageIcon } from './icons';
 import { Container, Reveal, SectionHeading, SmartImage, cx } from './ui';
@@ -15,6 +16,8 @@ const tileClass = (index: number) => cx(index === 0 && 'col-span-2 row-span-2', 
 /** Home gallery: the newest photos of published posts (a couple per post); each opens its post. */
 export const PhotoGallerySection: React.FC = () => {
   const { data: photos, loading } = usePhotos(PHOTO_COUNT);
+  const { categories } = useMenu();
+  const library = categories.find((c) => c.pageType === 'GALLERY');
   if (!loading && photos.length === 0) return null;
 
   return (
@@ -26,6 +29,7 @@ export const PhotoGallerySection: React.FC = () => {
             eyebrow="Khoảnh khắc"
             title="Thư viện ảnh"
             description="Hình ảnh mới nhất từ các hoạt động của thầy và trò nhà trường."
+            action={library ? { to: categoryRoute(library), label: 'Xem kho ảnh' } : undefined}
           />
         </Reveal>
         <Reveal>

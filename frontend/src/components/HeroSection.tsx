@@ -1,16 +1,23 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import realBanner from '../assets/realbanner.png';
+import { usePostPage } from '../api';
+import { formatDate, optimizeImage, postRoute, toPostView, type PostView } from '../lib/content';
 import { categoryIcon, MenuLink, useMenu } from '../lib/menu';
 import { useReducedMotion } from '../lib/media';
+import { Link } from '../lib/router';
 import { telHref, useSite } from '../lib/site';
 import { toneAt, toneStyle } from '../lib/tones';
 import type { Category } from '../types';
-import { ArrowRight, CaretLeft, CaretRight, PhoneCall, Sparkle } from './icons';
+import { ArrowRight, CalendarDots, CaretLeft, CaretRight, PhoneCall, Sparkle } from './icons';
 import { Container, Eyebrow, cx } from './ui';
 
-/** Fixed banner artwork shipped with the site (src/assets) – not news posts. Add images here to turn it into a slider. */
+/** Fixed banner artwork shipped with the site (src/assets): always the first slide. */
 const BANNERS = [realBanner];
+/** Posts an admin ticks "Hiện trên slide trang chủ" follow the banner, newest first. */
+const MAX_FEATURED = 5;
 const SLIDE_MS = 6500;
+
+type Slide = { kind: 'banner'; src: string } | { kind: 'post'; post: PostView };
 
 const arrowClass =
   'absolute top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full border border-white/30 bg-white/15 text-white shadow-lg backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-white hover:bg-white hover:text-brand-700 focus-visible:opacity-100 sm:grid sm:opacity-0 sm:group-hover:opacity-100';
@@ -22,7 +29,15 @@ const arrowClass =
  */
 const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
   const site = useSite();
-  const count = BANNERS.length;
+  const featured = usePostPage({ featured: true, size: MAX_FEATURED });
+  const slides = useMemo<Slide[]>(
+    () => [
+      ...BANNERS.map((src): Slide => ({ kind: 'banner', src })),
+      ...featured.data.items.map((item): Slide => ({ kind: 'post', post: toPostView(item) })),
+    ],
+    [featured.data],
+  );
+  const count = slides.length;
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -33,6 +48,11 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
   const go = useCallback((index: number) => setCurrent((index + count) % count), [count]);
   const next = useCallback(() => setCurrent((i) => (i + 1) % count), [count]);
   const prev = useCallback(() => setCurrent((i) => (i - 1 + count) % count), [count]);
+
+  // The featured picks can shrink between refreshes: never point past the last slide.
+  useEffect(() => {
+    if (current >= count) setCurrent(0);
+  }, [current, count]);
 
   useEffect(() => {
     // Pause while the tab is hidden so the slider doesn't jump when the visitor returns.
@@ -63,21 +83,56 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
         if (e.key === 'ArrowLeft') prev();
       }}
     >
-      {BANNERS.map((src, index) => {
+      {slides.map((slide, index) => {
         const active = index === current;
+        const layer = cx(
+          'absolute inset-0 h-full w-full transition-opacity duration-1000 ease-(--ease-soft)',
+          active ? 'opacity-100' : 'pointer-events-none opacity-0',
+        );
+        if (slide.kind === 'banner') {
+          return (
+            <img
+              key={slide.src}
+              src={slide.src}
+              alt={slider ? `Trường ${site.school_name} – ảnh ${index + 1}` : `Trường ${site.school_name}`}
+              aria-hidden={!active}
+              loading={index === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+              className={cx(layer, 'object-cover')}
+            />
+          );
+        }
+        const { post } = slide;
+        const image = optimizeImage(post.image, 1400);
         return (
-          <img
-            key={src}
-            src={src}
-            alt={slider ? `Trường ${site.school_name} – ảnh ${index + 1}` : `Trường ${site.school_name}`}
+          <Link
+            key={post.id}
+            to={postRoute(post)}
+            tabIndex={active ? undefined : -1}
             aria-hidden={!active}
-            loading={index === 0 ? 'eager' : 'lazy'}
-            decoding="async"
-            className={cx(
-              'absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ease-(--ease-soft)',
-              active ? 'opacity-100' : 'opacity-0',
-            )}
-          />
+            className={cx(layer, 'block')}
+          >
+            {image && <img src={image} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />}
+            <span className="absolute inset-0 bg-gradient-to-t from-brand-950/90 via-brand-950/40 to-transparent" aria-hidden="true" />
+            <span className="absolute inset-x-0 bottom-0 block p-5 pb-14 sm:p-8 sm:pb-16">
+              <span className="inline-flex items-center gap-2 text-[11.5px] font-bold uppercase tracking-wider text-gold-300">
+                <Sparkle className="size-3.5" />
+                {post.categoryName || 'Tin nổi bật'}
+              </span>
+              <span className="mt-2 block max-w-3xl text-balance text-xl font-bold leading-snug text-white [text-shadow:0_2px_12px_rgb(0_0_0/0.4)] line-clamp-3 sm:text-2xl lg:text-[1.75rem]">
+                {post.title}
+              </span>
+              <span className="mt-2.5 inline-flex items-center gap-4 text-[13px] text-white/80">
+                <span className="inline-flex items-center gap-1.5">
+                  <CalendarDots className="size-4" />
+                  {formatDate(post.publishedAt)}
+                </span>
+                <span className="inline-flex items-center gap-1.5 font-semibold text-white">
+                  Đọc tiếp <ArrowRight className="size-4" />
+                </span>
+              </span>
+            </span>
+          </Link>
         );
       })}
 
@@ -89,11 +144,11 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
 
           <div className="absolute inset-x-0 bottom-0 flex items-center gap-3 p-5 sm:p-6">
             <div className="flex items-center gap-2" role="tablist" aria-label="Chọn ảnh">
-              {BANNERS.map((src, index) => {
+              {slides.map((slide, index) => {
                 const active = index === current;
                 return (
                   <button
-                    key={src}
+                    key={slide.kind === 'banner' ? slide.src : slide.post.id}
                     role="tab"
                     aria-selected={active}
                     aria-label={`Ảnh ${index + 1}`}
