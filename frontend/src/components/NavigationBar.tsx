@@ -39,7 +39,7 @@ const DesktopItem: React.FC<{ node: MenuNode; active: boolean }> = ({ node, acti
       {node.children.length > 0 && <CaretDown className="size-3.5 opacity-70 transition-transform duration-300 group-hover/nav:rotate-180" />}
     </MenuLink>
     {node.children.length > 0 && (
-      <div className="invisible absolute left-0 top-full z-50 min-w-64 translate-y-1 pt-1 opacity-0 transition-all duration-200 ease-(--ease-soft) group-focus-within/nav:visible group-focus-within/nav:translate-y-0 group-focus-within/nav:opacity-100 group-hover/nav:visible group-hover/nav:translate-y-0 group-hover/nav:opacity-100">
+      <div className="invisible absolute left-0 top-full z-50 min-w-64 translate-y-1 pt-1 opacity-0 transition-all duration-200 ease-(--ease-soft) group-hover/nav:visible group-hover/nav:translate-y-0 group-hover/nav:opacity-100">
         <ul className="overflow-hidden rounded-xl border border-line bg-white py-2 text-ink shadow-xl">
           {node.children.map((child) => (
             <li key={child.id}>
