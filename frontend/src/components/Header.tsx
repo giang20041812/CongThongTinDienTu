@@ -24,7 +24,7 @@ const sloganParts = (slogan: string) =>
 export const Header: React.FC = () => {
   const site = useSite();
   return (
-  <header className="relative z-30 bg-white">
+  <header className="relative bg-white">
     <div className="brand-stripe h-1" aria-hidden="true" />
 
     <div className="bg-brand-950 text-[12px] text-white/75">

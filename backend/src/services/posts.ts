@@ -206,7 +206,7 @@ function readBlocks(list: unknown[]): Block[] {
     const text = type === 'TEXT' ? str(source.content) : null;
     const content = text != null && isRichHtml(text) ? sanitizeHtml(text) : text;
     const imageUrl = type === 'IMAGE' ? blankToNull(str(source.imageUrl)) : null;
-    if (type === 'IMAGE' ? imageUrl == null : content == null || isBlank(blockText(content))) continue;
+    if (type === 'IMAGE' ? imageUrl == null : content == null || isBlank(blockText(content)) && !/<img\b/i.test(content)) continue;
     blocks.push({ type, content, imageUrl });
   }
   return blocks;

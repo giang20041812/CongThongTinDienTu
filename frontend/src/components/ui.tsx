@@ -268,16 +268,8 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ eyebrow, title, descript
     <div className="absolute inset-0 bg-dots opacity-60" aria-hidden="true" />
     <div className="absolute -right-20 -top-28 size-80 rounded-full bg-gold-400/15 blur-3xl" aria-hidden="true" />
     <div className="absolute -bottom-32 left-1/3 size-72 rounded-full bg-brand-400/25 blur-3xl" aria-hidden="true" />
-    <Container className="relative py-8 sm:py-11">
+    <Container className="relative py-4 sm:py-5">
       <Breadcrumb items={crumbs} light />
-      <div className="mt-5 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-        <div className="max-w-3xl animate-fade-up">
-          <Eyebrow tone="light">{eyebrow}</Eyebrow>
-          <h1 className="mt-2 text-[1.75rem] font-bold leading-tight text-white sm:text-4xl">{title}</h1>
-          {description && <p className="mt-3 text-[15px] leading-relaxed text-white/75">{description}</p>}
-        </div>
-        {aside && <div className="shrink-0 animate-fade-up">{aside}</div>}
-      </div>
     </Container>
     <div className="brand-stripe h-1" aria-hidden="true" />
   </section>

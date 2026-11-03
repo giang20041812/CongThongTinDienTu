@@ -31,15 +31,18 @@ const tabClass = (active: boolean) =>
   );
 
 /** Desktop tab with a hover/focus dropdown of its children. */
-const DesktopItem: React.FC<{ node: MenuNode; active: boolean }> = ({ node, active }) => (
-  <li className="group/nav relative shrink-0">
+const DesktopItem: React.FC<{ node: MenuNode; active: boolean }> = ({ node, active }) => {
+  // After a click the dropdown hides until the pointer leaves the tab.
+  const [dismissed, setDismissed] = useState(false);
+  return (
+  <li className="group/nav relative shrink-0" onMouseLeave={() => setDismissed(false)} onClickCapture={() => setDismissed(true)}>
     <MenuLink category={node} aria-current={active ? 'page' : undefined} aria-haspopup={node.children.length > 0 || undefined} className={tabClass(active)}>
       {active && <span className="absolute inset-x-3 top-0 h-[3px] rounded-b-full bg-gold-400" aria-hidden="true" />}
       {node.name}
       {node.children.length > 0 && <CaretDown className="size-3.5 opacity-70 transition-transform duration-300 group-hover/nav:rotate-180" />}
     </MenuLink>
     {node.children.length > 0 && (
-      <div className="invisible absolute left-0 top-full z-50 min-w-64 translate-y-1 pt-1 opacity-0 transition-all duration-200 ease-(--ease-soft) group-hover/nav:visible group-hover/nav:translate-y-0 group-hover/nav:opacity-100">
+      <div className={cx(dismissed && "!invisible !opacity-0", "invisible absolute left-0 top-full z-50 min-w-64 translate-y-1 pt-1 opacity-0 transition-all duration-200 ease-(--ease-soft) group-hover/nav:visible group-hover/nav:translate-y-0 group-hover/nav:opacity-100")}>
         <ul className="overflow-hidden rounded-xl border border-line bg-white py-2 text-ink shadow-xl">
           {node.children.map((child) => (
             <li key={child.id}>
@@ -56,7 +59,8 @@ const DesktopItem: React.FC<{ node: MenuNode; active: boolean }> = ({ node, acti
       </div>
     )}
   </li>
-);
+  );
+};
 
 /** Mobile accordion row: the heading navigates, the chevron expands its children. */
 const MobileItem: React.FC<{ node: MenuNode; active: boolean; open: boolean; onToggle: () => void }> = ({ node, active, open, onToggle }) => (
@@ -141,7 +145,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ onOpenSearch }) =>
       <div ref={sentinelRef} className="h-px" aria-hidden="true" />
       <nav
         aria-label="Điều hướng chính"
-        className={cx('no-print relative z-40 bg-brand-600 text-white transition-shadow duration-500', stuck && 'shadow-nav')}
+        className={cx('no-print sticky top-0 z-50 bg-brand-600 text-white transition-shadow duration-500', stuck && 'shadow-nav')}
       >
         <Container className="relative flex h-14 items-end gap-1">
           <Link
