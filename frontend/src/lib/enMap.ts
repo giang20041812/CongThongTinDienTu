@@ -151,4 +151,6 @@ export const EN_MAP: Record<string, string> = {
   'Cập nhật': 'Updated',
   'Xem tất cả:': 'View all:',
   'Tìm trong': 'Search in',
+  'Góp ý đã được phản hồi': 'Answered feedback',
+  'Nhà trường phản hồi': 'Reply from the school',
 };

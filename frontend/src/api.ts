@@ -1,5 +1,5 @@
 import { useEffect, useReducer } from 'react';
-import type { AttachmentDto, Category, FeedbackDto, PageResponse, PageType, PhotoDto, PostDetailDto, PostSummaryDto, Timetable, TimetablePeriod } from './types';
+import type { AttachmentDto, Category, FeedbackDto, PublicFeedbackDto, PageResponse, PageType, PhotoDto, PostDetailDto, PostSummaryDto, Timetable, TimetablePeriod } from './types';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 const TOKEN_KEY = 'portal-admin-token';
@@ -271,6 +271,9 @@ export const registerPostView = (id: string) => {
   fetch(`${API_BASE}/posts/${id}/views`, { method: 'POST', keepalive: true }).catch(() => undefined);
 };
 
+const NO_FEEDBACK: PublicFeedbackDto[] = [];
+export const usePublicFeedback = () => useResource<PublicFeedbackDto[]>('/feedback/public', NO_FEEDBACK);
+
 export const submitFeedback = (body: { fullName: string; email?: string; phone?: string; subject?: string; content: string; website?: string }) =>
   request<{ message: string }>('/feedback', { method: 'POST', body: JSON.stringify(body) }, false);
 
@@ -309,7 +312,7 @@ export const adminApi = {
   updatePost: (id: string, body: unknown) => mutate<PostDetailDto>(`/posts/${id}`, 'PUT', body),
 
   feedback: () => request<FeedbackDto[]>('/feedback'),
-  updateFeedback: (id: string, body: { status?: string; note?: string }) => mutate<FeedbackDto>(`/feedback/${id}`, 'PUT', body),
+  updateFeedback: (id: string, body: { status?: string; note?: string; reply?: string; replyEn?: string; published?: boolean }) => mutate<FeedbackDto>(`/feedback/${id}`, 'PUT', body),
   deleteFeedback: (id: string) => mutate<void>(`/feedback/${id}`, 'DELETE'),
 
   timetable: () => request<Timetable>(TIMETABLE_PATH),

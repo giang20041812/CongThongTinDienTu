@@ -100,6 +100,20 @@ export interface FeedbackDto {
   content: string;
   status: 'NEW' | 'IN_PROGRESS' | 'RESOLVED';
   note: string | null;
+  reply: string | null;
+  replyEn: string | null;
+  published: boolean;
+  createdAt: string;
+}
+
+/** A published feedback with the school's reply (the sender is shown by given name only). */
+export interface PublicFeedbackDto {
+  id: string;
+  author: string;
+  subject: string | null;
+  content: string;
+  reply: string | null;
+  replyEn: string | null;
   createdAt: string;
 }
 
