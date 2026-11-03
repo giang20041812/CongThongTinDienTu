@@ -57,18 +57,14 @@ export const PhotoGallerySection: React.FC = () => {
                         imgClassName="group-hover:scale-105"
                       />
                       <span
-                        className={cx(
-                          'pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-950/80 via-brand-950/10 to-transparent transition-opacity duration-500',
-                          lead ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100',
-                        )}
+                        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-950/80 via-brand-950/10 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100"
                         aria-hidden="true"
                       />
                       <span
                         className={cx(
                           'pointer-events-none absolute inset-x-0 bottom-0 line-clamp-2 p-3 font-semibold leading-snug text-white transition-all duration-500 sm:p-4',
-                          lead
-                            ? 'text-[14px] sm:text-[16px]'
-                            : 'translate-y-2 text-[12.5px] opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100',
+                          'translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100',
+                          lead ? 'text-[14px] sm:text-[16px]' : 'text-[12.5px]',
                         )}
                         aria-hidden="true"
                       >
