@@ -138,10 +138,8 @@ const PublicSite: React.FC = () => {
       >
         Bỏ qua điều hướng
       </a>
-      <div className="sticky top-0 z-50 w-full bg-white shadow-nav flex flex-col">
-        <Header />
-        <NavigationBar onOpenSearch={(query) => setSearch({ open: true, query: query ?? '' })} />
-      </div>
+      <Header />
+      <NavigationBar onOpenSearch={(query) => setSearch({ open: true, query: query ?? '' })} />
       <NewsTicker onOpenSearch={(query) => setSearch({ open: true, query: query ?? '' })} />
       <main id="main" key={route ? routeToPath(route) : '404'} className="flex-1 animate-fade-up">
         <RouteView route={route} />
