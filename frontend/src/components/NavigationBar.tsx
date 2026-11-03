@@ -27,7 +27,7 @@ const useActiveRootId = () => {
 
 const tabClass = (active: boolean) =>
   cx(
-    'relative flex h-11 items-center gap-1 whitespace-nowrap rounded-t-xl px-2 text-[12px] font-semibold uppercase tracking-[0.03em] transition-colors duration-300 ease-(--ease-soft) xl:px-3.5 xl:text-[13px]',
+    'relative flex h-11 items-center gap-1 whitespace-nowrap rounded-t-xl px-1.5 text-[11.5px] font-semibold uppercase tracking-[0.02em] transition-colors duration-300 ease-(--ease-soft) xl:px-2 xl:text-[12px] min-[1400px]:px-3 min-[1400px]:text-[13px]',
     active ? 'bg-white text-brand-700' : 'text-white/90 hover:bg-brand-500 hover:text-white',
   );
 
@@ -190,7 +190,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ onOpenSearch }) =>
             onClick={() => onOpenSearch()}
             aria-label={t('search')}
             title={t('searchHint')}
-            className="ml-auto grid size-10 shrink-0 place-items-center self-center rounded-full transition-colors duration-300 hover:bg-brand-500"
+            className="relative z-10 ml-auto grid size-10 shrink-0 place-items-center self-center rounded-full bg-brand-600 transition-colors duration-300 hover:bg-brand-500"
           >
             <MagnifyingGlass className="size-[18px]" />
           </button>
