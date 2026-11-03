@@ -5,6 +5,7 @@ import {
   Star, Trash2, Type, Upload, UserRound, X,
 } from 'lucide-react';
 import { RichTextEditor } from '../components/RichTextEditor';
+import { hasText, toEditorHtml } from '../lib/richText';
 import { adminApi, AUTH_EXPIRED_EVENT, EMPTY_TIMETABLE, fetchAdminMe, getAdminToken, loginAdmin, logoutAdmin, type AccountDto, type AdminMe, type AdminRole } from '../api';
 import { ADMIN_LOGIN_PATH, ADMIN_PATH } from '../lib/adminPath';
 import { buildMenu, PAGE_TYPE_LABELS } from '../lib/menu';
@@ -618,6 +619,11 @@ function MenuSection({ notify }: { notify: Notify }) {
 interface BlockDraft { key: string; type: 'TEXT' | 'IMAGE'; content: string; imageUrl: string }
 
 const newKey = () => Math.random().toString(36).slice(2);
+/** All blocks of an older post (text and photos) as one document, so the editor shows them in reading order. */
+const blocksToDocument = (list: { type: string; content?: string | null; imageUrl?: string | null }[]) =>
+  list.map(b => (b.type === 'IMAGE'
+    ? (b.imageUrl ? `<p><img src="${b.imageUrl.replace(/"/g, '&quot;')}" alt=""></p>` : '')
+    : toEditorHtml(b.content ?? ''))).join('');
 const toLocalInput = (value?: string | null) => (value ? value.slice(0, 16) : '');
 
 function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedScopeIds, canFeature }: { postId: string | null; tree: MenuNode[]; categories: Category[]; onClose: () => void; onSaved: () => void; notify: Notify; allowedScopeIds?: Set<string>; canFeature: boolean }) {
@@ -632,6 +638,7 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedS
   const [summary, setSummary] = useState('');
   const [coverUrl, setCoverUrl] = useState('');
   const [blocks, setBlocks] = useState<BlockDraft[]>([{ key: newKey(), type: 'TEXT', content: '', imageUrl: '' }]);
+  const [docHtml, setDocHtml] = useState('');
   const [attachments, setAttachments] = useState<AttachmentDto[]>([]);
   const [doc, setDoc] = useState({ documentNumber: '', issuer: '', issuedDate: '', recipient: '', actionRequired: '' });
   const [uploading, setUploading] = useState('');
@@ -650,6 +657,7 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedS
       setTitle(post.title); setSlug(post.slug); setCategoryId(post.category?.id ?? ''); setStatus(post.status); setPinned(post.pinned); setFeatured(post.featured);
       setPublishedAt(toLocalInput(post.publishedAt)); setSummary(post.summary ?? ''); setCoverUrl(post.coverUrl ?? '');
       setBlocks(post.blocks.length ? post.blocks.map(b => ({ key: newKey(), type: b.type, content: b.content ?? '', imageUrl: b.imageUrl ?? '' })) : [{ key: newKey(), type: 'TEXT', content: '', imageUrl: '' }]);
+      setDocHtml(blocksToDocument(post.blocks));
       setAttachments(post.attachments);
       setDoc({ documentNumber: post.documentNumber ?? '', issuer: post.issuer ?? '', issuedDate: post.issuedDate ?? '', recipient: post.recipient ?? '', actionRequired: post.actionRequired ?? '' });
       setLoaded(true);
@@ -712,7 +720,7 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedS
     event.preventDefault();
     if (!title.trim()) return notify('Vui lòng nhập tiêu đề', 'error');
     if (!categoryId) return notify('Vui lòng chọn đầu mục', 'error');
-    const sent = isGallery ? blocks.filter(b => b.type === 'IMAGE' && b.imageUrl.trim()) : blocks;
+    const sent: BlockDraft[] = isGallery ? blocks.filter(b => b.type === 'IMAGE' && b.imageUrl.trim()) : (hasText(docHtml) ? [{ key: 'body', type: 'TEXT', content: docHtml, imageUrl: '' }] : []);
     if (isGallery && sent.length === 0 && !coverUrl.trim()) return notify('Bài viết trong Kho ảnh cần ít nhất một ảnh', 'error');
     const body = {
       title, slug, categoryId, status, pinned, summary, coverUrl,
@@ -774,14 +782,17 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedS
         <div className="flex flex-wrap gap-2 mt-3"><UploadButton label="Tải nhiều ảnh lên" accept="image/*" busy={uploading === 'gallery'} onFiles={uploadPhotos} /><button type="button" className="admin-secondary" onClick={() => { const url = window.prompt('Dán đường dẫn ảnh (https://...)'); if (url?.trim()) setBlocks(list => [...list, { key: newKey(), type: 'IMAGE', content: '', imageUrl: url.trim() }]); }}><Plus size={14} /> Thêm bằng đường dẫn</button></div>
       </div> : <>
       <div><span className="label-admin">Nội dung</span>
-        <div className="space-y-3">{blocks.map((block, index) => <div key={block.key} className="border border-[#e3ebf3] p-3 bg-[#fbfdff]">
-          <div className="flex items-center justify-between mb-2"><span className="text-[11px] font-bold text-[#536b80] flex items-center gap-1">{block.type === 'TEXT' ? <><Type size={12} /> Đoạn văn</> : <><ImagePlus size={12} /> Hình ảnh</>}</span><div className="flex gap-1"><IconButton title="Lên" disabled={index === 0} onClick={() => moveBlock(index, -1)}><ArrowUp size={13} /></IconButton><IconButton title="Xuống" disabled={index === blocks.length - 1} onClick={() => moveBlock(index, 1)}><ArrowDown size={13} /></IconButton><IconButton title="Xoá khối" danger onClick={() => setBlocks(list => list.filter(b => b.key !== block.key))}><X size={13} /></IconButton></div></div>
-          {block.type === 'TEXT'
-            ? <RichTextEditor initial={block.content} onChange={html => updateBlock(block.key, { content: html })} placeholder="Nhập nội dung. Bôi đen chữ rồi dùng thanh công cụ để in đậm, in nghiêng, gạch dưới hoặc gắn liên kết." />
-            : <div className="flex flex-col sm:flex-row gap-2"><input value={block.imageUrl} onChange={e => updateBlock(block.key, { imageUrl: e.target.value })} className="admin-input flex-1" placeholder="https://..." /><UploadButton label="Tải ảnh" accept="image/*" busy={uploading === block.key} onFile={file => upload(block.key, file, 'image', r => updateBlock(block.key, { imageUrl: r.url }))} /></div>}
-          {block.type === 'IMAGE' && block.imageUrl && <img src={block.imageUrl} alt="" className="mt-2 h-28 object-cover border border-[#e3ebf3]" />}
-        </div>)}</div>
-        <div className="flex gap-2 mt-3"><button type="button" onClick={() => setBlocks(list => [...list, { key: newKey(), type: 'TEXT', content: '', imageUrl: '' }])} className="admin-secondary"><Type size={14} /> Thêm đoạn văn</button><button type="button" onClick={() => setBlocks(list => [...list, { key: newKey(), type: 'IMAGE', content: '', imageUrl: '' }])} className="admin-secondary"><ImagePlus size={14} /> Thêm ảnh</button></div>
+        <RichTextEditor
+          initial={docHtml}
+          onChange={setDocHtml}
+          placeholder="Nhập nội dung bài viết. Dùng thanh công cụ để đổi cỡ chữ, căn lề, chèn ảnh… giống Google Docs."
+          uploadImage={async file => {
+            setUploading('body');
+            try { return (await adminApi.uploadImage(file)).url; }
+            catch (err) { notify(errorMessage(err, 'Tải ảnh lên thất bại'), 'error'); throw err; }
+            finally { setUploading(''); }
+          }}
+        />
       </div>
 
       <div><span className="label-admin">Tệp đính kèm</span>
