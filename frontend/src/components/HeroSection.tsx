@@ -114,11 +114,11 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
           >
             {image && <img src={image} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />}
             <span
-              className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-950/90 via-brand-950/40 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-within:opacity-100"
+              className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-950/90 via-brand-950/40 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
               aria-hidden="true"
             />
             <span
-              className="pointer-events-none absolute inset-x-0 bottom-0 block p-5 pb-14 opacity-0 translate-y-3 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0 group-focus-within:opacity-100 group-focus-within:translate-y-0 sm:p-8 sm:pb-16"
+              className="pointer-events-none absolute inset-x-0 bottom-0 block p-5 pb-14 opacity-0 translate-y-3 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0 sm:p-8 sm:pb-16"
             >
               <span className="inline-flex items-center gap-2 text-[11.5px] font-bold uppercase tracking-wider text-gold-300">
                 <Sparkle className="size-3.5" />
@@ -146,7 +146,7 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
         <>
           {/* Light scrim so the controls stay visible on bright images */}
           <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-brand-950/55 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-within:opacity-100"
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-brand-950/55 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
             aria-hidden="true"
           />
 
@@ -160,7 +160,10 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
                     role="tab"
                     aria-selected={active}
                     aria-label={`Ảnh ${index + 1}`}
-                    onClick={() => go(index)}
+                    onClick={(e) => {
+                      e.currentTarget.blur();
+                      go(index);
+                    }}
                     className={cx(
                       'relative h-1.5 overflow-hidden rounded-full bg-white/40 transition-all duration-500 ease-(--ease-soft) hover:bg-white/70',
                       active ? 'w-12' : 'w-5',
@@ -187,10 +190,24 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
             </span>
           </div>
 
-          <button onClick={prev} aria-label="Ảnh trước" className={cx(arrowClass, 'left-3')}>
+          <button
+            onClick={(e) => {
+              e.currentTarget.blur();
+              prev();
+            }}
+            aria-label="Ảnh trước"
+            className={cx(arrowClass, 'left-3')}
+          >
             <CaretLeft className="size-5" />
           </button>
-          <button onClick={next} aria-label="Ảnh tiếp theo" className={cx(arrowClass, 'right-3')}>
+          <button
+            onClick={(e) => {
+              e.currentTarget.blur();
+              next();
+            }}
+            aria-label="Ảnh tiếp theo"
+            className={cx(arrowClass, 'right-3')}
+          >
             <CaretRight className="size-5" />
           </button>
         </>
