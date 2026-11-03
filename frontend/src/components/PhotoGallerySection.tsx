@@ -21,7 +21,7 @@ export const PhotoGallerySection: React.FC = () => {
   if (!loading && photos.length === 0) return null;
 
   return (
-    <section className="py-12 sm:py-16">
+    <section className="py-6 sm:py-8">
       <Container>
         <Reveal>
           <SectionHeading

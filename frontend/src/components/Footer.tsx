@@ -100,40 +100,6 @@ export const Footer: React.FC = () => {
           <p className="mt-5 max-w-sm text-[14px] leading-relaxed">
             Cổng thông tin điện tử chính thức của nhà trường – nơi cập nhật tin tức, thông báo, kế hoạch dạy học và hoạt động của thầy và trò.
           </p>
-          <ul className="mt-5 space-y-2.5 text-[14px]">
-            {site.address && (
-              <li className="flex items-start gap-3">
-                <MapPin className="mt-0.5 size-4 shrink-0 text-gold-300" />
-                {site.address}
-              </li>
-            )}
-            {site.hotline && (
-              <li className="flex items-center gap-3">
-                <Phone className="size-4 shrink-0 text-gold-300" />
-                <a href={telHref(site.hotline)} className="transition-colors hover:text-white">{site.hotline}</a>
-              </li>
-            )}
-            {email && (
-              <li className="flex items-center gap-3">
-                <EnvelopeSimple className="size-4 shrink-0 text-gold-300" />
-                <a href={`mailto:${email}`} className="break-all transition-colors hover:text-white">{email}</a>
-              </li>
-            )}
-            {site.website && (
-              <li className="flex items-center gap-3">
-                <GlobeHemisphereEast className="size-4 shrink-0 text-gold-300" />
-                {site.website}
-              </li>
-            )}
-            {site.messenger_url && (
-              <li className="flex items-center gap-3">
-                <MessengerLogo className="size-4 shrink-0 text-gold-300" />
-                <a href={site.messenger_url} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-white">
-                  Nhắn tin qua Messenger
-                </a>
-              </li>
-            )}
-          </ul>
         </div>
 
         <div className="lg:col-span-2">

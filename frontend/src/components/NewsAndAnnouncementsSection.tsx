@@ -154,7 +154,7 @@ export const NewsAndAnnouncementsSection: React.FC = () => {
   const noticesEntry = bySlug.get(NOTICES_SLUG);
 
   return (
-    <section className="relative isolate overflow-hidden py-12 sm:py-16">
+    <section className="relative isolate overflow-hidden py-6 sm:py-8">
       {/* Drifting colour washes behind the section */}
       <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
         <div className="absolute -left-48 top-0 size-[32rem] animate-drift rounded-full bg-[radial-gradient(closest-side,rgb(56_189_248/0.16),transparent)]" />
