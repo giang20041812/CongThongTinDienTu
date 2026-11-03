@@ -1,4 +1,4 @@
-import { config } from './config.js';
+﻿import { config } from './config.js';
 
 // Same semantics as the Java backend these replace, so stored slugs, search text and summaries stay identical.
 
@@ -44,26 +44,79 @@ export function searchable(...parts: (string | null | undefined)[]): string {
 }
 
 // ---------------------------------------------------------------------------
-// Rich text. Text blocks written in the admin editor are small HTML fragments: only paragraphs, line breaks,
-// bold, italic, underline and links survive. Older posts hold plain text (see isRichHtml).
+// Rich text. Text blocks written in the admin editor are small HTML fragments: paragraphs, headings, lists, quotes, text styles,
+// links and images survive. Older posts hold plain text (see isRichHtml).
 // ---------------------------------------------------------------------------
 
-const RICH_TAG = /<\/?(?:p|br|strong|em|u|a|b|i|div)(?:\s[^>]*)?\/?>/i;
+const RICH_TAG = /<\/?(?:p|br|strong|em|u|s|a|b|i|div|h[1-3]|ul|ol|li|blockquote|span|img)(?:\s[^>]*)?\/?>/i;
 const TAG = /<(\/?)([a-zA-Z][a-zA-Z0-9]*)((?:"[^"]*"|'[^']*'|[^'">])*)>/g;
-const TAG_ALIASES: Record<string, string> = { b: 'strong', i: 'em', div: 'p', ins: 'u' };
-const RICH_TAGS = new Set(['p', 'br', 'strong', 'em', 'u', 'a']);
+const TAG_ALIASES: Record<string, string> = { b: 'strong', i: 'em', div: 'p', ins: 'u', strike: 's', del: 's' };
+const RICH_TAGS = new Set(['p', 'br', 'strong', 'em', 'u', 's', 'a', 'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'blockquote', 'span', 'img']);
+/** Block elements that may carry text-align. */
+const ALIGNABLE = new Set(['p', 'h1', 'h2', 'h3', 'li', 'blockquote']);
+/** Opening one of these ends an open paragraph. */
+const BLOCK_TAGS = new Set(['p', 'h1', 'h2', 'h3', 'ul', 'ol', 'blockquote']);
 /** Link targets we keep: web, mail, phone, same-site paths and in-page anchors. */
 const SAFE_HREF = /^(?:https?:\/\/|mailto:|tel:|\/(?!\/)|#)/i;
-const HREF_ATTR = /\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/i;
+/** Photos: uploaded files (same site) or web images; never data: or script URLs. */
+const SAFE_SRC = /^(?:https?:\/\/|\/(?!\/))/i;
+const attr = (name: string) => new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s"'>]+))`, 'i');
+const HREF_ATTR = attr('href');
+const STYLE_ATTR = attr('style');
+const SRC_ATTR = attr('src');
+const ALT_ATTR = attr('alt');
+const WIDTH_ATTR = attr('width');
+const attrValue = (found: RegExpExecArray | null) => found?.[1] ?? found?.[2] ?? found?.[3] ?? '';
+
+const FONT_FAMILIES: Record<string, string> = {
+  arial: 'Arial,sans-serif',
+  'times new roman': "'Times New Roman',serif",
+  georgia: 'Georgia,serif',
+  verdana: 'Verdana,sans-serif',
+  tahoma: 'Tahoma,sans-serif',
+  'courier new': "'Courier New',monospace",
+  'trebuchet ms': "'Trebuchet MS',sans-serif",
+};
+const COLOR = /^(?:#[0-9a-f]{3,8}|rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(?:,\s*[01]?(?:\.\d+)?\s*)?\))$/i;
+
+/**
+ * The few CSS properties the editor writes, re-serialised: text-align on blocks; font-size, color, background-color and
+ * a whitelisted font-family on spans. Any other property or value is dropped.
+ */
+function cleanStyle(tag: string, style: string): string {
+  const keep: string[] = [];
+  for (const declaration of style.split(';')) {
+    const colon = declaration.indexOf(':');
+    if (colon < 0) continue;
+    const prop = declaration.slice(0, colon).trim().toLowerCase();
+    const value = declaration.slice(colon + 1).trim();
+    if (ALIGNABLE.has(tag) && prop === 'text-align' && /^(?:left|right|center|justify)$/i.test(value)) {
+      keep.push(`text-align:${value.toLowerCase()}`);
+    } else if (tag === 'span') {
+      if (prop === 'font-size') {
+        const size = /^(\d{1,3}(?:\.\d+)?)(px|pt)$/i.exec(value);
+        if (size && Number(size[1]) >= 6 && Number(size[1]) <= 120) keep.push(`font-size:${size[1]}${size[2].toLowerCase()}`);
+      } else if ((prop === 'color' || prop === 'background-color') && COLOR.test(value)) {
+        keep.push(`${prop}:${value.toLowerCase().replace(/\s+/g, ' ')}`);
+      } else if (prop === 'font-family') {
+        const first = value.split(',')[0].replace(/["']/g, '').trim().toLowerCase();
+        if (FONT_FAMILIES[first]) keep.push(`font-family:${FONT_FAMILIES[first]}`);
+      }
+    }
+  }
+  return keep.join(';');
+}
 
 /** Whether a text block holds editor HTML (otherwise it is plain text with blank-line paragraphs). */
 export const isRichHtml = (content: string) => RICH_TAG.test(content);
 
 const escapeStray = (text: string) => text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const escapeAttr = (text: string) => text.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 /**
- * Keeps only the formatting the editor offers (p, br, strong, em, u, a[href]); every other tag and attribute is
- * dropped, its text kept, and text is escaped, so stored content can never carry script or event handlers.
+ * Keeps only the formatting the editor offers (paragraphs, headings, lists, quotes, bold/italic/underline/strike, links,
+ * images, and the whitelisted styles of cleanStyle); every other tag and attribute is dropped, its text kept, and text
+ * is escaped, so stored content can never carry script or event handlers.
  * <b>/<i>/<div> are normalised to strong/em/p and unbalanced tags are closed.
  */
 export function sanitizeHtml(html: string): string {
@@ -85,20 +138,26 @@ export function sanitizeHtml(html: string): string {
     if (!RICH_TAGS.has(name)) continue;
 
     if (closing) {
-      if (name !== 'br') close(name);
+      if (name !== 'br' && name !== 'img') close(name);
     } else if (name === 'br') {
       out += '<br>';
+    } else if (name === 'img') {
+      const src = attrValue(SRC_ATTR.exec(match[3])).trim();
+      if (!SAFE_SRC.test(src)) continue;
+      const width = Number(attrValue(WIDTH_ATTR.exec(match[3])).replace(/px$/i, ''));
+      const alt = attrValue(ALT_ATTR.exec(match[3])).slice(0, 300);
+      out += `<img src="${escapeAttr(src)}" alt="${escapeAttr(alt)}"${width >= 20 && width <= 2400 ? ` width="${Math.round(width)}"` : ''}>`;
     } else if (name === 'a') {
-      const found = HREF_ATTR.exec(match[3]);
-      const href = (found?.[1] ?? found?.[2] ?? found?.[3] ?? '').trim();
+      const href = attrValue(HREF_ATTR.exec(match[3])).trim();
       if (!SAFE_HREF.test(href)) continue;
       close('a'); // links do not nest
       const external = /^https?:/i.test(href);
-      out += `<a href="${href.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}"${external ? ' target="_blank" rel="noopener noreferrer"' : ''}>`;
+      out += `<a href="${escapeAttr(href)}"${external ? ' target="_blank" rel="noopener noreferrer"' : ''}>`;
       open.push('a');
     } else {
-      if (name === 'p') close('p');
-      out += `<${name}>`;
+      if (BLOCK_TAGS.has(name)) close('p');
+      const style = cleanStyle(name, attrValue(STYLE_ATTR.exec(match[3])));
+      out += `<${name}${style ? ` style="${style}"` : ''}>`;
       open.push(name);
     }
   }
@@ -112,7 +171,7 @@ const NAMED_ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quo
 /** Plain text of editor HTML: block ends become spaces, tags are removed, entities decoded (no-break space = space). */
 export function htmlToText(html: string): string {
   return trim(html
-    .replace(/<\s*br\s*\/?>|<\/\s*(?:p|div)\s*>/gi, ' ')
+    .replace(/<\s*br\s*\/?>|<\/\s*(?:p|div|h[1-3]|li|blockquote|ul|ol)\s*>/gi, ' ')
     .replace(/<[^>]*>/g, '')
     .replace(/&(?:#(\d+)|#x([0-9a-f]+)|([a-z]+));/gi, (whole, dec, hex, named) => {
       if (named) return NAMED_ENTITIES[named.toLowerCase()] ?? whole;

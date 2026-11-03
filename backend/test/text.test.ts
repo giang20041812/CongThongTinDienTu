@@ -82,3 +82,17 @@ test('htmlToText and blockText give readable text for summaries', () => {
   assert.ok(isRichHtml('<p>x</p>'));
   assert.ok(!isRichHtml('x < y và y > z'));
 });
+
+test('sanitizeHtml keeps document formatting: headings, lists, alignment, font styles and images', () => {
+  assert.equal(sanitizeHtml('<h1 style="text-align: center; color:red">T</h1>'), '<h1 style="text-align:center">T</h1>');
+  assert.equal(sanitizeHtml('<ul><li>a</li><li style="text-align:right">b</li></ul>'), '<ul><li>a</li><li style="text-align:right">b</li></ul>');
+  assert.equal(
+    sanitizeHtml('<p><span style="font-size: 24px; color: rgb(255, 0, 0); position:fixed; font-family: Georgia, serif">x</span></p>'),
+    '<p><span style="font-size:24px;color:rgb(255, 0, 0);font-family:Georgia,serif">x</span></p>',
+  );
+  assert.equal(sanitizeHtml('<span style="font-family: evil; color: url(x)">x</span>'), '<span>x</span>');
+  assert.equal(sanitizeHtml('<p><img src="/uploads/a.png" width="300" onerror="x()" alt="A"></p>'), '<p><img src="/uploads/a.png" alt="A" width="300"></p>');
+  assert.equal(sanitizeHtml('<img src="javascript:alert(1)"><img src="data:image/png;base64,AA"><img src="//evil.example/a.png">'), '');
+  assert.equal(sanitizeHtml('<p>a</p><h2>b'), '<p>a</p><h2>b</h2>');
+  assert.ok(isRichHtml('<img src="/a.png">'));
+});
