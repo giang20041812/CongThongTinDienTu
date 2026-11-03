@@ -113,8 +113,13 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
             className={cx(layer, 'block')}
           >
             {image && <img src={image} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />}
-            <span className="absolute inset-0 bg-gradient-to-t from-brand-950/90 via-brand-950/40 to-transparent" aria-hidden="true" />
-            <span className="absolute inset-x-0 bottom-0 block p-5 pb-14 sm:p-8 sm:pb-16">
+            <span
+              className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-950/90 via-brand-950/40 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-within:opacity-100"
+              aria-hidden="true"
+            />
+            <span
+              className="pointer-events-none absolute inset-x-0 bottom-0 block p-5 pb-14 opacity-0 translate-y-3 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0 group-focus-within:opacity-100 group-focus-within:translate-y-0 sm:p-8 sm:pb-16"
+            >
               <span className="inline-flex items-center gap-2 text-[11.5px] font-bold uppercase tracking-wider text-gold-300">
                 <Sparkle className="size-3.5" />
                 {post.categoryName || 'Tin nổi bật'}
@@ -140,7 +145,10 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
       {slider && (
         <>
           {/* Light scrim so the controls stay visible on bright images */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-brand-950/55 to-transparent" aria-hidden="true" />
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-brand-950/55 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-within:opacity-100"
+            aria-hidden="true"
+          />
 
           <div className="absolute inset-x-0 bottom-0 flex items-center gap-3 p-5 sm:p-6">
             <div className="flex items-center gap-2" role="tablist" aria-label="Chọn ảnh">
