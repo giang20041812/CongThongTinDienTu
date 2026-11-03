@@ -151,6 +151,10 @@ export const EN_MAP: Record<string, string> = {
   'Cập nhật': 'Updated',
   'Xem tất cả:': 'View all:',
   'Tìm trong': 'Search in',
+  'Các góp ý đã được nhà trường phản hồi công khai.': 'Feedback the school has answered publicly.',
+  'Xem các góp ý': 'View feedback',
+  'Quay lại danh sách': 'Back to the list',
+  'Chưa có góp ý nào được đăng công khai.': 'No feedback has been published yet.',
   'Góp ý đã được phản hồi': 'Answered feedback',
   'Nhà trường phản hồi': 'Reply from the school',
 };

@@ -121,6 +121,7 @@ const inputClass =
 export const FeedbackPage: React.FC<SectionProps> = (props) => {
   const [form, setForm] = useState({ fullName: '', email: '', phone: '', subject: '', content: '', website: '' });
   const [state, setState] = useState<{ status: 'idle' | 'sending' | 'sent'; error?: string }>({ status: 'idle' });
+  const [composing, setComposing] = useState(false);
   const set = (key: keyof typeof form) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((current) => ({ ...current, [key]: event.target.value }));
 
@@ -144,14 +145,26 @@ export const FeedbackPage: React.FC<SectionProps> = (props) => {
     <>
       <SectionHeader {...props} />
       <Container className="py-10 sm:py-12">
+        {!composing && state.status !== 'sent' ? (
+          <div className="mx-auto max-w-3xl">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-[14px] text-body">{tr('Các góp ý đã được nhà trường phản hồi công khai.')}</p>
+              <button type="button" onClick={() => setComposing(true)} className={primaryButton}>
+                <PaperPlaneTilt className="size-4" />
+                {tr('Gửi góp ý')}
+              </button>
+            </div>
+            <PublicFeedbackList />
+          </div>
+        ) : (
         <div className="mx-auto max-w-3xl rounded-2xl border border-line bg-white p-6 shadow-card sm:p-9">
           {state.status === 'sent' ? (
             <div className="flex flex-col items-center py-8 text-center">
               <CheckCircle className="size-14 text-green-600" />
               <h2 className="mt-4 text-xl font-bold">{tr('Cảm ơn bạn đã gửi góp ý!')}</h2>
               <p className="mt-2 max-w-md text-sm text-muted">{tr('Nhà trường đã tiếp nhận và sẽ phản hồi qua thông tin liên hệ bạn cung cấp (nếu cần).')}</p>
-              <button onClick={() => setState({ status: 'idle' })} className={cx(primaryButton, 'mt-6')}>
-                {tr('Gửi góp ý khác')}
+              <button onClick={() => { setState({ status: 'idle' }); setComposing(false); }} className={cx(primaryButton, 'mt-6')}>
+                {tr('Xem các góp ý')}
               </button>
             </div>
           ) : (
@@ -187,11 +200,14 @@ export const FeedbackPage: React.FC<SectionProps> = (props) => {
                   <PaperPlaneTilt className="size-4" />
                   {state.status === 'sending' ? tr('Đang gửi...') : tr('Gửi góp ý')}
                 </button>
+                <button type="button" onClick={() => setComposing(false)} className="ml-3 text-sm font-semibold text-brand-600 hover:underline">
+                  {tr('Quay lại danh sách')}
+                </button>
               </div>
             </form>
           )}
         </div>
-        <PublicFeedbackList />
+        )}
       </Container>
     </>
   );
@@ -200,10 +216,11 @@ export const FeedbackPage: React.FC<SectionProps> = (props) => {
 /** Feedback the school has answered and chosen to publish. */
 const PublicFeedbackList: React.FC = () => {
   const { data: items } = usePublicFeedback();
-  if (items.length === 0) return null;
   return (
-    <section className="mx-auto mt-10 max-w-3xl" aria-label={tr('Góp ý đã được phản hồi')}>
-      <h2 className="text-lg font-bold text-ink">{tr('Góp ý đã được phản hồi')}</h2>
+    <section className="mt-6" aria-label={tr('Góp ý đã được phản hồi')}>
+      {items.length === 0 && (
+        <p className="rounded-2xl border border-dashed border-line bg-white p-8 text-center text-sm text-muted">{tr('Chưa có góp ý nào được đăng công khai.')}</p>
+      )}
       <ul className="mt-4 space-y-4">
         {items.map((item) => (
           <li key={item.id} className="rounded-2xl border border-line bg-white p-5 shadow-card">
