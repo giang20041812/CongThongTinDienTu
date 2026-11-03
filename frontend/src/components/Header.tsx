@@ -1,3 +1,5 @@
+import { LanguageSwitcher } from './LanguageSwitcher';
+import { getLocale, t } from '../lib/i18n';
 import React from 'react';
 import { EnvelopeSimple, FacebookLogo, MapPin, MessengerLogo, Phone } from './icons';
 import { telHref, useSite } from '../lib/site';
@@ -6,16 +8,16 @@ import { Link } from '../lib/router';
 import { Container } from './ui';
 
 const todayLabel = () => {
-  const label = new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
-  return label.charAt(0).toLocaleUpperCase('vi-VN') + label.slice(1);
+  const label = new Date().toLocaleDateString(getLocale(), { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+  return label.charAt(0).toLocaleUpperCase(getLocale()) + label.slice(1);
 };
 
 const sloganParts = (slogan: string) =>
   slogan
     .split('-')
-    .map((part) => part.trim().toLocaleLowerCase('vi-VN'))
+    .map((part) => part.trim().toLocaleLowerCase(getLocale()))
     .filter(Boolean)
-    .map((part) => part.charAt(0).toLocaleUpperCase('vi-VN') + part.slice(1));
+    .map((part) => part.charAt(0).toLocaleUpperCase(getLocale()) + part.slice(1));
 
 /**
  * Identity block: a slim utility strip and the school's logo + name, which now
@@ -30,8 +32,8 @@ export const Header: React.FC = () => {
     <div className="bg-brand-950 text-[12px] text-white/75">
       <Container className="flex h-9 items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-2.5">
-          <span className="truncate font-semibold uppercase tracking-[0.12em] text-gold-300">{site.parent_org}</span>
-          <span className="hidden h-3 w-px bg-white/20 lg:block" aria-hidden="true" />
+          {site.parent_org && <span className="truncate font-semibold uppercase tracking-[0.12em] text-gold-300">{site.parent_org}</span>}
+          {site.parent_org && <span className="hidden h-3 w-px bg-white/20 lg:block" aria-hidden="true" />}
           <span className="hidden whitespace-nowrap lg:block">{todayLabel()}</span>
         </div>
         <div className="flex shrink-0 items-center gap-5">
@@ -59,6 +61,7 @@ export const Header: React.FC = () => {
               <span className="hidden sm:inline">Messenger</span>
             </a>
           )}
+          <LanguageSwitcher />
           {site.hotline && (
             <a href={telHref(site.hotline)} className="flex items-center gap-1.5 font-semibold text-white transition-colors hover:text-gold-300">
               <Phone className="size-3.5 text-gold-300" aria-hidden="true" />
@@ -76,25 +79,25 @@ export const Header: React.FC = () => {
       <div className="absolute -right-6 top-1/2 hidden h-px w-[38%] -translate-y-1/2 bg-gradient-to-l from-gold-300/0 via-gold-300/60 to-gold-300/0 lg:block" aria-hidden="true" />
 
       <Container className="relative flex items-center gap-6 py-4 sm:py-5">
-        <Link to={{ view: 'home' }} className="group flex min-w-0 items-center gap-3 sm:gap-4" aria-label={`Trang chủ Trường ${site.school_name}`}>
+        <Link to={{ view: 'home' }} className="group flex min-w-0 items-center gap-3 sm:gap-4" aria-label={`${t('schoolHome')}${t('school')} ${site.school_name}`.trim()}>
           <img
             src={schoolLogo}
-            alt={`Logo Trường ${site.school_name}`}
+            alt={`${t('schoolLogo')}${t('school')} ${site.school_name}`.trim()}
             width={92}
             height={79}
             className="h-14 w-auto shrink-0 object-contain transition-transform duration-500 ease-(--ease-soft) group-hover:scale-[1.04] sm:h-[72px] lg:h-[84px]"
           />
           <div className="min-w-0">
-            <p className="truncate text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-500 sm:text-xs">
+            {site.parent_org && <p className="truncate text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-500 sm:text-xs">
               {site.parent_org}
-            </p>
+            </p>}
             <p className="mt-0.5 text-[15px] font-extrabold uppercase leading-tight tracking-tight text-brand-700 min-[400px]:text-[1.05rem] sm:text-[1.65rem] lg:text-[2rem]">
-              Trường {site.school_name}
+              {t('school')} {site.school_name}
             </p>
-            <p className="mt-1 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-flame-600 sm:text-[13px]">
+            {site.slogan && <p className="mt-1 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-flame-600 sm:text-[13px]">
               <span className="hidden h-[3px] w-6 rounded-full bg-gold-400 sm:block" aria-hidden="true" />
               {sloganParts(site.slogan).join(' · ')}
-            </p>
+            </p>}
           </div>
         </Link>
 
@@ -105,7 +108,7 @@ export const Header: React.FC = () => {
               <Phone className="size-[18px]" />
             </span>
             <div className="leading-tight">
-              <div className="text-[11px] font-medium uppercase tracking-wider text-muted">Đường dây nóng</div>
+              <div className="text-[11px] font-medium uppercase tracking-wider text-muted">{t('hotline')}</div>
               <a href={telHref(site.hotline)} className="text-[15px] font-bold text-brand-700 hover:text-brand-500">
                 {site.hotline}
               </a>
@@ -118,7 +121,7 @@ export const Header: React.FC = () => {
               <EnvelopeSimple className="size-[18px]" />
             </span>
             <div className="leading-tight">
-              <div className="text-[11px] font-medium uppercase tracking-wider text-muted">Thư điện tử</div>
+              <div className="text-[11px] font-medium uppercase tracking-wider text-muted">{t('email')}</div>
               <a href={`mailto:${site.official_email}`} className="text-[14px] font-semibold text-brand-700 hover:text-brand-500">
                 {site.official_email}
               </a>

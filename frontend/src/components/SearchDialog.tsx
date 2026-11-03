@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowElbowDownLeft, ArrowRight, FileText, FolderOpen, MagnifyingGlass, X } from './icons';
 import { usePostPage } from '../api';
@@ -67,7 +68,7 @@ export const SearchDialog: React.FC<{ open: boolean; initialQuery: string; onClo
           key: `c-${c.id}`,
           title: c.name,
           excerpt: c.description ?? '',
-          meta: parent ? `Mục · ${parent.name}` : 'Mục',
+          meta: parent ? `${tr('Mục')} · ${parent.name}` : tr('Mục'),
           kind: 'entry' as const,
           to: isExternal(c) ? undefined : categoryRoute(c),
           href: isExternal(c) ? c.externalUrl! : undefined,
@@ -79,7 +80,7 @@ export const SearchDialog: React.FC<{ open: boolean; initialQuery: string; onClo
         key: `p-${p.id}`,
         title: p.title,
         excerpt: p.summary,
-        meta: [p.categoryName, p.documentNumber && `Số ${p.documentNumber}`, p.date].filter(Boolean).join(' · '),
+        meta: [p.categoryName, p.documentNumber && `${tr('Số')} ${p.documentNumber}`, p.date].filter(Boolean).join(' · '),
         kind: 'post' as const,
         to: postRoute(p),
       };
@@ -116,8 +117,8 @@ export const SearchDialog: React.FC<{ open: boolean; initialQuery: string; onClo
   const searching = query.trim() !== debounced.trim() || postsPage.loading;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[8vh] sm:pt-[12vh]" role="dialog" aria-modal="true" aria-label="Tìm kiếm" onKeyDown={onKeyDown}>
-      <button type="button" aria-label="Đóng tìm kiếm" onClick={onClose} className="absolute inset-0 cursor-default bg-brand-950/55 backdrop-blur-sm" />
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[8vh] sm:pt-[12vh]" role="dialog" aria-modal="true" aria-label={tr('Tìm kiếm')} onKeyDown={onKeyDown}>
+      <button type="button" aria-label={tr('Đóng tìm kiếm')} onClick={onClose} className="absolute inset-0 cursor-default bg-brand-950/55 backdrop-blur-sm" />
       <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl" style={{ animation: 'dialog-in 0.25s var(--ease-soft) both' }}>
         <div className="flex items-center gap-3 border-b border-line px-5">
           <MagnifyingGlass className="size-5 shrink-0 text-brand-600" />
@@ -125,11 +126,11 @@ export const SearchDialog: React.FC<{ open: boolean; initialQuery: string; onClo
             ref={inputRef}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Tìm bài viết, thông báo, văn bản, mục..."
-            aria-label="Từ khóa tìm kiếm"
+            placeholder={tr('Tìm bài viết, thông báo, văn bản, mục...')}
+            aria-label={tr('Từ khóa tìm kiếm')}
             className="h-16 min-w-0 flex-1 bg-transparent text-[15px] text-ink outline-none placeholder:text-muted"
           />
-          <button type="button" onClick={onClose} aria-label="Đóng" className="grid size-8 place-items-center rounded-full text-muted transition-colors hover:bg-surface hover:text-ink">
+          <button type="button" onClick={onClose} aria-label={tr('Đóng')} className="grid size-8 place-items-center rounded-full text-muted transition-colors hover:bg-surface hover:text-ink">
             <X className="size-4" />
           </button>
         </div>
@@ -137,7 +138,7 @@ export const SearchDialog: React.FC<{ open: boolean; initialQuery: string; onClo
         <div className="max-h-[60vh] overflow-y-auto p-2">
           {query.trim().length === 0 ? (
             <div className="p-4">
-              <p className="text-[12px] font-semibold uppercase tracking-wider text-muted">Gợi ý tìm kiếm</p>
+              <p className="text-[12px] font-semibold uppercase tracking-wider text-muted">{tr('Gợi ý tìm kiếm')}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {suggestions.map((suggestion) => (
                   <button
@@ -153,18 +154,18 @@ export const SearchDialog: React.FC<{ open: boolean; initialQuery: string; onClo
           ) : results.length === 0 ? (
             <div className="px-6 py-12 text-center">
               {searching ? (
-                <p className="text-sm text-muted">Đang tìm…</p>
+                <p className="text-sm text-muted">{tr('Đang tìm…')}</p>
               ) : (
                 <>
-                  <p className="font-semibold text-ink">Không tìm thấy kết quả cho “{query}”</p>
-                  <p className="mt-1 text-sm text-muted">Hãy thử từ khóa ngắn hơn, ví dụ “tuyển sinh”, “HSG”.</p>
+                  <p className="font-semibold text-ink">{tr('Không tìm thấy kết quả cho', 'No results for')} “{query}”</p>
+                  <p className="mt-1 text-sm text-muted">{tr('Hãy thử từ khóa ngắn hơn, ví dụ “tuyển sinh”, “HSG”.')}</p>
                 </>
               )}
             </div>
           ) : (
-            <ul role="listbox" aria-label="Kết quả">
+            <ul role="listbox" aria-label={tr('Kết quả')}>
               <li className="px-3 pb-1 pt-2 text-[12px] text-muted">
-                {results.length} kết quả{searching && ' · đang cập nhật…'}
+                {results.length} {tr('kết quả')}{searching && tr(' · đang cập nhật…')}
               </li>
               {results.map((result, i) => (
                 <li key={result.key} role="option" aria-selected={i === activeIndex}>
@@ -195,9 +196,9 @@ export const SearchDialog: React.FC<{ open: boolean; initialQuery: string; onClo
         </div>
 
         <div className="hidden items-center gap-4 border-t border-line bg-surface/70 px-5 py-2.5 text-[11.5px] text-muted sm:flex">
-          <span><kbd className="rounded border border-line bg-white px-1.5 py-0.5 font-sans">↑</kbd> <kbd className="rounded border border-line bg-white px-1.5 py-0.5 font-sans">↓</kbd> di chuyển</span>
-          <span><kbd className="rounded border border-line bg-white px-1.5 py-0.5 font-sans">Enter</kbd> mở</span>
-          <span><kbd className="rounded border border-line bg-white px-1.5 py-0.5 font-sans">Esc</kbd> đóng</span>
+          <span><kbd className="rounded border border-line bg-white px-1.5 py-0.5 font-sans">↑</kbd> <kbd className="rounded border border-line bg-white px-1.5 py-0.5 font-sans">↓</kbd>{tr('di chuyển')}</span>
+          <span><kbd className="rounded border border-line bg-white px-1.5 py-0.5 font-sans">Enter</kbd>{tr('mở')}</span>
+          <span><kbd className="rounded border border-line bg-white px-1.5 py-0.5 font-sans">Esc</kbd>{tr('đóng')}</span>
         </div>
       </div>
     </div>

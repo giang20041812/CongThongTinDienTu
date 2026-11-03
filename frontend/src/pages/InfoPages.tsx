@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import React, { useState } from 'react';
 import { CheckCircle, Clock, EnvelopeSimple, FacebookLogo, GlobeHemisphereEast, MapPin, MessengerLogo, PaperPlaneTilt, Phone } from '../components/icons';
 import { submitFeedback } from '../api';
@@ -11,7 +12,7 @@ const MapFrame: React.FC<{ className?: string }> = ({ className }) => {
   return (
     <div className={cx('overflow-hidden rounded-2xl border border-line bg-brand-50 shadow-card', className)}>
       <iframe
-        title={`Bản đồ Trường ${site.school_name}`}
+        title={`${tr("Bản đồ", "Map")} – ${site.school_name}`}
         src={mapEmbedUrl(site)}
         className="h-full w-full border-0"
         loading="lazy"
@@ -43,12 +44,12 @@ export const ContactPage: React.FC<SectionProps> = (props) => {
       <Container className="grid gap-8 py-10 sm:py-12 lg:grid-cols-12">
         <Reveal className="lg:col-span-5">
           <div className="rounded-2xl border border-line bg-white p-6 shadow-card sm:p-8">
-            <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-gold-700">{site.parent_org}</p>
-            <h2 className="mt-1 text-xl font-bold uppercase text-brand-700">Trường {site.school_name}</h2>
+            {site.parent_org && <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-gold-700">{site.parent_org}</p>}
+            <h2 className="mt-1 text-xl font-bold uppercase text-brand-700">{tr('Trường', '')} {site.school_name}</h2>
             <ul className="mt-4 divide-y divide-line">
-              {site.address && <ContactLine icon={MapPin} label="Địa chỉ">{site.address}</ContactLine>}
+              {site.address && <ContactLine icon={MapPin} label={tr('Địa chỉ')}>{site.address}</ContactLine>}
               {site.hotline && (
-                <ContactLine icon={Phone} label="Điện thoại">
+                <ContactLine icon={Phone} label={tr('Điện thoại')}>
                   <a href={telHref(site.hotline)} className="hover:text-brand-600">{site.hotline}</a>
                 </ContactLine>
               )}
@@ -65,7 +66,7 @@ export const ContactPage: React.FC<SectionProps> = (props) => {
                   )}
                 </ContactLine>
               )}
-              {site.working_hours && <ContactLine icon={Clock} label="Giờ làm việc">{site.working_hours}</ContactLine>}
+              {site.working_hours && <ContactLine icon={Clock} label={tr('Giờ làm việc')}>{site.working_hours}</ContactLine>}
               {site.website && <ContactLine icon={GlobeHemisphereEast} label="Website">{site.website}</ContactLine>}
               {site.facebook_url && (
                 <ContactLine icon={FacebookLogo} label="Facebook">
@@ -74,14 +75,14 @@ export const ContactPage: React.FC<SectionProps> = (props) => {
               )}
               {site.messenger_url && (
                 <ContactLine icon={MessengerLogo} label="Messenger">
-                  <a href={site.messenger_url} target="_blank" rel="noopener noreferrer" className="hover:text-brand-600">Nhắn tin cho nhà trường</a>
+                  <a href={site.messenger_url} target="_blank" rel="noopener noreferrer" className="hover:text-brand-600">{tr('Nhắn tin cho nhà trường')}</a>
                 </ContactLine>
               )}
             </ul>
             {feedbackEntry && (
               <MenuLink category={feedbackEntry} className={cx(primaryButton, 'mt-4 w-full')}>
                 <PaperPlaneTilt className="size-4" />
-                Gửi góp ý cho nhà trường
+                {tr('Gửi góp ý cho nhà trường')}
               </MenuLink>
             )}
           </div>
@@ -103,7 +104,7 @@ export const MapPage: React.FC<SectionProps> = (props) => {
         <p className="mb-5 flex items-center gap-2 text-[15px] text-body">
           <MapPin className="size-5 shrink-0 text-flame-500" />
           <span>
-            <b className="text-ink">Trường {site.school_name}</b>
+            <b className="text-ink">{tr('Trường', '')} {site.school_name}</b>
             {site.address && ` – ${site.address}`}
           </span>
         </p>
@@ -125,7 +126,7 @@ export const FeedbackPage: React.FC<SectionProps> = (props) => {
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!form.fullName.trim() || !form.content.trim()) {
-      setState({ status: 'idle', error: 'Vui lòng nhập họ tên và nội dung góp ý.' });
+      setState({ status: 'idle', error: tr('Vui lòng nhập họ tên và nội dung góp ý.') });
       return;
     }
     setState({ status: 'sending' });
@@ -134,7 +135,7 @@ export const FeedbackPage: React.FC<SectionProps> = (props) => {
       setState({ status: 'sent' });
       setForm({ fullName: '', email: '', phone: '', subject: '', content: '', website: '' });
     } catch (err) {
-      setState({ status: 'idle', error: err instanceof Error ? err.message : 'Không gửi được góp ý. Vui lòng thử lại.' });
+      setState({ status: 'idle', error: err instanceof Error ? err.message : tr('Không gửi được góp ý. Vui lòng thử lại.') });
     }
   };
 
@@ -146,19 +147,19 @@ export const FeedbackPage: React.FC<SectionProps> = (props) => {
           {state.status === 'sent' ? (
             <div className="flex flex-col items-center py-8 text-center">
               <CheckCircle className="size-14 text-green-600" />
-              <h2 className="mt-4 text-xl font-bold">Cảm ơn bạn đã gửi góp ý!</h2>
-              <p className="mt-2 max-w-md text-sm text-muted">Nhà trường đã tiếp nhận và sẽ phản hồi qua thông tin liên hệ bạn cung cấp (nếu cần).</p>
+              <h2 className="mt-4 text-xl font-bold">{tr('Cảm ơn bạn đã gửi góp ý!')}</h2>
+              <p className="mt-2 max-w-md text-sm text-muted">{tr('Nhà trường đã tiếp nhận và sẽ phản hồi qua thông tin liên hệ bạn cung cấp (nếu cần).')}</p>
               <button onClick={() => setState({ status: 'idle' })} className={cx(primaryButton, 'mt-6')}>
-                Gửi góp ý khác
+                {tr('Gửi góp ý khác')}
               </button>
             </div>
           ) : (
             <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2" noValidate>
               <p className="text-[14px] text-body sm:col-span-2">
-                Ý kiến của phụ huynh, học sinh và người dân giúp nhà trường hoàn thiện hơn. Các trường có dấu <span className="text-flame-600">*</span> là bắt buộc.
+                {tr('Ý kiến của phụ huynh, học sinh và người dân giúp nhà trường hoàn thiện hơn. Các trường có dấu')} <span className="text-flame-600">*</span> là bắt buộc.
               </p>
               <label className="block sm:col-span-2">
-                <span className="mb-1.5 block text-[13px] font-semibold text-ink">Họ và tên <span className="text-flame-600">*</span></span>
+                <span className="mb-1.5 block text-[13px] font-semibold text-ink">{tr('Họ và tên', 'Full name')} <span className="text-flame-600">*</span></span>
                 <input value={form.fullName} onChange={set('fullName')} maxLength={100} className={inputClass} autoComplete="name" />
               </label>
               <label className="block">
@@ -166,15 +167,15 @@ export const FeedbackPage: React.FC<SectionProps> = (props) => {
                 <input type="email" value={form.email} onChange={set('email')} maxLength={150} className={inputClass} autoComplete="email" />
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-[13px] font-semibold text-ink">Số điện thoại</span>
+                <span className="mb-1.5 block text-[13px] font-semibold text-ink">{tr('Số điện thoại')}</span>
                 <input type="tel" value={form.phone} onChange={set('phone')} maxLength={20} className={inputClass} autoComplete="tel" />
               </label>
               <label className="block sm:col-span-2">
-                <span className="mb-1.5 block text-[13px] font-semibold text-ink">Tiêu đề</span>
+                <span className="mb-1.5 block text-[13px] font-semibold text-ink">{tr('Tiêu đề')}</span>
                 <input value={form.subject} onChange={set('subject')} maxLength={200} className={inputClass} />
               </label>
               <label className="block sm:col-span-2">
-                <span className="mb-1.5 block text-[13px] font-semibold text-ink">Nội dung góp ý <span className="text-flame-600">*</span></span>
+                <span className="mb-1.5 block text-[13px] font-semibold text-ink">{tr('Nội dung góp ý', 'Your feedback')} <span className="text-flame-600">*</span></span>
                 <textarea value={form.content} onChange={set('content')} maxLength={3000} rows={6} className={cx(inputClass, 'h-auto py-3')} />
               </label>
               {/* Honeypot: hidden from people, filled by bots. */}
@@ -183,7 +184,7 @@ export const FeedbackPage: React.FC<SectionProps> = (props) => {
               <div className="sm:col-span-2">
                 <button type="submit" disabled={state.status === 'sending'} className={cx(primaryButton, 'w-full disabled:opacity-60 sm:w-auto')}>
                   <PaperPlaneTilt className="size-4" />
-                  {state.status === 'sending' ? 'Đang gửi...' : 'Gửi góp ý'}
+                  {state.status === 'sending' ? tr('Đang gửi...') : tr('Gửi góp ý')}
                 </button>
               </div>
             </form>

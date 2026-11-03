@@ -1,3 +1,5 @@
+import { tr } from '../lib/i18n';
+import { getLocale } from '../lib/i18n';
 import React, { useEffect, useState } from 'react';
 import { CloudFog, CloudLightning, CloudRain, CloudSun, Snowflake, Sun } from './icons';
 import { cx } from './ui';
@@ -11,13 +13,13 @@ interface WeatherData {
 const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=21.0245&longitude=105.8412&current_weather=true';
 
 const describe = (code: number) => {
-  if (code <= 1) return { Icon: Sun, label: 'Trời quang', tone: 'text-gold-500' };
-  if (code <= 3) return { Icon: CloudSun, label: 'Ít mây', tone: 'text-gold-500' };
-  if (code <= 48) return { Icon: CloudFog, label: 'Sương mù', tone: 'text-muted' };
-  if (code <= 67 || (code >= 80 && code <= 82)) return { Icon: CloudRain, label: 'Có mưa', tone: 'text-brand-500' };
-  if (code <= 77) return { Icon: Snowflake, label: 'Lạnh', tone: 'text-brand-400' };
-  if (code >= 95) return { Icon: CloudLightning, label: 'Dông', tone: 'text-flame-500' };
-  return { Icon: CloudSun, label: 'Nhiều mây', tone: 'text-gold-500' };
+  if (code <= 1) return { Icon: Sun, label: tr('Trời quang'), tone: 'text-gold-500' };
+  if (code <= 3) return { Icon: CloudSun, label: tr('Ít mây'), tone: 'text-gold-500' };
+  if (code <= 48) return { Icon: CloudFog, label: tr('Sương mù'), tone: 'text-muted' };
+  if (code <= 67 || (code >= 80 && code <= 82)) return { Icon: CloudRain, label: tr('Có mưa'), tone: 'text-brand-500' };
+  if (code <= 77) return { Icon: Snowflake, label: tr('Lạnh'), tone: 'text-brand-400' };
+  if (code >= 95) return { Icon: CloudLightning, label: tr('Dông'), tone: 'text-flame-500' };
+  return { Icon: CloudSun, label: tr('Nhiều mây'), tone: 'text-gold-500' };
 };
 
 /** Hà Nội weather + clock. The clock ticks every 20s (minute precision) instead of every second. */
@@ -58,11 +60,11 @@ export const WeatherWidget: React.FC<{ className?: string }> = ({ className }) =
       </span>
       <div className="leading-tight">
         <div className="font-semibold text-ink">
-          Hà Nội <span className="ml-1 text-flame-600">{weather ? `${Math.round(weather.temperature)}°C` : '--°C'}</span>
+          {tr('Hà Nội')} <span className="ml-1 text-flame-600">{weather ? `${Math.round(weather.temperature)}°C` : '--°C'}</span>
         </div>
         <div className="text-[12px] text-muted tabular-nums">
-          {now.toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' })} ·{' '}
-          {now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false })}
+          {now.toLocaleDateString(getLocale(), { weekday: 'short', day: '2-digit', month: '2-digit' })} ·{' '}
+          {now.toLocaleTimeString(getLocale(), { hour: '2-digit', minute: '2-digit', hour12: false })}
         </div>
       </div>
     </div>

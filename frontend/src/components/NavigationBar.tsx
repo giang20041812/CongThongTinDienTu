@@ -9,6 +9,7 @@ import { toneAt } from '../lib/tones';
 import type { MenuNode } from '../types';
 import { WeatherWidget } from './WeatherWidget';
 import { Container, cx } from './ui';
+import { t } from '../lib/i18n';
 
 interface NavigationBarProps {
   onOpenSearch: (query?: string) => void;
@@ -74,7 +75,7 @@ const MobileItem: React.FC<{ node: MenuNode; active: boolean; open: boolean; onT
           type="button"
           onClick={onToggle}
           aria-expanded={open}
-          aria-label={`${open ? 'Thu gọn' : 'Mở'} ${node.name}`}
+          aria-label={`${open ? t('collapse') : t('open')} ${node.name}`}
           className="grid size-11 place-items-center"
         >
           <CaretDown className={cx('size-4 transition-transform duration-300', open && 'rotate-180', active ? 'text-gold-300' : 'text-muted')} />
@@ -144,7 +145,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ onOpenSearch }) =>
     <>
       <div ref={sentinelRef} className="h-px" aria-hidden="true" />
       <nav
-        aria-label="Điều hướng chính"
+        aria-label={t('mainNav')}
         className={cx('no-print sticky top-0 z-50 bg-brand-600 text-white transition-shadow duration-500', stuck && 'shadow-nav')}
       >
         <Container className="relative flex h-14 items-end gap-1">
@@ -164,7 +165,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ onOpenSearch }) =>
             <li className="shrink-0">
               <Link to={{ view: 'home' }} aria-current={activeRootId === '' && route?.view === 'home' ? 'page' : undefined} className={tabClass(route?.view === 'home')}>
                 {route?.view === 'home' && <span className="absolute inset-x-3 top-0 h-[3px] rounded-b-full bg-gold-400" aria-hidden="true" />}
-                Trang chủ
+                {t('home')}
               </Link>
             </li>
             {tree.map((node) => (
@@ -180,15 +181,15 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ onOpenSearch }) =>
             className="flex items-center gap-2 self-center rounded-xl px-2.5 py-2 transition-colors hover:bg-brand-500 lg:hidden"
           >
             {menuOpen ? <X className="size-5" /> : <List className="size-5" />}
-            <span className="text-[13px] font-semibold uppercase tracking-wider">Danh mục</span>
+            <span className="text-[13px] font-semibold uppercase tracking-wider">{t('menu')}</span>
           </button>
           {activeLabel && <span className="min-w-0 self-center truncate text-[13px] text-white/70 lg:hidden">/ {activeLabel}</span>}
 
           <button
             type="button"
             onClick={() => onOpenSearch()}
-            aria-label="Tìm kiếm"
-            title="Tìm kiếm (Ctrl + K)"
+            aria-label={t('search')}
+            title={t('searchHint')}
             className="ml-auto grid size-10 shrink-0 place-items-center self-center rounded-full transition-colors duration-300 hover:bg-brand-500"
           >
             <MagnifyingGlass className="size-[18px]" />
@@ -208,7 +209,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ onOpenSearch }) =>
                 <input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Tìm bài viết, thông báo..."
+                  placeholder={t('searchPlaceholder')}
                   className="h-11 w-full rounded-full border border-line bg-surface pl-11 pr-4 text-sm outline-none transition focus:border-brand-300 focus:bg-white focus:ring-4 focus:ring-brand-100"
                 />
               </form>
@@ -221,7 +222,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ onOpenSearch }) =>
                       route?.view === 'home' ? 'bg-brand-600 text-white' : 'text-body hover:text-brand-600',
                     )}
                   >
-                    Trang chủ
+                    {t('home')}
                   </Link>
                 </li>
                 {tree.map((node) => (
@@ -241,7 +242,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ onOpenSearch }) =>
       {menuOpen && (
         <button
           type="button"
-          aria-label="Đóng menu"
+          aria-label={t('closeMenu')}
           onClick={() => setMenuOpen(false)}
           className="fixed inset-0 z-30 bg-brand-950/30 backdrop-blur-[2px] lg:hidden"
         />
@@ -272,11 +273,11 @@ export const NewsTicker: React.FC<{ onOpenSearch: (q?: string) => void }> = ({ o
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-white opacity-75" />
               <span className="relative inline-flex size-1.5 rounded-full bg-white" />
             </span>
-            Điểm tin
+            {t('ticker')}
           </span>
           <div className="relative min-w-0 flex-1 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_3%,#000_97%,transparent)]">
             {items.length === 0 ? (
-              <p className="truncate text-[13px] text-muted">Chào mừng quý thầy cô, phụ huynh và các em học sinh đến với cổng thông tin nhà trường.</p>
+              <p className="truncate text-[13px] text-muted">{t('welcome')}</p>
             ) : (
               <div className="marquee-track flex w-max animate-marquee" style={{ '--marquee-duration': `${duration}s` } as React.CSSProperties}>
                 {[...items, ...items].map((item, index) => {
@@ -303,11 +304,11 @@ export const NewsTicker: React.FC<{ onOpenSearch: (q?: string) => void }> = ({ o
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Tìm kiếm bài viết, thông báo..."
-            aria-label="Tìm kiếm"
+            placeholder={t('searchPlaceholderLong')}
+            aria-label={t('search')}
             className="h-10 w-full rounded-full border border-line bg-surface pl-4 pr-11 text-[13px] text-ink outline-none transition-all duration-300 placeholder:text-muted focus:border-brand-300 focus:bg-white focus:ring-4 focus:ring-brand-100"
           />
-          <button type="submit" aria-label="Tìm kiếm" className="absolute right-1 top-1 grid size-8 place-items-center rounded-full bg-brand-600 text-white transition-colors hover:bg-brand-500">
+          <button type="submit" aria-label={t('search')} className="absolute right-1 top-1 grid size-8 place-items-center rounded-full bg-brand-600 text-white transition-colors hover:bg-brand-500">
             <MagnifyingGlass className="size-3.5" />
           </button>
         </form>

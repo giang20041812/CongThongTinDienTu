@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useReducedMotion } from '../lib/media';
 import { TONES, toneStyle, type Tone } from '../lib/tones';
@@ -251,10 +252,10 @@ export function Coverflow<T>({ items, itemKey, itemLabel, itemTone, renderItem, 
       </div>
 
       <div className="flex items-center justify-center gap-2.5">
-        <button type="button" onClick={() => userMove(-1)} aria-label="Thẻ trước" className={cx(controlClass, 'size-10 text-brand-700')}>
+        <button type="button" onClick={() => userMove(-1)} aria-label={tr('Thẻ trước')} className={cx(controlClass, 'size-10 text-brand-700')}>
           <CaretLeft className="size-4" />
         </button>
-        <div role="tablist" aria-label={`Chọn trong ${label.toLowerCase()}`} className="flex items-center">
+        <div role="tablist" aria-label={`${tr('Chọn trong', 'Choose from')} ${label.toLowerCase()}`} className="flex items-center">
           {items.map((item, index) => {
             const selected = index === currentIndex;
             return (
@@ -291,14 +292,14 @@ export function Coverflow<T>({ items, itemKey, itemLabel, itemTone, renderItem, 
             );
           })}
         </div>
-        <button type="button" onClick={() => userMove(1)} aria-label="Thẻ tiếp theo" className={cx(controlClass, 'size-10 text-brand-700')}>
+        <button type="button" onClick={() => userMove(1)} aria-label={tr('Thẻ tiếp theo')} className={cx(controlClass, 'size-10 text-brand-700')}>
           <CaretRight className="size-4" />
         </button>
         {autoplay && (
           <button
             type="button"
             onClick={() => setStopped((value) => !value)}
-            aria-label={stopped ? 'Tiếp tục tự chuyển thẻ' : 'Tạm dừng tự chuyển thẻ'}
+            aria-label={stopped ? tr('Tiếp tục tự chuyển thẻ') : tr('Tạm dừng tự chuyển thẻ')}
             className={cx(controlClass, 'size-8 text-brand-500')}
           >
             {stopped ? <Play className="size-3.5" /> : <Pause className="size-3.5" />}

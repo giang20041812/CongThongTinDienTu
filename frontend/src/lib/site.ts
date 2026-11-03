@@ -1,9 +1,16 @@
 import { useEffect, useMemo } from 'react';
 import { useSettingsResource } from '../api';
+import { loc } from './i18n';
 
 /** School information, editable by admins; these defaults only show until the API answers. */
 export const DEFAULT_SITE = {
   school_name: 'THPT Đặng Trần Đức',
+  /** English versions (optional; blank = show Vietnamese). */
+  school_name_en: '',
+  parent_org_en: '',
+  slogan_en: '',
+  address_en: '',
+  working_hours_en: '',
   parent_org: 'Sở Giáo dục và Đào tạo Hà Nội',
   slogan: 'Trí tuệ - Nhân văn - Kỷ cương',
   address: '',
@@ -27,8 +34,9 @@ export type SiteInfo = typeof DEFAULT_SITE;
 /** Fields of the "Thông tin trường" admin form (the timetable keys live on the timetable screen). */
 export const SETTING_FIELDS: { key: keyof SiteInfo; label: string; multiline?: boolean; hint?: string; wide?: boolean }[] = [
   { key: 'school_name', label: 'Tên trường' },
-  { key: 'parent_org', label: 'Cơ quan chủ quản' },
-  { key: 'slogan', label: 'Khẩu hiệu', hint: 'Các vế cách nhau bằng dấu gạch ngang' },
+  { key: 'school_name_en', label: 'Tên trường (English)' },
+  { key: 'address_en', label: 'Địa chỉ (English)', wide: true },
+  { key: 'working_hours_en', label: 'Giờ làm việc (English)' },
   { key: 'website', label: 'Website' },
   { key: 'address', label: 'Địa chỉ', wide: true },
   { key: 'hotline', label: 'Đường dây nóng' },
@@ -46,8 +54,13 @@ export const useSite = (): SiteInfo => {
   return useMemo(() => {
     const merged = { ...DEFAULT_SITE };
     (Object.keys(merged) as (keyof SiteInfo)[]).forEach((key) => {
-      if (data[key]?.trim()) merged[key] = data[key].trim();
+      // English text lives in the same table under "<key>_en" (e.g. school_name_en).
+      const value = loc(data[key], data[`${key}_en`]);
+      if (value?.trim()) merged[key] = value.trim();
     });
+    // The parent organisation and slogan are no longer shown on the site.
+    merged.parent_org = '';
+    merged.slogan = '';
     return merged;
   }, [data]);
 };

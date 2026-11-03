@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, ArrowSquareOut, CalendarDots, MagnifyingGlass, Paperclip } from '../components/icons';
 import { usePost, usePostPage } from '../api';
@@ -30,7 +31,7 @@ import { ContactPage, FeedbackPage, MapPage } from './InfoPages';
 export const CategoryPage: React.FC<{ slug: string }> = ({ slug }) => {
   const { bySlug, byId, categories, loading } = useMenu();
   const category = bySlug.get(slug);
-  usePageTitle(category?.name ?? (loading ? null : 'Không tìm thấy trang'));
+  usePageTitle(category?.name ?? (loading ? null : tr('Không tìm thấy trang')));
 
   if (loading && !category) {
     return (
@@ -39,7 +40,7 @@ export const CategoryPage: React.FC<{ slug: string }> = ({ slug }) => {
       </Container>
     );
   }
-  if (!category) return <NotFound title="Không tìm thấy trang" description="Mục này có thể đã được đổi tên, ẩn hoặc gỡ khỏi menu." />;
+  if (!category) return <NotFound title={tr('Không tìm thấy trang')} description={tr('Mục này có thể đã được đổi tên, ẩn hoặc gỡ khỏi menu.')} />;
 
   const parent = category.parentId ? byId.get(category.parentId) : undefined;
   const sortByOrder = (a: Category, b: Category) => a.sortOrder - b.sortOrder;
@@ -111,17 +112,17 @@ const PostListPage: React.FC<SectionProps> = (props) => {
   const { posts, data, loading, page, setPage, query, setQuery, searching } = usePagedPosts(props.category.slug, 9);
   return (
     <>
-      <SectionHeader {...props} aside={data.total > 0 ? <StatPill label="Bài viết" value={String(data.total)} /> : undefined} />
+      <SectionHeader {...props} aside={data.total > 0 ? <StatPill label={tr('Bài viết')} value={String(data.total)} /> : undefined} />
       <Container className="py-10 sm:py-12">
         <div className="mb-8 flex justify-end">
-          <SearchField value={query} onChange={setQuery} placeholder={`Tìm trong ${props.category.name.toLowerCase()}...`} />
+          <SearchField value={query} onChange={setQuery} placeholder={`${tr('Tìm trong')} ${props.category.name.toLowerCase()}...`} />
         </div>
         {loading ? (
           <CardGridSkeleton />
         ) : posts.length === 0 ? (
           <EmptyState
-            title={searching ? 'Không tìm thấy bài viết phù hợp' : 'Chưa có bài viết'}
-            description={searching ? 'Hãy thử thay đổi từ khóa tìm kiếm.' : 'Nội dung của mục này sẽ sớm được cập nhật.'}
+            title={searching ? tr('Không tìm thấy bài viết phù hợp') : tr('Chưa có bài viết')}
+            description={searching ? tr('Hãy thử thay đổi từ khóa tìm kiếm.') : tr('Nội dung của mục này sẽ sớm được cập nhật.')}
           />
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -144,14 +145,14 @@ const GalleryListPage: React.FC<SectionProps> = (props) => {
       <SectionHeader {...props} aside={data.total > 0 ? <StatPill label="Album" value={String(data.total)} /> : undefined} />
       <Container className="py-10 sm:py-12">
         <div className="mb-8 flex justify-end">
-          <SearchField value={query} onChange={setQuery} placeholder="Tìm album ảnh..." />
+          <SearchField value={query} onChange={setQuery} placeholder={tr('Tìm album ảnh...')} />
         </div>
         {loading ? (
           <CardGridSkeleton />
         ) : posts.length === 0 ? (
           <EmptyState
-            title={searching ? 'Không tìm thấy album phù hợp' : 'Chưa có ảnh'}
-            description={searching ? 'Hãy thử thay đổi từ khóa tìm kiếm.' : 'Hình ảnh sẽ sớm được cập nhật.'}
+            title={searching ? tr('Không tìm thấy album phù hợp') : tr('Chưa có ảnh')}
+            description={searching ? tr('Hãy thử thay đổi từ khóa tìm kiếm.') : tr('Hình ảnh sẽ sớm được cập nhật.')}
           />
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -170,25 +171,25 @@ const DocumentListPage: React.FC<SectionProps> = (props) => {
   const { posts, data, loading, page, setPage, query, setQuery, searching } = usePagedPosts(props.category.slug, 15);
   return (
     <>
-      <SectionHeader {...props} aside={data.total > 0 ? <StatPill label="Văn bản" value={String(data.total)} /> : undefined} />
+      <SectionHeader {...props} aside={data.total > 0 ? <StatPill label={tr('Văn bản')} value={String(data.total)} /> : undefined} />
       <Container className="py-10 sm:py-12">
         <div className="mb-6 flex justify-end">
-          <SearchField value={query} onChange={setQuery} placeholder="Tìm số hiệu, trích yếu..." />
+          <SearchField value={query} onChange={setQuery} placeholder={tr('Tìm số hiệu, trích yếu...')} />
         </div>
         {loading ? (
           <ListSkeleton rows={6} />
         ) : posts.length === 0 ? (
           <EmptyState
-            title={searching ? 'Không có văn bản phù hợp' : 'Chưa có văn bản'}
-            description={searching ? 'Hãy thử đổi từ khóa.' : 'Văn bản sẽ được cập nhật tại đây.'}
+            title={searching ? tr('Không có văn bản phù hợp') : tr('Chưa có văn bản')}
+            description={searching ? tr('Hãy thử đổi từ khóa.') : tr('Văn bản sẽ được cập nhật tại đây.')}
           />
         ) : (
           <Reveal>
             <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-card">
               <div className="hidden grid-cols-12 gap-4 border-b border-line bg-surface px-6 py-3 text-[11.5px] font-semibold uppercase tracking-wider text-muted md:grid">
-                <div className="col-span-2">Ngày ban hành</div>
-                <div className="col-span-7">Trích yếu nội dung</div>
-                <div className="col-span-3">Đơn vị ban hành</div>
+                <div className="col-span-2">{tr('Ngày ban hành')}</div>
+                <div className="col-span-7">{tr('Trích yếu nội dung')}</div>
+                <div className="col-span-3">{tr('Đơn vị ban hành')}</div>
               </div>
               <ul className="divide-y divide-line">
                 {posts.map((item) => (
@@ -202,13 +203,13 @@ const DocumentListPage: React.FC<SectionProps> = (props) => {
                           <CalendarDots className="size-3.5 text-gold-600" />
                           {formatDate(item.issuedDate ?? item.publishedAt)}
                         </span>
-                        {item.documentNumber && <span className="text-[12px] text-muted">Số: {item.documentNumber}</span>}
+                        {item.documentNumber && <span className="text-[12px] text-muted">{tr('Số')}: {item.documentNumber}</span>}
                       </div>
                       <div className="md:col-span-7">
                         <h3 className="text-[14.5px] font-semibold leading-snug text-ink transition-colors group-hover:text-brand-600">
                           {item.pinned && (
                             <span className="mr-2 inline-flex -translate-y-px rounded-md bg-flame-500 px-1.5 py-0.5 align-middle text-[10px] font-bold uppercase text-white">
-                              Quan trọng
+                              {tr('Quan trọng')}
                             </span>
                           )}
                           {item.title}
@@ -219,7 +220,7 @@ const DocumentListPage: React.FC<SectionProps> = (props) => {
                         <span className="truncate text-[13px] text-body">{item.issuer ?? '—'}</span>
                         <span className="inline-flex shrink-0 items-center gap-2 text-muted">
                           {item.attachmentCount > 0 && (
-                            <span className="inline-flex items-center gap-1 text-[12px]" title="Có tệp đính kèm">
+                            <span className="inline-flex items-center gap-1 text-[12px]" title={tr('Có tệp đính kèm')}>
                               <Paperclip className="size-3.5" />
                               {item.attachmentCount}
                             </span>
@@ -256,7 +257,7 @@ const StaticPage: React.FC<SectionProps> = (props) => {
           {loading ? (
             <ListSkeleton rows={4} />
           ) : !post ? (
-            <p className="py-10 text-center text-muted">Nội dung đang được cập nhật.</p>
+            <p className="py-10 text-center text-muted">{tr('Nội dung đang được cập nhật.')}</p>
           ) : (
             <>
               {post.title.trim().toLowerCase() !== props.category.name.trim().toLowerCase() && (
@@ -266,7 +267,7 @@ const StaticPage: React.FC<SectionProps> = (props) => {
               <ArticleBody post={post} />
               <AttachmentList items={post.attachments} className="mt-8" />
               <div className="mt-10 flex flex-col gap-3 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-[13px] text-muted">Cập nhật: {post.date}</p>
+                <p className="text-[13px] text-muted">{tr('Cập nhật')}: {post.date}</p>
                 <ArticleActions />
               </div>
             </>
@@ -289,7 +290,7 @@ const GroupPage: React.FC<SectionProps> = (props) => {
       <SectionHeader {...props} />
       <Container className="py-10 sm:py-12">
         {section.length === 0 ? (
-          <EmptyState title="Mục này chưa có nội dung" />
+          <EmptyState title={tr('Mục này chưa có nội dung')} />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {section.map((child, index) => {
@@ -318,7 +319,7 @@ const GroupPage: React.FC<SectionProps> = (props) => {
           <section className="mt-12">
             <h2 className="flex items-center gap-2 text-xl font-bold">
               <span className="h-5 w-1 rounded-full bg-gold-400" aria-hidden="true" />
-              Mới cập nhật
+              {tr('Mới cập nhật')}
             </h2>
             <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {posts.map((post, index) => (
@@ -337,13 +338,13 @@ const LinkPage: React.FC<SectionProps> = (props) => (
     <SectionHeader {...props} />
     <Container className="py-16">
       <EmptyState
-        title={props.category.externalUrl ? 'Mục này mở ở một trang khác' : 'Liên kết đang được cập nhật'}
+        title={props.category.externalUrl ? tr('Mục này mở ở một trang khác') : tr('Liên kết đang được cập nhật')}
         description={props.category.externalUrl ?? undefined}
         action={
           props.category.externalUrl ? (
             <a href={props.category.externalUrl} target="_blank" rel="noopener noreferrer" className={primaryButton}>
               <ArrowSquareOut className="size-4" />
-              Mở liên kết
+              {tr('Mở liên kết')}
             </a>
           ) : undefined
         }

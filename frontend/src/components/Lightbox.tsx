@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import React, { useCallback, useEffect } from 'react';
 import { optimizeImage } from '../lib/content';
 import { CaretLeft, CaretRight, X } from './icons';
@@ -48,14 +49,14 @@ export const Lightbox: React.FC<LightboxProps> = ({ images, index, title, onChan
       <span className="absolute left-4 top-4 rounded-full bg-white/15 px-3 py-1 text-[13px] font-semibold tabular-nums text-white backdrop-blur">
         {index + 1} / {count}
       </span>
-      <button type="button" aria-label="Đóng" onClick={() => onChange(null)} className={`${buttonClass} right-4 top-4`}>
+      <button type="button" aria-label={tr('Đóng')} onClick={() => onChange(null)} className={`${buttonClass} right-4 top-4`}>
         <X className="size-5" />
       </button>
       {count > 1 && (
         <>
           <button
             type="button"
-            aria-label="Ảnh trước"
+            aria-label={tr('Ảnh trước')}
             onClick={(event) => {
               event.stopPropagation();
               move(-1);
@@ -66,7 +67,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ images, index, title, onChan
           </button>
           <button
             type="button"
-            aria-label="Ảnh tiếp theo"
+            aria-label={tr('Ảnh tiếp theo')}
             onClick={(event) => {
               event.stopPropagation();
               move(1);

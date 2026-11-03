@@ -1,3 +1,5 @@
+import { tr, getLang } from '../lib/i18n';
+import { getLocale } from '../lib/i18n';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, CalendarDots, Eye, ImageIcon, UserCircle } from '../components/icons';
 import { Lightbox } from '../components/Lightbox';
@@ -20,7 +22,7 @@ export const PostDetailPage: React.FC<{ slug: string }> = ({ slug }) => {
     [others.data, slug],
   );
 
-  usePageTitle(post?.title ?? (loading ? null : 'Không tìm thấy bài viết'));
+  usePageTitle(post?.title ?? (loading ? null : tr('Không tìm thấy bài viết')));
   useEffect(() => {
     if (post) registerPostView(post.id);
   }, [post?.id]);
@@ -36,7 +38,7 @@ export const PostDetailPage: React.FC<{ slug: string }> = ({ slug }) => {
       </Container>
     );
   }
-  if (!post) return <NotFound title="Bài viết không tồn tại" description="Bài viết có thể đã bị gỡ hoặc chưa được xuất bản." />;
+  if (!post) return <NotFound title={tr('Bài viết không tồn tại')} description={tr('Bài viết có thể đã bị gỡ hoặc chưa được xuất bản.')} />;
 
   const category = post.category ? byId.get(post.category.id) : undefined;
   const parent = category?.parentId ? byId.get(category.parentId) : undefined;
@@ -57,7 +59,7 @@ export const PostDetailPage: React.FC<{ slug: string }> = ({ slug }) => {
             <section className="mt-10">
               <h2 className="flex items-center gap-2 text-xl font-bold">
                 <span className="h-5 w-1 rounded-full bg-gold-400" aria-hidden="true" />
-                {isGallery ? 'Album khác' : 'Cùng chuyên mục'}
+                {isGallery ? tr('Album khác') : tr('Cùng chuyên mục')}
               </h2>
               <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {otherPosts.slice(0, 3).map((item, index) =>
@@ -75,7 +77,7 @@ export const PostDetailPage: React.FC<{ slug: string }> = ({ slug }) => {
                 <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-card">
                   <h2 className="flex items-center gap-2 border-b border-line px-5 py-4 text-[15px] font-bold">
                     <span className="h-4 w-1 rounded-full bg-flame-500" aria-hidden="true" />
-                    Văn bản khác
+                    {tr('Văn bản khác')}
                   </h2>
                   <div className="divide-y divide-line">
                     {otherPosts.map((other) => (
@@ -85,11 +87,11 @@ export const PostDetailPage: React.FC<{ slug: string }> = ({ slug }) => {
                 </div>
               )
             ) : (
-              <SidebarPostList title="Bài viết khác" posts={otherPosts} />
+              <SidebarPostList title={tr('Bài viết khác')} posts={otherPosts} />
             )}
             {post.category && (
               <Link to={categoryRoute(post.category)} className={cx(primaryButton, 'w-full')}>
-                Xem tất cả: {post.category.name}
+                {tr('Xem tất cả:')} {post.category.name}
                 <ArrowRight className="size-4" />
               </Link>
             )}
@@ -109,7 +111,7 @@ const ArticleView: React.FC<{ post: PostView }> = ({ post }) => {
       <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-line pb-5 text-[13px] text-muted">
         <span className="inline-flex items-center gap-1.5">
           <CalendarDots className="size-4 text-gold-600" />
-          {post.publishedAt?.toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' })}
+          {post.publishedAt?.toLocaleDateString(getLocale(), { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' })}
         </span>
         <span className="inline-flex items-center gap-1.5">
           <UserCircle className="size-4 text-gold-600" />
@@ -117,7 +119,7 @@ const ArticleView: React.FC<{ post: PostView }> = ({ post }) => {
         </span>
         <span className="inline-flex items-center gap-1.5">
           <Eye className="size-4 text-gold-600" />
-          {formatNumber(post.views)} lượt xem
+          {formatNumber(post.views)} {tr('lượt xem')}
         </span>
       </div>
       {post.image && <SmartImage src={post.image} alt={post.title} width={1200} priority className="mt-6 aspect-[16/9] rounded-xl" />}
@@ -127,7 +129,7 @@ const ArticleView: React.FC<{ post: PostView }> = ({ post }) => {
       <AttachmentList items={post.attachments} className="mt-8" />
       <div className="mt-10 flex flex-col gap-4 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[13px] text-muted">
-          Nguồn: <span className="font-semibold text-ink">Trường {site.school_name}</span>
+          {tr('Nguồn:')} <span className="font-semibold text-ink">{tr('Trường', '')} {site.school_name}</span>
         </p>
         <ArticleActions />
       </div>
@@ -155,11 +157,11 @@ const GalleryBody: React.FC<{ post: PostView }> = ({ post }) => {
         </span>
         <span className="inline-flex items-center gap-1.5">
           <ImageIcon className="size-4 text-gold-600" />
-          {photos.length} ảnh
+          {photos.length} {tr('ảnh')}
         </span>
         <span className="inline-flex items-center gap-1.5">
           <Eye className="size-4 text-gold-600" />
-          {formatNumber(post.views)} lượt xem
+          {formatNumber(post.views)} {tr('lượt xem')}
         </span>
       </div>
       {post.summary && <p className="mt-5 text-[15px] leading-relaxed text-body">{post.summary}</p>}
@@ -169,10 +171,10 @@ const GalleryBody: React.FC<{ post: PostView }> = ({ post }) => {
             <button
               type="button"
               onClick={() => setOpen(index)}
-              aria-label={`Xem ảnh ${index + 1}`}
+              aria-label={`${tr('Xem ảnh', 'View photo')} ${index + 1}`}
               className="group block w-full overflow-hidden rounded-xl shadow-card transition-shadow duration-300 hover:shadow-card-hover"
             >
-              <SmartImage src={url} alt={`${post.title} – ảnh ${index + 1}`} width={600} className="aspect-[4/3]" imgClassName="group-hover:scale-105" />
+              <SmartImage src={url} alt={`${post.title} – ${index + 1}`} width={600} className="aspect-[4/3]" imgClassName="group-hover:scale-105" />
             </button>
           </li>
         ))}
@@ -180,7 +182,7 @@ const GalleryBody: React.FC<{ post: PostView }> = ({ post }) => {
       <Lightbox images={photos} index={open} title={post.title} onChange={setOpen} />
       <div className="mt-10 flex flex-col gap-4 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[13px] text-muted">
-          Nguồn: <span className="font-semibold text-ink">Trường {site.school_name}</span>
+          {tr('Nguồn:')} <span className="font-semibold text-ink">{tr('Trường', '')} {site.school_name}</span>
         </p>
         <ArticleActions />
       </div>
@@ -198,18 +200,18 @@ const DocumentBody: React.FC<{ post: PostView }> = ({ post }) => {
       <div className="p-6 sm:p-10">
         <div className="grid gap-6 text-center sm:grid-cols-2">
           <div>
-            <p className="text-[12px] font-semibold uppercase text-body">{site.parent_org}</p>
-            <p className="mt-0.5 text-[13px] font-bold uppercase text-brand-700">Trường {site.school_name}</p>
+            {site.parent_org && <p className="text-[12px] font-semibold uppercase text-body">{site.parent_org}</p>}
+            <p className="mt-0.5 text-[13px] font-bold uppercase text-brand-700">{tr('Trường', '')} {site.school_name}</p>
             <span className="mx-auto mt-1.5 block h-px w-20 bg-ink/40" aria-hidden="true" />
-            {post.documentNumber && <p className="mt-2 text-[12.5px] text-body">Số: {post.documentNumber}</p>}
+            {post.documentNumber && <p className="mt-2 text-[12.5px] text-body">{tr('Số')}: {post.documentNumber}</p>}
           </div>
           <div>
-            <p className="text-[12px] font-bold uppercase text-ink">Cộng hòa xã hội chủ nghĩa Việt Nam</p>
-            <p className="mt-0.5 text-[13px] font-semibold text-ink">Độc lập – Tự do – Hạnh phúc</p>
+            <p className="text-[12px] font-bold uppercase text-ink">{tr('Cộng hòa xã hội chủ nghĩa Việt Nam')}</p>
+            <p className="mt-0.5 text-[13px] font-semibold text-ink">{tr('Độc lập – Tự do – Hạnh phúc')}</p>
             <span className="mx-auto mt-1.5 block h-px w-36 bg-ink/40" aria-hidden="true" />
             {issued && (
               <p className="mt-2 text-[12.5px] italic text-body">
-                Ngày {issued.getDate()} tháng {issued.getMonth() + 1} năm {issued.getFullYear()}
+                {getLang() === 'en' ? formatDate(issued, { day: 'numeric', month: 'long', year: 'numeric' }) : `Ngày ${issued.getDate()} tháng ${issued.getMonth() + 1} năm ${issued.getFullYear()}`}
               </p>
             )}
           </div>
@@ -220,7 +222,7 @@ const DocumentBody: React.FC<{ post: PostView }> = ({ post }) => {
           <h1 className="mx-auto mt-3 max-w-2xl text-xl font-bold leading-snug sm:text-[1.65rem]">{post.title}</h1>
           {post.pinned && (
             <span className="mt-4 inline-flex rounded-full bg-flame-50 px-3 py-1 text-[12px] font-semibold text-flame-700 ring-1 ring-flame-200">
-              Văn bản quan trọng
+              {tr('Văn bản quan trọng')}
             </span>
           )}
         </div>
@@ -229,19 +231,19 @@ const DocumentBody: React.FC<{ post: PostView }> = ({ post }) => {
           <dl className="mt-8 grid gap-3 rounded-xl border border-brand-100 bg-brand-50/60 p-5 text-[14px] sm:grid-cols-2">
             {post.issuer && (
               <div>
-                <dt className="text-[12px] font-medium uppercase tracking-wide text-muted">Đơn vị ban hành</dt>
+                <dt className="text-[12px] font-medium uppercase tracking-wide text-muted">{tr('Đơn vị ban hành')}</dt>
                 <dd className="mt-0.5 font-semibold text-brand-700">{post.issuer}</dd>
               </div>
             )}
             {post.recipient && (
               <div>
-                <dt className="text-[12px] font-medium uppercase tracking-wide text-muted">Đối tượng thực hiện</dt>
+                <dt className="text-[12px] font-medium uppercase tracking-wide text-muted">{tr('Đối tượng thực hiện')}</dt>
                 <dd className="mt-0.5 font-semibold text-ink">{post.recipient}</dd>
               </div>
             )}
             {post.actionRequired && (
               <div className="sm:col-span-2">
-                <dt className="text-[12px] font-medium uppercase tracking-wide text-muted">Yêu cầu thực hiện</dt>
+                <dt className="text-[12px] font-medium uppercase tracking-wide text-muted">{tr('Yêu cầu thực hiện')}</dt>
                 <dd className="mt-0.5 text-ink">{post.actionRequired}</dd>
               </div>
             )}
@@ -249,7 +251,7 @@ const DocumentBody: React.FC<{ post: PostView }> = ({ post }) => {
         )}
 
         <div className="mt-8">
-          <ArticleBody post={post} emptyText="Xem nội dung chi tiết trong tệp đính kèm." />
+          <ArticleBody post={post} emptyText={tr('Xem nội dung chi tiết trong tệp đính kèm.')} />
         </div>
         <AttachmentList items={post.attachments} className="mt-8" />
 

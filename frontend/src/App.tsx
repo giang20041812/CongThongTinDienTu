@@ -1,3 +1,4 @@
+import { tr } from './lib/i18n';
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -39,7 +40,7 @@ const HomePage: React.FC = () => {
 };
 
 const UnknownPage: React.FC = () => {
-  usePageTitle('Không tìm thấy trang');
+  usePageTitle(tr('Không tìm thấy trang'));
   return <NotFound />;
 };
 
@@ -83,7 +84,7 @@ const BackToTop: React.FC = () => {
   return (
     <button
       type="button"
-      aria-label="Lên đầu trang"
+      aria-label={tr('Lên đầu trang')}
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       className={cx(
         'group no-print fixed bottom-5 right-5 z-40 grid size-12 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-nav transition-all duration-500 ease-(--ease-soft) hover:-translate-y-1 sm:bottom-7 sm:right-7',
@@ -136,7 +137,7 @@ const PublicSite: React.FC = () => {
         href="#main"
         className="sr-only z-50 rounded-full bg-gold-400 px-4 py-2 text-sm font-semibold text-brand-950 focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
       >
-        Bỏ qua điều hướng
+        {tr('Bỏ qua điều hướng')}
       </a>
       <Header />
       <NavigationBar onOpenSearch={(query) => setSearch({ open: true, query: query ?? '' })} />
@@ -154,7 +155,7 @@ const PublicSite: React.FC = () => {
 export default function App() {
   if (isAdminPath(window.location.pathname)) {
     return (
-      <Suspense fallback={<div className="grid min-h-screen place-items-center text-sm text-muted">Đang tải trang quản trị…</div>}>
+      <Suspense fallback={<div className="grid min-h-screen place-items-center text-sm text-muted">{tr('Đang tải trang quản trị…')}</div>}>
         <AdminApp />
       </Suspense>
     );

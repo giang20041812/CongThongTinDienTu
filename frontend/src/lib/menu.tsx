@@ -37,6 +37,7 @@ import {
 import { CATEGORIES_PATH, useResource } from '../api';
 import type { Category, MenuNode, PageRoute, PageType } from '../types';
 import { normalizeSearch } from './content';
+import { loc } from './i18n';
 import { Link } from './router';
 
 const EMPTY: Category[] = [];
@@ -63,16 +64,16 @@ export interface Menu {
 /** The public menu (visible entries only), shared by every component through the API cache. */
 export const useMenu = (): Menu => {
   const { data, loading } = useResource<Category[]>(CATEGORIES_PATH, EMPTY);
-  return useMemo(
-    () => ({
-      categories: data,
-      tree: buildMenu(data),
-      bySlug: new Map(data.map((c) => [c.slug, c])),
-      byId: new Map(data.map((c) => [c.id, c])),
+  return useMemo(() => {
+    const items = data.map((c) => ({ ...c, name: loc(c.name, c.nameEn), description: loc(c.description, c.descriptionEn) }));
+    return {
+      categories: items,
+      tree: buildMenu(items),
+      bySlug: new Map(items.map((c) => [c.slug, c])),
+      byId: new Map(items.map((c) => [c.id, c])),
       loading,
-    }),
-    [data, loading],
-  );
+    };
+  }, [data, loading]);
 };
 
 export const categoryRoute = (category: Pick<Category, 'slug'>): PageRoute => ({ view: 'category', slug: category.slug });

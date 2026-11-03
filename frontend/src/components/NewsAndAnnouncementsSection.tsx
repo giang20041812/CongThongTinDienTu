@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import React, { useMemo } from 'react';
 import { usePostPage } from '../api';
 import { Link } from '../lib/router';
@@ -21,7 +22,7 @@ const TopicChip: React.FC<{ post: PostView }> = ({ post }) => (
 const NewFlag: React.FC = () => (
   <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-gradient-to-r from-flame-500 to-orange-500 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider text-white shadow-md shadow-flame-600/30">
     <Sparkle className="size-3 animate-twinkle" />
-    Mới
+    {tr('Mới')}
   </span>
 );
 
@@ -41,14 +42,14 @@ const PostMeta: React.FC<{ post: PostView }> = ({ post }) => (
     </span>
     <span className="inline-flex items-center gap-1.5">
       <Eye className="size-4 text-(--tone)" />
-      {formatNumber(post.views)} lượt xem
+      {formatNumber(post.views)} {tr('lượt xem')}
     </span>
   </div>
 );
 
 const ReadMore: React.FC<{ className?: string }> = ({ className }) => (
   <span className={cx('mt-auto inline-flex items-center gap-2 self-start pt-4 text-sm font-semibold text-(--tone-ink)', className)}>
-    Đọc tiếp
+    {tr('Đọc tiếp')}
     <span className="tone-glow grid size-7 place-items-center rounded-full bg-gradient-to-br from-(--tone) to-(--tone-2) text-white transition-transform duration-300 group-hover:translate-x-1">
       <ArrowRight className="size-3.5" />
     </span>
@@ -109,7 +110,7 @@ const CompactNewsCard: React.FC<{ post: PostView }> = ({ post }) => (
       <span className="mt-auto inline-flex items-center gap-1.5 pt-1.5 text-[12px] text-muted">
         <CalendarDots className="size-3.5 text-(--tone)" />
         {post.date}
-        {isRecent(post.publishedAt) && <span className="ml-1 rounded-full bg-flame-50 px-1.5 text-[10.5px] font-bold uppercase text-flame-600">Mới</span>}
+        {isRecent(post.publishedAt) && <span className="ml-1 rounded-full bg-flame-50 px-1.5 text-[10.5px] font-bold uppercase text-flame-600">{tr('Mới')}</span>}
       </span>
     </div>
   </Link>
@@ -166,9 +167,9 @@ export const NewsAndAnnouncementsSection: React.FC = () => {
         <Reveal className="min-w-0 lg:col-span-8">
           <SectionHeading
             icon={Newspaper}
-            eyebrow="Bản tin nhà trường"
-            title="Tin tức – Sự kiện"
-            action={newsEntry ? { to: categoryRoute(newsEntry), label: 'Xem tất cả' } : undefined}
+            eyebrow={tr('Bản tin nhà trường')}
+            title={tr('Tin tức – Sự kiện')}
+            action={newsEntry ? { to: categoryRoute(newsEntry), label: tr('Xem tất cả') } : undefined}
           />
           {newsPage.loading ? (
             desktop ? (
@@ -182,7 +183,7 @@ export const NewsAndAnnouncementsSection: React.FC = () => {
               <div className="skeleton mx-auto aspect-[4/5] w-[72%] max-w-sm rounded-3xl sm:w-[52%] md:w-[42%]" />
             )
           ) : news.length === 0 ? (
-            <EmptyState title="Chưa có bài viết" description="Tin tức mới sẽ được cập nhật tại đây." />
+            <EmptyState title={tr('Chưa có bài viết')} description={tr('Tin tức mới sẽ được cập nhật tại đây.')} />
           ) : desktop ? (
             <div className="grid gap-5 md:grid-cols-5">
               <div className="md:col-span-3">
@@ -201,13 +202,13 @@ export const NewsAndAnnouncementsSection: React.FC = () => {
               itemLabel={(post) => post.title}
               itemTone={(post) => toneFor(post.category?.id)}
               renderItem={(post) => <NewsSlide post={post} />}
-              label="Tin tức mới"
+              label={tr('Tin tức mới')}
             />
           )}
         </Reveal>
 
         <Reveal className="min-w-0 lg:col-span-4" delay={120}>
-          <SectionHeading tone="flame" icon={MegaphoneSimple} eyebrow="Văn bản điều hành" title="Thông báo – Văn bản" />
+          <SectionHeading tone="flame" icon={MegaphoneSimple} eyebrow={tr('Văn bản điều hành')} title={tr('Thông báo – Văn bản')} />
           <div className="overflow-hidden rounded-3xl border border-line bg-white shadow-card">
             <div className="h-1 bg-gradient-to-r from-flame-500 via-gold-400 to-brand-500" aria-hidden="true" />
             {docsPage.loading ? (
@@ -215,7 +216,7 @@ export const NewsAndAnnouncementsSection: React.FC = () => {
                 <ListSkeleton rows={4} />
               </div>
             ) : docs.length === 0 ? (
-              <p className="p-6 text-center text-sm text-muted">Chưa có thông báo mới.</p>
+              <p className="p-6 text-center text-sm text-muted">{tr('Chưa có thông báo mới.')}</p>
             ) : (
               <div className="divide-y divide-line">
                 {docs.map((item, index) => (
@@ -228,7 +229,7 @@ export const NewsAndAnnouncementsSection: React.FC = () => {
                 to={categoryRoute(noticesEntry)}
                 className="group flex items-center justify-center gap-2 border-t border-line bg-gradient-to-r from-flame-50 via-gold-50 to-brand-50 p-3.5 text-sm font-semibold text-flame-600 transition-colors hover:text-flame-700"
               >
-                Xem tất cả thông báo
+                {tr('Xem tất cả thông báo')}
                 <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             )}
