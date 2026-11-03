@@ -53,6 +53,11 @@ function cleanStyle(tag: string, style: string): string {
     const value = declaration.slice(colon + 1).trim();
     if (ALIGNABLE.has(tag) && prop === 'text-align' && /^(?:left|right|center|justify)$/i.test(value)) {
       keep.push(`text-align:${value.toLowerCase()}`);
+    } else if (ALIGNABLE.has(tag) && prop === 'text-indent') {
+      const size = /^(\d{1,3}(?:\.\d+)?)(px|pt|em|rem|cm|mm|in)$/i.exec(value);
+      if (size && Number(size[1]) > 0 && Number(size[1]) <= 200) {
+        keep.push(`text-indent:${size[1]}${size[2].toLowerCase()}`);
+      }
     } else if (tag === 'span') {
       if (prop === 'font-size') {
         const size = /^(\d{1,3}(?:\.\d+)?)(px|pt)$/i.exec(value);

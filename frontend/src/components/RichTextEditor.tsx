@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
-  AlignCenter, AlignJustify, AlignLeft, AlignRight, Baseline, Bold, Highlighter, ImagePlus, Italic, Link2, List, ListOrdered,
-  Minus, Plus, Quote, Redo2, RemoveFormatting, Strikethrough, Trash2, Underline, Undo2, Unlink,
+  AlignCenter, AlignJustify, AlignLeft, AlignRight, Baseline, Bold, Highlighter, ImagePlus, Indent, Italic, Link2, List, ListOrdered,
+  Minus, Outdent, Plus, Quote, Redo2, RemoveFormatting, Strikethrough, Trash2, Underline, Undo2, Unlink,
 } from 'lucide-react';
 import { FONT_FAMILIES, sanitizeHtml, toEditorHtml } from '../lib/richText';
 
@@ -268,10 +268,141 @@ export function RichTextEditor({ initial, onChange, placeholder, uploadImage }: 
     emit();
   };
 
+  const indentBlock = () => {
+    restoreSelection();
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+    const anchor = elementOf(selection.anchorNode);
+    if (anchor?.closest('li')) {
+      document.execCommand('indent');
+      emit();
+      return;
+    }
+    const blockEl = anchor?.closest('p, div, blockquote, h1, h2, h3');
+    if (blockEl) {
+      const walker = document.createTreeWalker(blockEl, NodeFilter.SHOW_TEXT);
+      const firstTextNode = walker.nextNode() as Text | null;
+      if (firstTextNode) {
+        firstTextNode.nodeValue = '\u00A0\u00A0\u00A0\u00A0' + (firstTextNode.nodeValue || '');
+      } else {
+        blockEl.textContent = '\u00A0\u00A0\u00A0\u00A0';
+      }
+      const r = document.createRange();
+      const nodeToTarget = blockEl.firstChild || blockEl;
+      if (nodeToTarget.nodeType === Node.TEXT_NODE) {
+        r.setStart(nodeToTarget, Math.min(4, nodeToTarget.nodeValue?.length || 0));
+      } else {
+        r.selectNodeContents(nodeToTarget);
+      }
+      r.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(r);
+      emit();
+      return;
+    }
+    document.execCommand('insertText', false, '\u00A0\u00A0\u00A0\u00A0');
+    emit();
+  };
+
+  const outdentBlock = () => {
+    restoreSelection();
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+    const anchor = elementOf(selection.anchorNode);
+    if (anchor?.closest('li')) {
+      document.execCommand('outdent');
+      emit();
+      return;
+    }
+    const blockEl = anchor?.closest('p, div, blockquote, h1, h2, h3');
+    if (blockEl) {
+      const walker = document.createTreeWalker(blockEl, NodeFilter.SHOW_TEXT);
+      const firstTextNode = walker.nextNode() as Text | null;
+      if (firstTextNode && firstTextNode.nodeValue) {
+        const val = firstTextNode.nodeValue;
+        const match = val.match(/^([\u00A0 ]{1,4})/);
+        if (match) {
+          firstTextNode.nodeValue = val.slice(match[1].length);
+          emit();
+        }
+      }
+    }
+  };
+
   const onKeyDown = (event: React.KeyboardEvent) => {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
       event.preventDefault();
       addLink();
+      return;
+    }
+
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      if (event.shiftKey) {
+        outdentBlock();
+      } else {
+        const selection = window.getSelection();
+        const anchor = elementOf(selection?.anchorNode);
+        if (anchor?.closest('li')) {
+          document.execCommand('indent');
+          emit();
+        } else {
+          document.execCommand('insertText', false, '\u00A0\u00A0\u00A0\u00A0');
+          emit();
+        }
+      }
+      return;
+    }
+
+    if (event.key === 'Enter' && !event.shiftKey) {
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const anchor = elementOf(selection.anchorNode);
+        if (!anchor?.closest('li, ul, ol, blockquote')) {
+          const blockEl = anchor?.closest('p, div');
+          if (blockEl) {
+            const text = blockEl.textContent || '';
+            const indentMatch = text.match(/^([\u00A0 ]{2,})/);
+            if (indentMatch) {
+              const indentStr = indentMatch[1];
+              if (text.replace(/[\u00A0\s]/g, '') === '') {
+                event.preventDefault();
+                blockEl.textContent = '';
+                document.execCommand('insertParagraph', false);
+                emit();
+                return;
+              }
+              event.preventDefault();
+              document.execCommand('insertParagraph', false);
+              document.execCommand('insertText', false, indentStr);
+              emit();
+              return;
+            }
+          }
+        }
+      }
+    }
+
+    if (event.key === 'Backspace' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      const selection = window.getSelection();
+      if (selection && selection.isCollapsed && selection.rangeCount > 0) {
+        const textNode = selection.anchorNode;
+        if (textNode?.nodeType === Node.TEXT_NODE) {
+          const offset = selection.anchorOffset;
+          const valBefore = textNode.nodeValue?.slice(0, offset) || '';
+          if (/^[\u00A0 ]{4}$/.test(valBefore)) {
+            event.preventDefault();
+            textNode.nodeValue = textNode.nodeValue!.slice(4);
+            const r = document.createRange();
+            r.setStart(textNode, 0);
+            r.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(r);
+            emit();
+            return;
+          }
+        }
+      }
     }
   };
 
@@ -363,6 +494,9 @@ export function RichTextEditor({ initial, onChange, placeholder, uploadImage }: 
         {tool('Căn giữa', AlignCenter, () => run('justifyCenter', undefined, true), active.justifyCenter)}
         {tool('Căn phải', AlignRight, () => run('justifyRight', undefined, true), active.justifyRight)}
         {tool('Căn đều hai bên', AlignJustify, () => run('justifyFull', undefined, true), active.justifyFull)}
+        <Divider />
+        {tool('Thụt lề dòng đầu (Tab)', Indent, indentBlock)}
+        {tool('Giảm thụt lề (Shift+Tab)', Outdent, outdentBlock)}
         <Divider />
         {tool('Danh sách dấu đầu dòng', List, () => run('insertUnorderedList'), active.insertUnorderedList)}
         {tool('Danh sách đánh số', ListOrdered, () => run('insertOrderedList'), active.insertOrderedList)}

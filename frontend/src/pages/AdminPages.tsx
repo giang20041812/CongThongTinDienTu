@@ -785,7 +785,7 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedS
         <RichTextEditor
           initial={docHtml}
           onChange={setDocHtml}
-          placeholder="Nhập nội dung bài viết. Dùng thanh công cụ để đổi cỡ chữ, căn lề, chèn ảnh… giống Google Docs."
+          placeholder="Nhập nội dung bài viết. Nhấn Tab để thụt đầu dòng (giống Google Docs), dùng thanh công cụ để đổi cỡ chữ, căn lề, chèn ảnh…"
           uploadImage={async file => {
             setUploading('body');
             try { return (await adminApi.uploadImage(file)).url; }
