@@ -9,6 +9,7 @@
     "build": "esbuild src/server.ts src/cli.ts src/vercel.ts --bundle --platform=node --format=esm --target=node20 --packages=external --sourcemap --outdir=dist",
     "start": "node --enable-source-maps dist/server.js",
     "db:migrate": "tsx src/cli.ts migrate",
+    "db:english-names": "tsx src/cli.ts english-names",
     "lint": "tsc --noEmit",
     "test": "node --import tsx --test test/*.test.ts"
   },
