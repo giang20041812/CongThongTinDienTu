@@ -9,7 +9,7 @@ const STATUSES = ['NEW', 'IN_PROGRESS', 'RESOLVED'] as const;
 const EMAIL = /^[^@ \t\n\v\f\r]+@[^@ \t\n\v\f\r]+\.[^@ \t\n\v\f\r]+$/;
 const PHONE = /^[0-9+(). \t\n\v\f\r-]{8,20}$/;
 
-const COLUMNS = `id, full_name AS "fullName", email, phone, subject, content, status, note,
+const COLUMNS = `id, full_name AS "fullName", email, phone, subject, content, status, note, reply, reply_en AS "replyEn", published,
   created_at AS "createdAt", updated_at AS "updatedAt"`;
 
 function limit(value: string | null, max: number, field: string): string | null {
@@ -62,6 +62,15 @@ export function feedbackRoutes(submissions: SubmissionRateLimiter): Router {
     res.status(201).json(thanks);
   });
 
+  /** Published feedback with the school's reply. Only the given name is shown; email and phone never leave the server. */
+  router.get('/public', async (_req, res) => {
+    const rows = await query<{ id: string; fullName: string; subject: string | null; content: string; reply: string | null; replyEn: string | null; createdAt: string }>(
+      `SELECT id, full_name AS "fullName", subject, content, reply, reply_en AS "replyEn", created_at AS "createdAt"
+       FROM feedbacks WHERE published AND reply IS NOT NULL AND reply <> '' ORDER BY created_at DESC LIMIT 100`,
+    );
+    res.json(rows.map(({ fullName, ...rest }) => ({ ...rest, author: fullName.trim().split(/\s+/).pop() ?? '' })));
+  });
+
   router.get('/', async (_req, res) => {
     res.json(await query(`SELECT ${COLUMNS} FROM feedbacks ORDER BY created_at DESC`));
   });
@@ -71,10 +80,15 @@ export function feedbackRoutes(submissions: SubmissionRateLimiter): Router {
     const body = jsonObject(req.body);
     const status = enumValue(body.status, STATUSES);
     const note = str(body.note);
+    const reply = str(body.reply);
+    const replyEn = str(body.replyEn);
+    const published = typeof body.published === 'boolean' ? body.published : null;
     const updated = await queryOne(
-      `UPDATE feedbacks SET status = COALESCE($2, status), note = CASE WHEN $3::boolean THEN $4 ELSE note END, updated_at = $5
+      `UPDATE feedbacks SET status = COALESCE($2, status), note = CASE WHEN $3::boolean THEN $4 ELSE note END, updated_at = $5,
+         reply = CASE WHEN $6::boolean THEN $7 ELSE reply END, reply_en = CASE WHEN $8::boolean THEN $9 ELSE reply_en END,
+         published = COALESCE($10, published)
        WHERE id = $1 RETURNING ${COLUMNS}`,
-      [id, status, note != null, blankToNull(note), localNow()],
+      [id, status, note != null, blankToNull(note), localNow(), reply != null, blankToNull(reply), replyEn != null, blankToNull(replyEn), published],
     );
     if (!updated) throw notFound();
     res.json(updated);

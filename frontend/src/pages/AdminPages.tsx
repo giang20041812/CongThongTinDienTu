@@ -1120,11 +1120,12 @@ function FeedbackSection({ notify }: { notify: Notify }) {
   const [statusFilter, setStatusFilter] = useState<'' | FeedbackDto['status']>('');
   const [query, setQuery] = useState('');
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [replies, setReplies] = useState<Record<string, { vi?: string; en?: string }>>({});
 
   const filtered = items.filter(item => (!statusFilter || item.status === statusFilter)
     && `${item.fullName} ${item.subject ?? ''} ${item.content} ${item.email ?? ''}`.toLowerCase().includes(query.toLowerCase()));
 
-  const update = async (item: FeedbackDto, body: { status?: string; note?: string }, message: string) => {
+  const update = async (item: FeedbackDto, body: { status?: string; note?: string; reply?: string; replyEn?: string; published?: boolean }, message: string) => {
     try { await adminApi.updateFeedback(item.id, body); notify(message); await reload(); } catch (err) { notify(errorMessage(err, 'Không cập nhật được'), 'error'); }
   };
   const remove = async (item: FeedbackDto) => {
@@ -1145,6 +1146,15 @@ function FeedbackSection({ notify }: { notify: Notify }) {
         <div className="flex gap-2 shrink-0"><select value={item.status} onChange={e => update(item, { status: e.target.value }, 'Đã cập nhật trạng thái')} className="admin-select text-xs bg-white">{Object.entries(FEEDBACK_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select><IconButton title="Xoá" danger onClick={() => remove(item)}><Trash2 size={14} /></IconButton></div>
       </div>
       <div className="mt-4 flex flex-col sm:flex-row gap-2"><input value={notes[item.id] ?? item.note ?? ''} onChange={e => setNotes(n => ({ ...n, [item.id]: e.target.value }))} className="admin-input flex-1" placeholder="Ghi chú xử lý (chỉ quản trị viên thấy)" /><button onClick={() => update(item, { note: notes[item.id] ?? item.note ?? '' }, 'Đã lưu ghi chú')} className="admin-secondary">Lưu ghi chú</button></div>
+      <div className="mt-4 border-t border-[#edf1f5] pt-4 grid gap-2 md:grid-cols-2">
+        <label className="block"><span className="label-admin">Phản hồi của nhà trường (hiện công khai)</span><textarea value={replies[item.id]?.vi ?? item.reply ?? ''} onChange={e => setReplies(r => ({ ...r, [item.id]: { ...r[item.id], vi: e.target.value } }))} className="admin-input min-h-20" /></label>
+        <label className="block"><span className="label-admin">Phản hồi (English)</span><textarea value={replies[item.id]?.en ?? item.replyEn ?? ''} onChange={e => setReplies(r => ({ ...r, [item.id]: { ...r[item.id], en: e.target.value } }))} className="admin-input min-h-20" /></label>
+        <div className="md:col-span-2 flex flex-wrap items-center gap-3">
+          <button onClick={() => update(item, { reply: replies[item.id]?.vi ?? item.reply ?? '', replyEn: replies[item.id]?.en ?? item.replyEn ?? '' }, 'Đã lưu phản hồi')} className="admin-secondary">Lưu phản hồi</button>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={item.published} disabled={!item.reply} onChange={e => update(item, { published: e.target.checked }, e.target.checked ? 'Đã đăng công khai' : 'Đã gỡ khỏi trang công khai')} /> Đăng công khai trên website (chỉ hiện tên, không hiện email/điện thoại)</label>
+          {!item.reply && <span className="text-[11px] text-[#8a9bad]">Cần lưu phản hồi trước khi đăng.</span>}
+        </div>
+      </div>
     </div>)}</div>}
   </>;
 }
