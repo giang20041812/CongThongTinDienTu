@@ -14,6 +14,7 @@ export interface Category {
   id: string;
   parentId: string | null;
   name: string;
+  nameEn: string | null;
   slug: string;
   pageType: PageType;
   sortOrder: number;
@@ -21,12 +22,13 @@ export interface Category {
   showOnHome: boolean;
   externalUrl: string | null;
   description: string | null;
+  descriptionEn: string | null;
   createdAt: string | null;
   updatedAt: string | null;
 }
 
-const COLUMNS = `id, parent_id AS "parentId", name, slug, page_type AS "pageType", sort_order AS "sortOrder", visible,
-  show_on_home AS "showOnHome", external_url AS "externalUrl", description, created_at AS "createdAt", updated_at AS "updatedAt"`;
+const COLUMNS = `id, parent_id AS "parentId", name, name_en AS "nameEn", slug, page_type AS "pageType", sort_order AS "sortOrder", visible,
+  show_on_home AS "showOnHome", external_url AS "externalUrl", description, description_en AS "descriptionEn", created_at AS "createdAt", updated_at AS "updatedAt"`;
 
 /** First path segments the front-end already uses for something else. */
 const RESERVED_SLUGS = new Set(['admin', 'api', 'bai-viet', 'tim-kiem', 'assets', 'uploads']);
@@ -35,6 +37,8 @@ const ALL_KEY = 'categories:all';
 interface CategoryRequest {
   parentId: string | null;
   name: string | null;
+  nameEn: string | null;
+  descriptionEn: string | null;
   slug: string | null;
   pageType: PageType | null;
   sortOrder: number | null;
@@ -49,6 +53,8 @@ function readRequest(body: unknown): CategoryRequest {
   return {
     parentId: uuid(b.parentId),
     name: str(b.name),
+    nameEn: str(b.nameEn),
+    descriptionEn: str(b.descriptionEn),
     slug: str(b.slug),
     pageType: enumValue(b.pageType, PAGE_TYPES),
     sortOrder: int(b.sortOrder),
@@ -130,10 +136,10 @@ export class CategoryService {
       const sortOrder = request.sortOrder ?? this.nextSortOrder(all, target.parentId);
       const now = localNow();
       return queryOne<Category>(
-        `INSERT INTO categories (parent_id, name, slug, page_type, sort_order, visible, show_on_home, external_url, description, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $10) RETURNING ${COLUMNS}`,
+        `INSERT INTO categories (parent_id, name, slug, page_type, sort_order, visible, show_on_home, external_url, description, created_at, updated_at, name_en, description_en)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $10, $11, $12) RETURNING ${COLUMNS}`,
         [target.parentId, target.name, target.slug, target.pageType, sortOrder, target.visible, target.showOnHome,
-          target.externalUrl, target.description, now],
+          target.externalUrl, target.description, now, target.nameEn, target.descriptionEn],
         db,
       );
     });
@@ -157,10 +163,10 @@ export class CategoryService {
       }
       return queryOne<Category>(
         `UPDATE categories SET parent_id = $2, name = $3, slug = $4, page_type = $5, sort_order = $6, visible = $7,
-           show_on_home = $8, external_url = $9, description = $10, updated_at = $11
+           show_on_home = $8, external_url = $9, description = $10, updated_at = $11, name_en = $12, description_en = $13
          WHERE id = $1 RETURNING ${COLUMNS}`,
         [id, target.parentId, target.name, target.slug, target.pageType, sortOrder, target.visible, target.showOnHome,
-          target.externalUrl, target.description, localNow()],
+          target.externalUrl, target.description, localNow(), target.nameEn, target.descriptionEn],
         db,
       );
     });
@@ -243,6 +249,8 @@ export class CategoryService {
     const target: Category = {
       ...(existing ?? { id: null as unknown as string, createdAt: null, updatedAt: null, sortOrder: 0 }),
       name,
+      nameEn: request.nameEn != null ? blankToNull(request.nameEn) : (existing?.nameEn ?? null),
+      descriptionEn: request.descriptionEn != null ? blankToNull(request.descriptionEn) : (existing?.descriptionEn ?? null),
       slug: await this.uniqueSlug(request.slug, name, existing?.id ?? null, db),
       pageType,
       parentId: request.parentId,
