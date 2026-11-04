@@ -1,7 +1,8 @@
-import { tr } from '../lib/i18n';
+import { loc, tr } from '../lib/i18n';
 import React, { useState } from 'react';
 import { CheckCircle, Clock, EnvelopeSimple, FacebookLogo, GlobeHemisphereEast, MapPin, MessengerLogo, PaperPlaneTilt, Phone } from '../components/icons';
-import { submitFeedback } from '../api';
+import { submitFeedback, usePublicFeedback } from '../api';
+import { formatDate, parseDate } from '../lib/content';
 import { mapEmbedUrl, telHref, useSite } from '../lib/site';
 import { useMenu, MenuLink } from '../lib/menu';
 import { SectionHeader, type SectionProps } from '../components/SectionHeader';
@@ -190,7 +191,32 @@ export const FeedbackPage: React.FC<SectionProps> = (props) => {
             </form>
           )}
         </div>
+        <PublicFeedbackList />
       </Container>
     </>
+  );
+};
+
+/** Feedback the school has answered and chosen to publish. */
+const PublicFeedbackList: React.FC = () => {
+  const { data: items } = usePublicFeedback();
+  if (items.length === 0) return null;
+  return (
+    <section className="mx-auto mt-10 max-w-3xl" aria-label={tr('Góp ý đã được phản hồi')}>
+      <h2 className="text-lg font-bold text-ink">{tr('Góp ý đã được phản hồi')}</h2>
+      <ul className="mt-4 space-y-4">
+        {items.map((item) => (
+          <li key={item.id} className="rounded-2xl border border-line bg-white p-5 shadow-card">
+            <p className="text-[12px] text-muted">{item.author} · {formatDate(parseDate(item.createdAt))}</p>
+            {item.subject && <h3 className="mt-1 font-semibold text-ink">{item.subject}</h3>}
+            <p className="mt-2 whitespace-pre-line text-[14px] text-body">{item.content}</p>
+            <div className="mt-3 rounded-xl border-l-4 border-brand-500 bg-brand-50 p-3">
+              <p className="text-[12px] font-semibold uppercase tracking-wide text-brand-700">{tr('Nhà trường phản hồi')}</p>
+              <p className="mt-1 whitespace-pre-line text-[14px] text-ink">{loc(item.reply, item.replyEn)}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 };

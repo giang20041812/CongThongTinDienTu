@@ -195,6 +195,7 @@ type Access = 'public' | 'staff' | 'admin';
 function requiredAccess(method: string, path: string): Access {
   if (path.startsWith('/api/users')) return 'admin';
   if (method === 'GET' || method === 'HEAD') {
+    if (path === `${FEEDBACK}/public`) return 'public';
     if (path.startsWith(FEEDBACK)) return 'admin';
     return POST_BY_ID.test(path) ? 'staff' : 'public';
   }
