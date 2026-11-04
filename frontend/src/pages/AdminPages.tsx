@@ -1,4 +1,4 @@
-import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AlertCircle, ArrowDown, ArrowUp, CalendarClock, Check, ExternalLink, Eye, EyeOff, FileText, FolderTree, Home, ImagePlus,
   KeyRound, LayoutDashboard, LogOut, Menu, MessageSquare, Paperclip, Pencil, Pin, Plus, Search, Settings, ShieldCheck,
@@ -484,7 +484,10 @@ const emptyDraft = (parentId = ''): CategoryDraft => ({ parentId, name: '', name
 function CategoryForm({ draft, tree, onCancel, onSave }: { draft: CategoryDraft; tree: MenuNode[]; onCancel: () => void; onSave: (draft: CategoryDraft) => Promise<void> }) {
   const [form, setForm] = useState(draft);
   const [saving, setSaving] = useState(false);
-  const hasChildren = !!draft.id && tree.some(root => root.id === draft.id && root.children.length > 0);
+  const topRef = useRef<HTMLDivElement>(null);
+  // The form opens above the list: bring it into view so the user need not scroll back up.
+  useEffect(() => { topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, []);
+  const hasChildren =!!draft.id && tree.some(root => root.id === draft.id && root.children.length > 0);
   const isChild = !!form.parentId;
   const set = <K extends keyof CategoryDraft>(key: K, value: CategoryDraft[K]) => setForm(current => ({ ...current, [key]: value }));
   const types = (Object.keys(PAGE_TYPE_LABELS) as PageType[]).filter(t => !(isChild && t === 'GROUP'));
@@ -495,7 +498,7 @@ function CategoryForm({ draft, tree, onCancel, onSave }: { draft: CategoryDraft;
     try { await onSave(form); } finally { setSaving(false); }
   };
 
-  return <Panel title={draft.id ? `Sửa đầu mục “${draft.name}”` : 'Thêm đầu mục'} onClose={onCancel}>
+  return <div ref={topRef} className="scroll-mt-4"><Panel title={draft.id ? `Sửa đầu mục “${draft.name}”` : 'Thêm đầu mục'} onClose={onCancel}>
     <form onSubmit={submit} className="grid gap-4 md:grid-cols-2">
       <label className="block"><span className="label-admin">Tên hiển thị trên menu *</span><input value={form.name} onChange={e => set('name', e.target.value)} className="admin-input" placeholder="VD: Tin nhà trường" maxLength={100} required /></label>
       <label className="block"><span className="label-admin">Tên tiếng Anh (English)</span><input value={form.nameEn} onChange={e => set('nameEn', e.target.value)} className="admin-input" placeholder="VD: School news" maxLength={100} /></label>
@@ -519,7 +522,7 @@ function CategoryForm({ draft, tree, onCancel, onSave }: { draft: CategoryDraft;
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.showOnHome} onChange={e => set('showOnHome', e.target.checked)} /> Hiện thành cột “Chuyên mục nổi bật” trên trang chủ</label>
       <div className="md:col-span-2 flex justify-end gap-2"><button type="button" onClick={onCancel} className="admin-secondary">Hủy</button><button disabled={saving} className="admin-primary disabled:opacity-60"><Check size={15} /> {saving ? 'Đang lưu...' : 'Lưu đầu mục'}</button></div>
     </form>
-  </Panel>;
+  </Panel></div>;
 }
 
 
