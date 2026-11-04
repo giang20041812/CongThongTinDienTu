@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import React, { useMemo, useState } from 'react';
 import { Link } from '../lib/router';
 import { formatFileSize, formatNumber, postRoute, splitParagraphs, type PostView } from '../lib/content';
@@ -24,7 +25,7 @@ export const PostCard: React.FC<{ post: PostView; index?: number; showCategory?:
           {showCategory && post.categoryName && <CategoryBadge tone="light">{post.categoryName}</CategoryBadge>}
           {post.pinned && (
             <CategoryBadge tone="gold" className="gap-1">
-              <PushPin className="size-3" /> Nổi bật
+              <PushPin className="size-3" /> {tr('Nổi bật')}
             </CategoryBadge>
           )}
         </div>
@@ -45,7 +46,7 @@ export const PostCard: React.FC<{ post: PostView; index?: number; showCategory?:
         </h3>
         {post.summary && <p className="mt-2 line-clamp-3 text-[14px] leading-relaxed text-body">{post.summary}</p>}
         <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-[13.5px] font-semibold text-brand-600">
-          Đọc tiếp
+          {tr('Đọc tiếp')}
           <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
         </span>
       </div>
@@ -62,7 +63,7 @@ export const AlbumCard: React.FC<{ post: PostView; index?: number }> = ({ post, 
         {post.imageCount > 0 && (
           <span className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-brand-950/70 px-2.5 py-1 text-[12px] font-semibold text-white backdrop-blur">
             <ImageIcon className="size-3.5" />
-            {post.imageCount} ảnh
+            {post.imageCount} {tr('ảnh')}
           </span>
         )}
       </div>
@@ -86,7 +87,7 @@ const RichText: React.FC<{ content: string }> = ({ content }) => {
 };
 
 /** Renders a post's ordered blocks (paragraphs and figures). */
-export const ArticleBody: React.FC<{ post: PostView; emptyText?: string }> = ({ post, emptyText = 'Nội dung đang được cập nhật.' }) => {
+export const ArticleBody: React.FC<{ post: PostView; emptyText?: string }> = ({ post, emptyText = tr('Nội dung đang được cập nhật.') }) => {
   if (post.blocks.length === 0) {
     return post.summary ? <div className="prose-article"><p>{post.summary}</p></div> : <p className="text-muted">{emptyText}</p>;
   }
@@ -110,7 +111,7 @@ export const AttachmentList: React.FC<{ items: AttachmentDto[]; className?: stri
     <section className={cx('rounded-xl border border-line bg-surface p-4 sm:p-5', className)}>
       <h2 className="flex items-center gap-2 text-[14px] font-bold text-ink">
         <Paperclip className="size-4 text-gold-600" />
-        Tệp đính kèm ({items.length})
+        {tr('Tệp đính kèm')} ({items.length})
       </h2>
       <ul className="mt-3 space-y-2">
         {items.map((file, index) => (
@@ -151,7 +152,7 @@ export const ArticleActions: React.FC = () => {
     <div className="no-print flex flex-wrap gap-2">
       <button onClick={copyLink} className={cx(secondaryButton, 'px-4 py-2 text-[13px]')}>
         {copied ? <Check className="size-4 text-green-600" /> : <LinkSimple className="size-4" />}
-        {copied ? 'Đã sao chép' : 'Sao chép liên kết'}
+        {copied ? tr('Đã sao chép') : tr('Sao chép liên kết')}
       </button>
       <button onClick={() => window.print()} className={cx(secondaryButton, 'px-4 py-2 text-[13px]')}>
         <Printer className="size-4" />
@@ -207,13 +208,13 @@ export const DocumentRow: React.FC<{ post: PostView; tone?: Tone }> = ({ post, t
         <h3 className="line-clamp-2 text-[14px] font-semibold leading-snug text-ink transition-colors duration-300 group-hover:text-(--tone-ink)">
           {post.pinned && (
             <span className="mr-1.5 inline-flex -translate-y-px rounded-md bg-gradient-to-r from-flame-500 to-orange-500 px-1.5 py-0.5 align-middle text-[10px] font-bold uppercase text-white">
-              Quan trọng
+              {tr('Quan trọng')}
             </span>
           )}
           {post.title}
         </h3>
         <p className="mt-1.5 truncate text-[12.5px] text-muted">
-          {[post.documentNumber && `Số ${post.documentNumber}`, post.issuer ?? post.categoryName].filter(Boolean).join(' · ')}
+          {[post.documentNumber && `${tr('Số')} ${post.documentNumber}`, post.issuer ?? post.categoryName].filter(Boolean).join(' · ')}
         </p>
       </div>
     </Link>

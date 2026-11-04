@@ -469,15 +469,17 @@ interface CategoryDraft {
   id?: string;
   parentId: string;
   name: string;
+  nameEn: string;
   slug: string;
   pageType: PageType;
   visible: boolean;
   showOnHome: boolean;
   externalUrl: string;
   description: string;
+  descriptionEn: string;
 }
 
-const emptyDraft = (parentId = ''): CategoryDraft => ({ parentId, name: '', slug: '', pageType: parentId ? 'POST_LIST' : 'GROUP', visible: true, showOnHome: false, externalUrl: '', description: '' });
+const emptyDraft = (parentId = ''): CategoryDraft => ({ parentId, name: '', nameEn: '', slug: '', pageType: parentId ? 'POST_LIST' : 'GROUP', visible: true, showOnHome: false, externalUrl: '', description: '', descriptionEn: '' });
 
 function CategoryForm({ draft, tree, onCancel, onSave }: { draft: CategoryDraft; tree: MenuNode[]; onCancel: () => void; onSave: (draft: CategoryDraft) => Promise<void> }) {
   const [form, setForm] = useState(draft);
@@ -496,6 +498,7 @@ function CategoryForm({ draft, tree, onCancel, onSave }: { draft: CategoryDraft;
   return <Panel title={draft.id ? `Sửa đầu mục “${draft.name}”` : 'Thêm đầu mục'} onClose={onCancel}>
     <form onSubmit={submit} className="grid gap-4 md:grid-cols-2">
       <label className="block"><span className="label-admin">Tên hiển thị trên menu *</span><input value={form.name} onChange={e => set('name', e.target.value)} className="admin-input" placeholder="VD: Tin nhà trường" maxLength={100} required /></label>
+      <label className="block"><span className="label-admin">Tên tiếng Anh (English)</span><input value={form.nameEn} onChange={e => set('nameEn', e.target.value)} className="admin-input" placeholder="VD: School news" maxLength={100} /></label>
       <label className="block"><span className="label-admin">Đường dẫn (để trống = tự tạo từ tên)</span><div className="flex items-center"><span className="text-xs text-[#8a9bad] px-2">/</span><input value={form.slug} onChange={e => set('slug', e.target.value)} className="admin-input" placeholder="tin-nha-truong" /></div></label>
       <label className="block"><span className="label-admin">Thuộc nhóm</span>
         <select value={form.parentId} disabled={hasChildren} onChange={e => { const parentId = e.target.value; setForm(current => ({ ...current, parentId, pageType: parentId && current.pageType === 'GROUP' ? 'POST_LIST' : current.pageType })); }} className="admin-select w-full bg-white disabled:bg-[#f5f8fb]">
@@ -511,6 +514,7 @@ function CategoryForm({ draft, tree, onCancel, onSave }: { draft: CategoryDraft;
       </label>
       {form.pageType === 'LINK' && <label className="block md:col-span-2"><span className="label-admin">Địa chỉ liên kết *</span><input value={form.externalUrl} onChange={e => set('externalUrl', e.target.value)} className="admin-input" placeholder="https://..." /></label>}
       <label className="block md:col-span-2"><span className="label-admin">Mô tả ngắn (hiện dưới tiêu đề trang)</span><textarea value={form.description} onChange={e => set('description', e.target.value)} className="admin-input min-h-16" /></label>
+      <label className="block md:col-span-2"><span className="label-admin">Mô tả ngắn (English)</span><textarea value={form.descriptionEn} onChange={e => set('descriptionEn', e.target.value)} className="admin-input min-h-16" /></label>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.visible} onChange={e => set('visible', e.target.checked)} /> Hiển thị trên website</label>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.showOnHome} onChange={e => set('showOnHome', e.target.checked)} /> Hiện thành cột “Chuyên mục nổi bật” trên trang chủ</label>
       <div className="md:col-span-2 flex justify-end gap-2"><button type="button" onClick={onCancel} className="admin-secondary">Hủy</button><button disabled={saving} className="admin-primary disabled:opacity-60"><Check size={15} /> {saving ? 'Đang lưu...' : 'Lưu đầu mục'}</button></div>
@@ -525,7 +529,7 @@ function MenuSection({ notify }: { notify: Notify }) {
   const [editing, setEditing] = useState<CategoryDraft | null>(null);
 
   const save = async (draft: CategoryDraft) => {
-    const body = { parentId: draft.parentId || null, name: draft.name, slug: draft.slug, pageType: draft.pageType, visible: draft.visible, showOnHome: draft.showOnHome, externalUrl: draft.externalUrl, description: draft.description };
+    const body = { parentId: draft.parentId || null, name: draft.name, nameEn: draft.nameEn, slug: draft.slug, pageType: draft.pageType, visible: draft.visible, showOnHome: draft.showOnHome, externalUrl: draft.externalUrl, description: draft.description, descriptionEn: draft.descriptionEn };
     try {
       if (draft.id) await adminApi.updateCategory(draft.id, body);
       else await adminApi.createCategory(body);
@@ -570,7 +574,7 @@ function MenuSection({ notify }: { notify: Notify }) {
     }
   };
 
-  const toDraft = (c: Category): CategoryDraft => ({ id: c.id, parentId: c.parentId ?? '', name: c.name, slug: c.slug, pageType: c.pageType, visible: c.visible, showOnHome: c.showOnHome, externalUrl: c.externalUrl ?? '', description: c.description ?? '' });
+  const toDraft = (c: Category): CategoryDraft => ({ id: c.id, parentId: c.parentId ?? '', name: c.name, nameEn: c.nameEn ?? '', slug: c.slug, pageType: c.pageType, visible: c.visible, showOnHome: c.showOnHome, externalUrl: c.externalUrl ?? '', description: c.description ?? '', descriptionEn: c.descriptionEn ?? '' });
 
   const Row = ({ item, siblings, index, parentId }: { item: Category; siblings: Category[]; index: number; parentId: string | null }) => {
     const isRoot = !parentId;
@@ -624,6 +628,9 @@ const blocksToDocument = (list: { type: string; content?: string | null; imageUr
   list.map(b => (b.type === 'IMAGE'
     ? (b.imageUrl ? `<p><img src="${b.imageUrl.replace(/"/g, '&quot;')}" alt=""></p>` : '')
     : toEditorHtml(b.content ?? ''))).join('');
+/** English version of the post body (text blocks only; photos are shared with the Vietnamese body). */
+const blocksToDocumentEn = (list: { type: string; contentEn?: string | null }[]) =>
+  list.map(b => (b.type === 'TEXT' && b.contentEn ? toEditorHtml(b.contentEn) : '')).join('');
 const toLocalInput = (value?: string | null) => (value ? value.slice(0, 16) : '');
 
 function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedScopeIds, canFeature }: { postId: string | null; tree: MenuNode[]; categories: Category[]; onClose: () => void; onSaved: () => void; notify: Notify; allowedScopeIds?: Set<string>; canFeature: boolean }) {
@@ -636,6 +643,9 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedS
   const [featured, setFeatured] = useState(false);
   const [publishedAt, setPublishedAt] = useState('');
   const [summary, setSummary] = useState('');
+  const [titleEn, setTitleEn] = useState('');
+  const [summaryEn, setSummaryEn] = useState('');
+  const [docHtmlEn, setDocHtmlEn] = useState('');
   const [coverUrl, setCoverUrl] = useState('');
   const [blocks, setBlocks] = useState<BlockDraft[]>([{ key: newKey(), type: 'TEXT', content: '', imageUrl: '' }]);
   const [docHtml, setDocHtml] = useState('');
@@ -658,6 +668,7 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedS
       setPublishedAt(toLocalInput(post.publishedAt)); setSummary(post.summary ?? ''); setCoverUrl(post.coverUrl ?? '');
       setBlocks(post.blocks.length ? post.blocks.map(b => ({ key: newKey(), type: b.type, content: b.content ?? '', imageUrl: b.imageUrl ?? '' })) : [{ key: newKey(), type: 'TEXT', content: '', imageUrl: '' }]);
       setDocHtml(blocksToDocument(post.blocks));
+      setTitleEn(post.titleEn ?? ''); setSummaryEn(post.summaryEn ?? ''); setDocHtmlEn(blocksToDocumentEn(post.blocks));
       setAttachments(post.attachments);
       setDoc({ documentNumber: post.documentNumber ?? '', issuer: post.issuer ?? '', issuedDate: post.issuedDate ?? '', recipient: post.recipient ?? '', actionRequired: post.actionRequired ?? '' });
       setLoaded(true);
@@ -723,11 +734,11 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedS
     const sent: BlockDraft[] = isGallery ? blocks.filter(b => b.type === 'IMAGE' && b.imageUrl.trim()) : (hasText(docHtml) ? [{ key: 'body', type: 'TEXT', content: docHtml, imageUrl: '' }] : []);
     if (isGallery && sent.length === 0 && !coverUrl.trim()) return notify('Bài viết trong Kho ảnh cần ít nhất một ảnh', 'error');
     const body = {
-      title, slug, categoryId, status, pinned, summary, coverUrl,
+      title, slug, categoryId, status, pinned, summary, coverUrl, titleEn, summaryEn,
       // Only an admin picks the home-slider posts; an editor's request leaves the flag as it is.
       ...(canFeature ? { featured } : {}),
       publishedAt: publishedAt ? `${publishedAt}:00` : null,
-      blocks: sent.map(b => ({ type: b.type, content: b.type === 'TEXT' ? b.content : null, imageUrl: b.type === 'IMAGE' ? b.imageUrl : null })),
+      blocks: sent.map(b => ({ type: b.type, content: b.type === 'TEXT' ? b.content : null, contentEn: b.type === 'TEXT' && !isGallery ? (hasText(docHtmlEn) ? docHtmlEn : null) : null, imageUrl: b.type === 'IMAGE' ? b.imageUrl : null })),
       attachments: isGallery ? [] : attachments,
       documentNumber: doc.documentNumber, issuer: doc.issuer, issuedDate: doc.issuedDate || null, recipient: doc.recipient, actionRequired: doc.actionRequired,
     };
@@ -749,6 +760,7 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedS
   return <Panel title={postId ? 'Sửa bài viết' : 'Tạo bài viết mới'} onClose={onClose}>
     <form onSubmit={submit} className="grid gap-5">
       <div className="grid gap-4 md:grid-cols-2">
+        <label className="block md:col-span-2"><span className="label-admin">Tiêu đề tiếng Anh (English, không bắt buộc)</span><input value={titleEn} onChange={e => setTitleEn(e.target.value)} className="admin-input" maxLength={500} /></label>
         <label className="block md:col-span-2"><span className="label-admin">Tiêu đề *</span><input value={title} onChange={e => setTitle(e.target.value)} className="admin-input" placeholder="Nhập tiêu đề" maxLength={500} /></label>
         <label className="block"><span className="label-admin">Đầu mục *</span><CategorySelect tree={tree} value={categoryId} onChange={setCategoryId} onlyPostTargets emptyLabel="— Chọn đầu mục —" allowedIds={allowedScopeIds} />
           {category && <span className="text-[11px] text-[#8a9bad] mt-1 block">Kiểu trang: {PAGE_TYPE_LABELS[category.pageType]}{category.pageType === 'PAGE' ? ' – bài mới nhất/được ghim sẽ là nội dung của trang' : ''}</span>}
@@ -758,6 +770,7 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedS
         <label className="block"><span className="label-admin">Ngày đăng (để trống = bây giờ)</span><input type="datetime-local" value={publishedAt} onChange={e => setPublishedAt(e.target.value)} className="admin-input" /></label>
         <label className="flex items-center gap-2 text-sm md:col-span-2"><input type="checkbox" checked={pinned} onChange={e => setPinned(e.target.checked)} /> Ghim lên đầu / đánh dấu quan trọng</label>
         {canFeature && <label className="flex items-center gap-2 text-sm md:col-span-2"><input type="checkbox" checked={featured} onChange={e => setFeatured(e.target.checked)} /> <Star size={14} className="text-[#a76500]" /> Hiện trên slide trang chủ (sau ảnh banner)</label>}
+        <label className="block md:col-span-2"><span className="label-admin">Tóm tắt tiếng Anh (English, không bắt buộc)</span><textarea value={summaryEn} onChange={e => setSummaryEn(e.target.value)} className="admin-input min-h-16" /></label>
         <label className="block md:col-span-2"><span className="label-admin">{isGallery ? 'Mô tả ngắn (không bắt buộc)' : 'Tóm tắt (để trống = lấy đoạn đầu nội dung)'}</span><textarea value={summary} onChange={e => setSummary(e.target.value)} className="admin-input min-h-16" /></label>
         <div className="md:col-span-2"><span className="label-admin">{isGallery ? 'Ảnh bìa (để trống = ảnh đầu tiên của album)' : 'Ảnh bìa'}</span><div className="flex flex-col sm:flex-row gap-2"><input value={coverUrl} onChange={e => setCoverUrl(e.target.value)} className="admin-input flex-1" placeholder="https://... hoặc tải ảnh lên" /><UploadButton label="Tải ảnh" accept="image/*" busy={uploading === 'cover'} onFile={file => upload('cover', file, 'image', r => setCoverUrl(r.url))} /></div>{coverUrl && <img src={coverUrl} alt="" className="mt-2 h-28 object-cover border border-[#e3ebf3]" />}</div>
       </div>
@@ -793,6 +806,10 @@ function PostForm({ postId, tree, categories, onClose, onSaved, notify, allowedS
             finally { setUploading(''); }
           }}
         />
+      </div>
+
+      <div><span className="label-admin">Nội dung tiếng Anh (English, không bắt buộc – để trống thì trang tiếng Anh hiện bản tiếng Việt)</span>
+        <RichTextEditor initial={docHtmlEn} onChange={setDocHtmlEn} placeholder="English version of the article body…" uploadImage={async file => (await adminApi.uploadImage(file)).url} />
       </div>
 
       <div><span className="label-admin">Tệp đính kèm</span>

@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import React, { useMemo } from 'react';
 import { usePostPage } from '../api';
 import { Link } from '../lib/router';
@@ -32,7 +33,7 @@ const CategoryCard: React.FC<{ category: Category; tone: Tone }> = ({ category, 
         <div className="min-w-0">
           <h3 className="line-clamp-2 text-[13.5px] font-bold uppercase leading-tight tracking-wide text-ink">{category.name}</h3>
           <p className="mt-1 text-[12px] font-semibold text-(--tone-ink)">
-            {loading ? 'Đang tải…' : `${formatNumber(data.total)} bài viết`}
+            {loading ? tr('Đang tải…') : `${formatNumber(data.total)} ${tr('bài viết')}`}
           </p>
         </div>
       </header>
@@ -61,7 +62,7 @@ const CategoryCard: React.FC<{ category: Category; tone: Tone }> = ({ category, 
         </Link>
       ) : (
         <div className="mt-4 grid flex-1 place-items-center rounded-2xl border border-dashed border-(--tone)/30 bg-(--tone)/5 p-6 text-center text-[13px] text-muted">
-          Nội dung đang được cập nhật
+          {tr('Nội dung đang được cập nhật')}
         </div>
       )}
 
@@ -87,7 +88,7 @@ const CategoryCard: React.FC<{ category: Category; tone: Tone }> = ({ category, 
         draggable={false}
         className="group mt-auto inline-flex items-center gap-1.5 self-start rounded-full bg-(--tone)/10 py-2 pl-4 pr-3 text-[13px] font-semibold text-(--tone-ink) transition-all duration-300 hover:bg-(--tone) hover:text-white"
       >
-        Xem thêm
+        {tr('Xem thêm')}
         <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
       </Link>
     </article>
@@ -120,9 +121,9 @@ export const MultiCategorySection: React.FC = () => {
         <Reveal>
           <SectionHeading
             icon={Compass}
-            eyebrow="Khám phá"
-            title="Chuyên mục nổi bật"
-            description="Hoạt động, thành tích và thông tin mới nhất theo từng lĩnh vực của nhà trường."
+            eyebrow={tr('Khám phá')}
+            title={tr('Chuyên mục nổi bật')}
+            description={tr('Hoạt động, thành tích và thông tin mới nhất theo từng lĩnh vực của nhà trường.')}
           />
         </Reveal>
         {desktop ? (
@@ -141,7 +142,7 @@ export const MultiCategorySection: React.FC = () => {
               itemLabel={(category) => category.name}
               itemTone={(_, index) => toneAt(index)}
               renderItem={(category, index) => <CategoryCard category={category} tone={toneAt(index)} />}
-              label="Chuyên mục nổi bật"
+              label={tr('Chuyên mục nổi bật')}
               interval={6000}
             />
           </Reveal>

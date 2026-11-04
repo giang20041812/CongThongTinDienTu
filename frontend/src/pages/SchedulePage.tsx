@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import React, { useEffect, useMemo, useState } from 'react';
 import { CalendarCheck, Clock, Info, Printer } from '../components/icons';
 import { useTimetable } from '../api';
@@ -90,8 +91,8 @@ export const SchedulePage: React.FC<SectionProps> = (props) => {
     const morning = data.periods.filter((p) => p.period <= LAST_MORNING_PERIOD && (used.has(p.period) || used.size > 0));
     const afternoon = data.periods.filter((p) => p.period > LAST_MORNING_PERIOD && used.has(p.period));
     return [
-      { label: 'Buổi sáng', periods: morning },
-      { label: 'Buổi chiều', periods: afternoon },
+      { label: tr('Buổi sáng'), periods: morning },
+      { label: tr('Buổi chiều'), periods: afternoon },
     ].filter((s) => s.periods.length > 0);
   }, [cells, data.periods]);
 
@@ -105,7 +106,7 @@ export const SchedulePage: React.FC<SectionProps> = (props) => {
         aside={
           <button onClick={() => window.print()} className="no-print inline-flex items-center gap-2 rounded-full bg-white/10 px-5 py-2.5 text-sm font-semibold text-white ring-1 ring-white/20 transition-colors hover:bg-white/20">
             <Printer className="size-4" />
-            In thời khóa biểu
+            {tr('In thời khóa biểu')}
           </button>
         }
       />
@@ -113,14 +114,14 @@ export const SchedulePage: React.FC<SectionProps> = (props) => {
         {loading ? (
           <ListSkeleton rows={5} />
         ) : classes.length === 0 ? (
-          <EmptyState title="Chưa có thời khóa biểu" description="Thời khóa biểu sẽ được nhà trường cập nhật tại đây." />
+          <EmptyState title={tr('Chưa có thời khóa biểu')} description={tr('Thời khóa biểu sẽ được nhà trường cập nhật tại đây.')} />
         ) : (
           <>
             <Reveal>
               <div className="no-print rounded-2xl border border-line bg-white p-5 shadow-card sm:p-6">
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-center">
                   <div className="flex items-center gap-3">
-                    <span className="text-[12px] font-semibold uppercase tracking-wider text-muted">Khối</span>
+                    <span className="text-[12px] font-semibold uppercase tracking-wider text-muted">{tr('Khối')}</span>
                     <div className="inline-flex rounded-full bg-surface p-1">
                       {grades.map((g) => (
                         <button
@@ -137,7 +138,7 @@ export const SchedulePage: React.FC<SectionProps> = (props) => {
                     </div>
                   </div>
                   <div className="flex min-w-0 items-center gap-3 lg:border-l lg:border-line lg:pl-5">
-                    <span className="shrink-0 text-[12px] font-semibold uppercase tracking-wider text-muted">Lớp</span>
+                    <span className="shrink-0 text-[12px] font-semibold uppercase tracking-wider text-muted">{tr('Lớp')}</span>
                     <div className="scrollbar-none flex gap-1.5 overflow-x-auto">
                       {classes
                         .filter((c) => c.grade === grade)
@@ -162,7 +163,7 @@ export const SchedulePage: React.FC<SectionProps> = (props) => {
             <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
               <div>
                 <h2 className="text-xl font-bold">
-                  Lớp <span className="text-brand-600">{className}</span>
+                  {tr('Lớp')} <span className="text-brand-600">{className}</span>
                 </h2>
                 {site.timetable_term && (
                   <p className="mt-1 inline-flex items-center gap-1.5 text-[13px] text-muted">
@@ -187,12 +188,12 @@ export const SchedulePage: React.FC<SectionProps> = (props) => {
                     <table className="w-full border-collapse text-left">
                       <thead>
                         <tr className="bg-brand-700 text-white">
-                          <th className="w-20 px-4 py-3.5 text-[12.5px] font-semibold uppercase tracking-wider">Tiết</th>
-                          <th className="w-32 px-3 py-3.5 text-[12.5px] font-semibold uppercase tracking-wider">Thời gian</th>
+                          <th className="w-20 px-4 py-3.5 text-[12.5px] font-semibold uppercase tracking-wider">{tr('Tiết')}</th>
+                          <th className="w-32 px-3 py-3.5 text-[12.5px] font-semibold uppercase tracking-wider">{tr('Thời gian')}</th>
                           {days.map((day) => (
                             <th key={day} className={cx('px-3 py-3.5 text-center text-[12.5px] font-semibold uppercase tracking-wider', day === today && 'bg-brand-500')}>
                               {DAY_LABELS[day]}
-                              {day === today && <span className="ml-1.5 rounded-full bg-gold-400 px-1.5 py-0.5 text-[10px] text-brand-950">Hôm nay</span>}
+                              {day === today && <span className="ml-1.5 rounded-full bg-gold-400 px-1.5 py-0.5 text-[10px] text-brand-950">{tr('Hôm nay')}</span>}
                             </th>
                           ))}
                         </tr>
@@ -223,7 +224,7 @@ export const SchedulePage: React.FC<SectionProps> = (props) => {
                       <div key={day} className={cx('overflow-hidden rounded-2xl border bg-white shadow-card', day === today ? 'border-gold-400' : 'border-line')}>
                         <div className={cx('flex items-center justify-between px-4 py-3 text-white', day === today ? 'bg-brand-600' : 'bg-brand-700')}>
                           <span className="font-semibold">{DAY_LABELS[day]}</span>
-                          {day === today && <span className="rounded-full bg-gold-400 px-2 py-0.5 text-[11px] font-semibold text-brand-950">Hôm nay</span>}
+                          {day === today && <span className="rounded-full bg-gold-400 px-2 py-0.5 text-[11px] font-semibold text-brand-950">{tr('Hôm nay')}</span>}
                         </div>
                         <ul className="divide-y divide-line">
                           {lessons.map((p) => {

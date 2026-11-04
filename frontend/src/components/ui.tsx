@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowRight, CaretLeft, CaretRight, FileMagnifyingGlass, ImageIcon, type IconComponent } from './icons';
 import { Link } from '../lib/router';
@@ -229,11 +230,11 @@ export interface Crumb {
 }
 
 export const Breadcrumb: React.FC<{ items: Crumb[]; light?: boolean }> = ({ items, light = false }) => (
-  <nav aria-label="Đường dẫn" className="min-w-0">
+  <nav aria-label={tr('Đường dẫn')} className="min-w-0">
     <ol className={cx('flex flex-wrap items-center gap-1.5 text-[13px]', light ? 'text-white/70' : 'text-muted')}>
       <li>
         <Link to={{ view: 'home' }} className={cx('transition-colors', light ? 'hover:text-white' : 'hover:text-brand-600')}>
-          Trang chủ
+          {tr('Trang chủ')}
         </Link>
       </li>
       {items.map((item, index) => (
@@ -345,8 +346,8 @@ export const Pagination: React.FC<{ page: number; totalPages: number; onChange: 
   const button =
     'inline-flex size-10 items-center justify-center rounded-full text-sm font-semibold transition-all duration-300 disabled:pointer-events-none disabled:opacity-40';
   return (
-    <nav aria-label="Phân trang" className="mt-10 flex items-center justify-center gap-1.5">
-      <button onClick={() => go(page - 1)} disabled={page === 1} className={cx(button, 'border border-line bg-white text-body hover:border-brand-300 hover:text-brand-600')} aria-label="Trang trước">
+    <nav aria-label={tr('Phân trang')} className="mt-10 flex items-center justify-center gap-1.5">
+      <button onClick={() => go(page - 1)} disabled={page === 1} className={cx(button, 'border border-line bg-white text-body hover:border-brand-300 hover:text-brand-600')} aria-label={tr('Trang trước')}>
         <CaretLeft className="size-4" />
       </button>
       {pages.map((p, i) => (
@@ -380,7 +381,7 @@ export const EmptyState: React.FC<{ title: string; description?: string; action?
 );
 
 export const CardGridSkeleton: React.FC<{ count?: number; columns?: string }> = ({ count = 6, columns = 'sm:grid-cols-2 lg:grid-cols-3' }) => (
-  <div className={cx('grid grid-cols-1 gap-6', columns)} aria-busy="true" aria-label="Đang tải">
+  <div className={cx('grid grid-cols-1 gap-6', columns)} aria-busy="true" aria-label={tr('Đang tải')}>
     {Array.from({ length: count }).map((_, i) => (
       <div key={i} className="overflow-hidden rounded-2xl border border-line bg-white">
         <div className="skeleton aspect-[16/10] rounded-none" />
@@ -395,7 +396,7 @@ export const CardGridSkeleton: React.FC<{ count?: number; columns?: string }> = 
 );
 
 export const ListSkeleton: React.FC<{ rows?: number }> = ({ rows = 5 }) => (
-  <div className="space-y-3" aria-busy="true" aria-label="Đang tải">
+  <div className="space-y-3" aria-busy="true" aria-label={tr('Đang tải')}>
     {Array.from({ length: rows }).map((_, i) => (
       <div key={i} className="rounded-2xl border border-line bg-white p-4">
         <div className="skeleton h-4 w-5/6" />
@@ -406,9 +407,9 @@ export const ListSkeleton: React.FC<{ rows?: number }> = ({ rows = 5 }) => (
 );
 
 export const NotFound: React.FC<{ title?: string; description?: string; back?: { to: PageRoute; label: string } }> = ({
-  title = 'Không tìm thấy nội dung',
-  description = 'Trang bạn tìm có thể đã bị gỡ hoặc đường dẫn chưa chính xác.',
-  back = { to: { view: 'home' } as PageRoute, label: 'Về trang chủ' },
+  title = tr('Không tìm thấy nội dung'),
+  description = tr('Trang bạn tìm có thể đã bị gỡ hoặc đường dẫn chưa chính xác.'),
+  back = { to: { view: 'home' } as PageRoute, label: tr('Về trang chủ') },
 }) => (
   <Container className="py-20">
     <EmptyState

@@ -1,3 +1,4 @@
+import { getLocale, loc } from './i18n';
 import type { AttachmentDto, CategoryRef, PageRoute, PostDetailDto, PostSummaryDto } from '../types';
 import { hasText } from './richText';
 
@@ -41,12 +42,12 @@ export const parseDate = (value?: string | null): Date | null => {
 };
 
 export const formatDate = (date: Date | null, options?: Intl.DateTimeFormatOptions) =>
-  date ? date.toLocaleDateString('vi-VN', options ?? { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+  date ? date.toLocaleDateString(getLocale(), options ?? { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
 
 export const formatTime = (date: Date | null) =>
-  date ? date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
+  date ? date.toLocaleTimeString(getLocale(), { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
 
-export const formatNumber = (value: number) => value.toLocaleString('vi-VN');
+export const formatNumber = (value: number) => value.toLocaleString(getLocale());
 
 /** Published within the last `days` days – flagged "Mới" on the home page. */
 export const isRecent = (date: Date | null, days = 7) => !!date && Date.now() - date.getTime() < days * 86_400_000;
@@ -63,7 +64,7 @@ export const toPostView = (raw: PostSummaryDto | PostDetailDto): PostView => {
   const blocks: ContentBlock[] = (detail?.blocks ?? [])
     .map((b) => ({
       type: String(b?.type ?? 'TEXT').toUpperCase() === 'IMAGE' ? ('IMAGE' as const) : ('TEXT' as const),
-      content: b?.content ?? undefined,
+      content: loc(b?.content ?? undefined, b?.contentEn),
       imageUrl: b?.imageUrl ?? undefined,
     }))
     .filter((b) => (b.type === 'TEXT' ? hasText(b.content) : !!b.imageUrl));
@@ -75,11 +76,11 @@ export const toPostView = (raw: PostSummaryDto | PostDetailDto): PostView => {
   return {
     id: raw.id,
     slug: raw.slug,
-    title: raw.title,
-    summary: raw.summary?.trim() ?? '',
+    title: loc(raw.title, raw.titleEn),
+    summary: loc(raw.summary, raw.summaryEn)?.trim() ?? '',
     image: raw.coverUrl || firstImage || undefined,
-    category: raw.category,
-    categoryName: raw.category?.name ?? '',
+    category: raw.category ? { ...raw.category, name: loc(raw.category.name, raw.category.nameEn) } : raw.category,
+    categoryName: raw.category ? loc(raw.category.name, raw.category.nameEn) : '',
     publishedAt,
     date: formatDate(publishedAt),
     views: Number(raw.views ?? 0),
