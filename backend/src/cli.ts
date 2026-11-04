@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import { config } from './config.js';
 import { describeDb, pool, query } from './db.js';
+import { addEnglishCategoryNames } from './englishCategories.js';
 import { migrate } from './migrations.js';
 import { hashPassword } from './security.js';
 import { importCloudinaryFiles } from './storage/importCloudinary.js';
@@ -10,6 +11,7 @@ import { localStorage } from './storage/local.js';
  * `node dist/cli.js <command>`:
  *   migrate            applies pending db/migrations without starting the server (`npm run db:migrate`)
  *   create-editors     creates one editor account per top-level menu entry that has none (random passwords, printed once)
+ *   english-names      fills the English name of the default menu entries that have none (`npm run db:english-names`)
  *   import-cloudinary  copies the Cloudinary files the content uses to UPLOAD_DIR and rewrites their links
  */
 async function main(command: string | undefined) {
@@ -42,6 +44,15 @@ async function main(command: string | undefined) {
       console.log('[editors] Hãy lưu lại mật khẩu ở trên – sẽ không hiển thị lại.');
       return;
     }
+    case 'english-names': {
+      console.log(`[db] Cơ sở dữ liệu: ${describeDb()}`);
+      const { updated, missing } = await addEnglishCategoryNames();
+      updated.forEach((line) => console.log(`[english] ${line}`));
+      missing.forEach((line) => console.log(`[english] Chưa có bản dịch: ${line} – nhập trong trang quản trị.`));
+      console.log(`[english] Xong: thêm ${updated.length} tên tiếng Anh.`);
+      if (updated.length) console.log('[english] Khởi động lại web để xoá cache: sudo systemctl restart portal');
+      return;
+    }
     case 'import-cloudinary': {
       console.log(`[db] Cơ sở dữ liệu: ${describeDb()} · thư mục tệp: ${config.storage.local.dir}`);
       const { total, copied, failed } = await importCloudinaryFiles(localStorage(config.storage.local));
@@ -51,7 +62,7 @@ async function main(command: string | undefined) {
       return;
     }
     default:
-      console.log('Cách dùng: node dist/cli.js migrate | create-editors | import-cloudinary');
+      console.log('Cách dùng: node dist/cli.js migrate | create-editors | english-names | import-cloudinary');
       process.exitCode = 1;
   }
 }
