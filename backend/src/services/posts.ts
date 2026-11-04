@@ -76,8 +76,10 @@ interface CategoryRef {
 export interface PostSummary {
   id: string;
   title: string;
+  titleEn: string | null;
   slug: string;
   summary: string | null;
+  summaryEn: string | null;
   coverUrl: string | null;
   status: string;
   pinned: boolean;
@@ -97,6 +99,8 @@ export interface PostSummary {
 interface Block {
   type: string;
   content: string | null;
+  /** undefined = not sent by the client (kept from the previous version on update). */
+  contentEn?: string | null;
   imageUrl: string | null;
 }
 
@@ -123,20 +127,20 @@ export interface PhotoItem {
 }
 
 // JSON shapes: same fields, in the same order, as the DTOs of the Java API.
-const CATEGORY_REF = `json_build_object('id', c.id, 'name', c.name, 'slug', c.slug, 'pageType', c.page_type)`;
+const CATEGORY_REF = `json_build_object('id', c.id, 'name', c.name, 'nameEn', c.name_en, 'slug', c.slug, 'pageType', c.page_type)`;
 
-const SUMMARY_COLUMNS = `p.id, p.title, p.slug, p.summary, p.cover_url AS "coverUrl", p.status, p.pinned, p.featured, p.views,
+const SUMMARY_COLUMNS = `p.id, p.title, p.title_en AS "titleEn", p.slug, p.summary, p.summary_en AS "summaryEn", p.cover_url AS "coverUrl", p.status, p.pinned, p.featured, p.views,
   p.published_at AS "publishedAt", ${CATEGORY_REF} AS category, u.username AS author,
   p.document_number AS "documentNumber", p.issuer, p.issued_date AS "issuedDate",
   (SELECT count(*) FROM post_attachments a WHERE a.post_id = p.id)::int AS "attachmentCount",
   (SELECT count(*) FROM post_blocks b WHERE b.post_id = p.id AND b.type = 'IMAGE')::int AS "imageCount"`;
 
 /** A whole post – blocks and attachments included – in one query. */
-const SELECT_DETAIL = `SELECT p.id, p.title, p.slug, p.summary, p.cover_url AS "coverUrl", p.status, p.pinned, p.featured, p.views,
+const SELECT_DETAIL = `SELECT p.id, p.title, p.title_en AS "titleEn", p.slug, p.summary, p.summary_en AS "summaryEn", p.cover_url AS "coverUrl", p.status, p.pinned, p.featured, p.views,
   p.published_at AS "publishedAt", p.updated_at AS "updatedAt", ${CATEGORY_REF} AS category, u.username AS author,
   p.document_number AS "documentNumber", p.issuer, p.issued_date AS "issuedDate", p.recipient,
   p.action_required AS "actionRequired",
-  COALESCE((SELECT json_agg(json_build_object('type', b.type, 'content', b.content, 'imageUrl', b.image_url)
+  COALESCE((SELECT json_agg(json_build_object('type', b.type, 'content', b.content, 'contentEn', b.content_en, 'imageUrl', b.image_url)
             ORDER BY b.order_index) FROM post_blocks b WHERE b.post_id = p.id), '[]'::json) AS blocks,
   COALESCE((SELECT json_agg(json_build_object('id', a.id, 'name', a.name, 'url', a.url, 'sizeBytes', a.size_bytes,
             'mimeType', a.mime_type) ORDER BY a.sort_order) FROM post_attachments a WHERE a.post_id = p.id), '[]'::json) AS attachments
@@ -150,6 +154,8 @@ const BLOCK_TYPES = ['TEXT', 'IMAGE'] as const;
 
 interface PostRequest {
   title: string | null;
+  titleEn: string | null;
+  summaryEn: string | null;
   slug: string | null;
   categoryId: string | null;
   summary: string | null;
@@ -178,6 +184,8 @@ function readRequest(body: unknown): PostRequest {
   const b = jsonObject(body);
   return {
     title: str(b.title),
+    titleEn: str(b.titleEn),
+    summaryEn: str(b.summaryEn),
     slug: str(b.slug),
     categoryId: uuid(b.categoryId),
     summary: str(b.summary),
@@ -205,9 +213,11 @@ function readBlocks(list: unknown[]): Block[] {
     const type = blockType(source.type);
     const text = type === 'TEXT' ? str(source.content) : null;
     const content = text != null && isRichHtml(text) ? sanitizeHtml(text) : text;
+    const textEn = type === 'TEXT' && 'contentEn' in source ? blankToNull(str(source.contentEn)) : null;
+    const contentEn = textEn != null && isRichHtml(textEn) ? sanitizeHtml(textEn) : textEn;
     const imageUrl = type === 'IMAGE' ? blankToNull(str(source.imageUrl)) : null;
     if (type === 'IMAGE' ? imageUrl == null : content == null || isBlank(blockText(content)) && !/<img\b/i.test(content)) continue;
-    blocks.push({ type, content, imageUrl });
+    blocks.push({ type, content, contentEn: type === 'TEXT' && !('contentEn' in source) ? undefined : contentEn, imageUrl });
   }
   return blocks;
 }
@@ -362,13 +372,14 @@ export class PostService {
       const now = localNow();
       const row = await queryOne<{ id: string }>(
         `INSERT INTO posts (title, slug, category_id, author_id, summary, cover_url, status, pinned, featured, views, published_at,
-           document_number, issuer, issued_date, recipient, action_required, search_text, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $17, 0, $9, $10, $11, $12, $13, $14, $15, $16, $16) RETURNING id`,
+           document_number, issuer, issued_date, recipient, action_required, search_text, created_at, updated_at, title_en, summary_en)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $17, 0, $9, $10, $11, $12, $13, $14, $15, $16, $16, $18, $19) RETURNING id`,
         [
           title, slug, category.id, authorId, summary, coverUrl, normalizeStatus(input.status),
           input.pinned === true, input.publishedAt ?? now, documentNumber, issuer, input.issuedDate,
           blankToNull(input.recipient), blankToNull(input.actionRequired),
           searchable(title, summary, documentNumber, issuer), now, input.featured === true,
+          blankToNull(input.titleEn), blankToNull(input.summaryEn),
         ],
         db,
       );
@@ -407,7 +418,7 @@ export class PostService {
       await db.query(
         `UPDATE posts SET title = $2, slug = $3, category_id = $4, summary = $5, cover_url = $6, status = $7, pinned = $8,
            published_at = $9, document_number = $10, issuer = $11, issued_date = $12, recipient = $13, action_required = $14,
-           search_text = $15, updated_at = $16, featured = $17
+           search_text = $15, updated_at = $16, featured = $17, title_en = $18, summary_en = $19
          WHERE id = $1`,
         [
           id, title, slug, categoryId, summary, coverUrl,
@@ -417,9 +428,16 @@ export class PostService {
           documentNumber, issuer, input.issuedDate ?? current.issuedDate,
           changed(input.recipient, current.recipient), changed(input.actionRequired, current.actionRequired),
           searchable(title, summary, documentNumber, issuer), localNow(), input.featured ?? current.featured,
+          changed(input.titleEn, current.titleEn), changed(input.summaryEn, current.summaryEn),
         ],
       );
-      await this.replaceChildren(id, input.blocks, input.attachments, db, true);
+      // Editors that only know the Vietnamese text keep the English version of the block at the same position.
+      const blocks = input.blocks?.map((b, i) => {
+        if (b.contentEn !== undefined) return b;
+        const old = current.blocks[i];
+        return { ...b, contentEn: old && old.type === 'TEXT' ? old.contentEn : null };
+      }) ?? null;
+      await this.replaceChildren(id, blocks, input.attachments, db, true);
       return true;
     });
     if (!found) return null;
@@ -533,10 +551,10 @@ export class PostService {
       if (replace) await db.query(`DELETE FROM post_blocks WHERE post_id = $1`, [postId]);
       if (blocks.length) {
         await db.query(
-          `INSERT INTO post_blocks (post_id, type, content, image_url, order_index)
-           SELECT $1, t.type, t.content, t.image_url, t.ord - 1
-           FROM unnest($2::text[], $3::text[], $4::text[]) WITH ORDINALITY AS t(type, content, image_url, ord)`,
-          [postId, blocks.map((b) => b.type), blocks.map((b) => b.content), blocks.map((b) => b.imageUrl)],
+          `INSERT INTO post_blocks (post_id, type, content, content_en, image_url, order_index)
+           SELECT $1, t.type, t.content, t.content_en, t.image_url, t.ord - 1
+           FROM unnest($2::text[], $3::text[], $4::text[], $5::text[]) WITH ORDINALITY AS t(type, content, image_url, content_en, ord)`,
+          [postId, blocks.map((b) => b.type), blocks.map((b) => b.content), blocks.map((b) => b.imageUrl), blocks.map((b) => b.contentEn ?? null)],
         );
       }
     }

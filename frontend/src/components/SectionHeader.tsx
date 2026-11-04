@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import React from 'react';
 import { MenuLink } from '../lib/menu';
 import type { Category } from '../types';
@@ -15,7 +16,7 @@ export interface SectionProps {
 export const SectionHeader: React.FC<SectionProps & { aside?: React.ReactNode }> = ({ category, parent, section, crumbs, aside }) => (
   <>
     <PageHeader
-      eyebrow={parent?.name ?? 'Cổng thông tin'}
+      eyebrow={parent?.name ?? tr('Cổng thông tin')}
       title={category.name}
       description={category.description ?? undefined}
       crumbs={crumbs}

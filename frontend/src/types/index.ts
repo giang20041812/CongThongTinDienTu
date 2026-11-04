@@ -6,6 +6,7 @@ export interface Category {
   id: string;
   parentId: string | null;
   name: string;
+  nameEn?: string | null;
   slug: string;
   pageType: PageType;
   sortOrder: number;
@@ -13,6 +14,7 @@ export interface Category {
   showOnHome: boolean;
   externalUrl?: string | null;
   description?: string | null;
+  descriptionEn?: string | null;
 }
 
 export interface MenuNode extends Category {
@@ -22,6 +24,7 @@ export interface MenuNode extends Category {
 export interface CategoryRef {
   id: string;
   name: string;
+  nameEn?: string | null;
   slug: string;
   pageType: PageType;
 }
@@ -29,8 +32,10 @@ export interface CategoryRef {
 export interface PostSummaryDto {
   id: string;
   title: string;
+  titleEn?: string | null;
   slug: string;
   summary: string | null;
+  summaryEn?: string | null;
   coverUrl: string | null;
   status: string;
   pinned: boolean;
@@ -58,6 +63,7 @@ export interface PhotoDto {
 export interface BlockDto {
   type: 'TEXT' | 'IMAGE';
   content?: string | null;
+  contentEn?: string | null;
   imageUrl?: string | null;
 }
 

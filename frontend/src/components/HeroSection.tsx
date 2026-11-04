@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import realBanner from '../assets/realbanner.png';
 import { usePostPage } from '../api';
@@ -64,7 +65,7 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
   return (
     <section
       aria-roledescription={slider ? 'carousel' : undefined}
-      aria-label={`Ảnh Trường ${site.school_name}`}
+      aria-label={`${tr('Ảnh', 'Photos of')} ${tr('Trường', '')} ${site.school_name}`}
       className={cx('group relative isolate overflow-hidden rounded-3xl bg-brand-900 shadow-card', className)}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
@@ -94,7 +95,7 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
             <img
               key={slide.src}
               src={slide.src}
-              alt={slider ? `Trường ${site.school_name} – ảnh ${index + 1}` : `Trường ${site.school_name}`}
+              alt={slider ? `${tr('Trường', '')} ${site.school_name} – ${index + 1}` : `${tr('Trường', '')} ${site.school_name}`}
               aria-hidden={!active}
               loading={index === 0 ? 'eager' : 'lazy'}
               decoding="async"
@@ -122,7 +123,7 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
             >
               <span className="inline-flex items-center gap-2 text-[11.5px] font-bold uppercase tracking-wider text-gold-300">
                 <Sparkle className="size-3.5" />
-                {post.categoryName || 'Tin nổi bật'}
+                {post.categoryName || tr('Tin nổi bật')}
               </span>
               <span className="mt-2 block max-w-3xl text-balance text-xl font-bold leading-snug text-white [text-shadow:0_2px_12px_rgb(0_0_0/0.4)] line-clamp-3 sm:text-2xl lg:text-[1.75rem]">
                 {post.title}
@@ -133,7 +134,7 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
                   {formatDate(post.publishedAt)}
                 </span>
                 <span className="inline-flex items-center gap-1.5 font-semibold text-white">
-                  Đọc tiếp <ArrowRight className="size-4" />
+                  {tr('Đọc tiếp')} <ArrowRight className="size-4" />
                 </span>
               </span>
             </span>
@@ -151,7 +152,7 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
           />
 
           <div className="absolute inset-x-0 bottom-0 flex items-center gap-3 p-5 sm:p-6">
-            <div className="flex items-center gap-2" role="tablist" aria-label="Chọn ảnh">
+            <div className="flex items-center gap-2" role="tablist" aria-label={tr('Chọn ảnh')}>
               {slides.map((slide, index) => {
                 const active = index === current;
                 return (
@@ -159,7 +160,7 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
                     key={slide.kind === 'banner' ? slide.src : slide.post.id}
                     role="tab"
                     aria-selected={active}
-                    aria-label={`Ảnh ${index + 1}`}
+                    aria-label={`${tr('Ảnh', 'Photo')} ${index + 1}`}
                     onClick={(e) => {
                       e.currentTarget.blur();
                       go(index);
@@ -195,7 +196,7 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
               e.currentTarget.blur();
               prev();
             }}
-            aria-label="Ảnh trước"
+            aria-label={tr('Ảnh trước')}
             className={cx(arrowClass, 'left-3')}
           >
             <CaretLeft className="size-5" />
@@ -205,7 +206,7 @@ const BannerSlider: React.FC<{ className?: string }> = ({ className }) => {
               e.currentTarget.blur();
               next();
             }}
-            aria-label="Ảnh tiếp theo"
+            aria-label={tr('Ảnh tiếp theo')}
             className={cx(arrowClass, 'right-3')}
           >
             <CaretRight className="size-5" />
@@ -234,11 +235,11 @@ const QuickAccess: React.FC<{ className?: string }> = ({ className }) => {
   const links = useQuickLinks();
   const site = useSite();
   return (
-    <aside className={cx('relative flex flex-col overflow-hidden rounded-3xl border border-line bg-white shadow-card', className)} aria-label="Truy cập nhanh">
+    <aside className={cx('relative flex flex-col overflow-hidden rounded-3xl border border-line bg-white shadow-card', className)} aria-label={tr('Truy cập nhanh')}>
       <div className="relative flex items-start justify-between gap-3 px-5 pb-3 pt-5">
         <div>
-          <Eyebrow>Truy cập nhanh</Eyebrow>
-          <h2 className="mt-1 text-lg font-bold">Thông tin & tiện ích</h2>
+          <Eyebrow>{tr('Truy cập nhanh')}</Eyebrow>
+          <h2 className="mt-1 text-lg font-bold">{tr('Thông tin & tiện ích')}</h2>
         </div>
         <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-gold-100 text-gold-600" aria-hidden="true">
           <Sparkle className="size-5" />
@@ -275,7 +276,7 @@ const QuickAccess: React.FC<{ className?: string }> = ({ className }) => {
             <PhoneCall className="size-5 animate-ring" />
           </span>
           <span className="relative leading-tight">
-            <span className="block text-[11px] font-medium uppercase tracking-wider text-white/70">Hỗ trợ tuyển sinh & học vụ</span>
+            <span className="block text-[11px] font-medium uppercase tracking-wider text-white/70">{tr('Hỗ trợ tuyển sinh & học vụ')}</span>
             <span className="mt-0.5 block text-lg font-bold">{site.hotline}</span>
           </span>
           <ArrowRight className="relative ml-auto size-4 text-gold-300 transition-transform duration-300 group-hover:translate-x-1" />

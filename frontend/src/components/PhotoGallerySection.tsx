@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import React from 'react';
 import { usePhotos } from '../api';
 import { postRoute } from '../lib/content';
@@ -26,10 +27,10 @@ export const PhotoGallerySection: React.FC = () => {
         <Reveal>
           <SectionHeading
             icon={ImageIcon}
-            eyebrow="Khoảnh khắc"
-            title="Thư viện ảnh"
-            description="Hình ảnh mới nhất từ các hoạt động của thầy và trò nhà trường."
-            action={library ? { to: categoryRoute(library), label: 'Xem kho ảnh' } : undefined}
+            eyebrow={tr('Khoảnh khắc')}
+            title={tr('Thư viện ảnh')}
+            description={tr('Hình ảnh mới nhất từ các hoạt động của thầy và trò nhà trường.')}
+            action={library ? { to: categoryRoute(library), label: tr('Xem kho ảnh') } : undefined}
           />
         </Reveal>
         <Reveal>
