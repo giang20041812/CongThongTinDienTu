@@ -1,0 +1,22 @@
+name: only-develop-to-main
+
+# main is deployment only: every pull request into main must come from develop.
+on:
+  pull_request:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  only-develop-to-main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kiểm tra nhánh nguồn của pull request
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          if [ "$HEAD_REF" != "develop" ]; then
+            echo "::error::Chỉ được mở pull request vào main từ nhánh develop (nhánh hiện tại: $HEAD_REF)."
+            exit 1
+          fi
+          echo "Nhánh nguồn là develop: hợp lệ."
