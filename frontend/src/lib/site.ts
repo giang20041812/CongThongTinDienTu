@@ -1,6 +1,9 @@
 import { useEffect, useMemo } from 'react';
 import { useSettingsResource } from '../api';
-import { loc } from './i18n';
+import { getLang, loc } from './i18n';
+
+/** English school name used when the admin has not set "school_name_en". */
+const DEFAULT_SCHOOL_NAME_EN = 'Dang Tran Duc Highschool';
 
 /** School information, editable by admins; these defaults only show until the API answers. */
 export const DEFAULT_SITE = {
@@ -55,7 +58,8 @@ export const useSite = (): SiteInfo => {
     const merged = { ...DEFAULT_SITE };
     (Object.keys(merged) as (keyof SiteInfo)[]).forEach((key) => {
       // English text lives in the same table under "<key>_en" (e.g. school_name_en).
-      const value = loc(data[key], data[`${key}_en`]);
+      const enOverride = String(data[`${key}_en`] ?? '').trim() || (key === 'school_name' ? DEFAULT_SCHOOL_NAME_EN : '');
+      const value = loc(data[key], enOverride);
       if (value?.trim()) merged[key] = value.trim();
     });
     // The parent organisation and slogan are no longer shown on the site.
@@ -69,7 +73,8 @@ export const useSite = (): SiteInfo => {
 export const usePageTitle = (title?: string | null) => {
   const { school_name } = useSite();
   useEffect(() => {
-    document.title = title ? `${title} – Trường ${school_name}` : `Trường ${school_name} – Cổng thông tin điện tử`;
+    const name = getLang() === 'en' ? school_name : `Trường ${school_name}`;
+    document.title = title ? `${title} – ${name}` : `${name} – ${getLang() === 'en' ? 'Web portal' : 'Cổng thông tin điện tử'}`;
   }, [title, school_name]);
 };
 
