@@ -1,0 +1,12 @@
+# Chạy portal-backup.service mỗi đêm lúc 2:30 giờ Việt Nam; VPS tắt lúc đó thì chạy bù khi bật lại.
+# Lần chạy kế tiếp: systemctl list-timers portal-backup
+[Unit]
+Description=Backup hang dem cho cong thong tin
+
+[Timer]
+OnCalendar=*-*-* 02:30 Asia/Ho_Chi_Minh
+RandomizedDelaySec=15min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,24 @@
+{
+  "name": "cong-thong-tin-dien-tu",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cổng thông tin điện tử THPT Đặng Trần Đức: React (frontend/) + Node.js/Express (backend/) + PostgreSQL (Supabase), chạy thành một app Node.",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c blue,green \"npm run dev -w backend\" \"npm run dev -w frontend\"",
+    "build": "npm run build -w frontend && npm run build -w backend",
+    "start": "node --enable-source-maps backend/dist/server.js",
+    "db:migrate": "npm run db:migrate -w backend",
+    "lint": "npm run lint -w frontend && npm run lint -w backend",
+    "test": "npm test -w backend"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
+}
