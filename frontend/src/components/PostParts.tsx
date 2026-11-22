@@ -96,7 +96,7 @@ export const ArticleBody: React.FC<{ post: PostView; emptyText?: string }> = ({ 
       {post.blocks.map((block, index) =>
         block.type === 'IMAGE' ? (
           <figure key={index}>
-            <SmartImage src={block.imageUrl} alt={post.title} width={1100} className="aspect-[16/9] rounded-xl" />
+            <SmartImage src={block.imageUrl} alt={post.title} width={1100} natural className="rounded-xl" />
           </figure>
         ) : (
           <RichText key={index} content={block.content ?? ''} />
