@@ -97,6 +97,8 @@ interface SmartImageProps {
   imgClassName?: string;
   priority?: boolean;
   placeholderLabel?: string;
+  /** Show the whole photo at its own aspect ratio instead of cropping it to the box. */
+  natural?: boolean;
 }
 
 /** Lazy, resized (Cloudinary, /uploads copies, Unsplash), fades in on load and falls back to a branded placeholder. */
@@ -108,6 +110,7 @@ export const SmartImage: React.FC<SmartImageProps> = ({
   imgClassName,
   priority = false,
   placeholderLabel,
+  natural = false,
 }) => {
   const [failed, setFailed] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -127,7 +130,7 @@ export const SmartImage: React.FC<SmartImageProps> = ({
   return (
     <div className={cx('relative overflow-hidden bg-brand-50', className)}>
       {!optimized || failed ? (
-        <ImagePlaceholder label={placeholderLabel} />
+        natural ? <div className="aspect-[16/9]"><ImagePlaceholder label={placeholderLabel} /></div> : <ImagePlaceholder label={placeholderLabel} />
       ) : (
         <img
           ref={imgRef}
@@ -139,7 +142,8 @@ export const SmartImage: React.FC<SmartImageProps> = ({
           onLoad={() => setLoaded(true)}
           onError={() => setFailed(true)}
           className={cx(
-            'h-full w-full object-cover transition-[opacity,transform] duration-700 ease-(--ease-soft)',
+            natural ? 'block h-auto w-full' : 'h-full w-full object-cover',
+            'transition-[opacity,transform] duration-700 ease-(--ease-soft)',
             loaded ? 'opacity-100' : 'opacity-0',
             imgClassName,
           )}

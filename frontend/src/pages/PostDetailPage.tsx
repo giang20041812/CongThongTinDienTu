@@ -122,7 +122,7 @@ const ArticleView: React.FC<{ post: PostView }> = ({ post }) => {
           {formatNumber(post.views)} {tr('lượt xem')}
         </span>
       </div>
-      {post.image && <SmartImage src={post.image} alt={post.title} width={1200} priority className="mt-6 aspect-[16/9] rounded-xl" />}
+      {post.image && <SmartImage src={post.image} alt={post.title} width={1200} priority natural className="mt-6 rounded-xl" />}
       <div className="mt-7">
         <ArticleBody post={post} />
       </div>
