@@ -34,6 +34,31 @@ function normalizeUrl(input: string): string {
   return `https://${url}`;
 }
 
+const URL_ONLY = /^(https?:\/\/|www\.)[^\s<>"]+$/i;
+const URL_IN_TEXT = /\b((?:https?:\/\/|www\.)[^\s<>"]+)/gi;
+/** Sentence punctuation right after a pasted/typed address is not part of it. */
+const trimUrl = (raw: string) => {
+  const url = raw.replace(/[.,;:!?)\]}'"»]+$/, '');
+  return { url, rest: raw.slice(url.length) };
+};
+const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+/** Plain text -> HTML with every web address turned into a link (line breaks become <br>). */
+function linkifyText(text: string): string {
+  return text
+    .split(/\r?\n/)
+    .map((line) => {
+      let out = '';
+      let last = 0;
+      for (const m of line.matchAll(URL_IN_TEXT)) {
+        const { url, rest } = trimUrl(m[1]);
+        out += escapeHtml(line.slice(last, m.index)) + `<a href="${escapeHtml(normalizeUrl(url))}">${escapeHtml(url)}</a>` + escapeHtml(rest);
+        last = m.index! + m[1].length;
+      }
+      return out + escapeHtml(line.slice(last));
+    })
+    .join('<br>');
+}
+
 const toHex = (color: string) => {
   const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(color);
   return m ? `#${[m[1], m[2], m[3]].map((n) => Number(n).toString(16).padStart(2, '0')).join('')}` : '#000000';
@@ -336,6 +361,37 @@ export function RichTextEditor({ initial, onChange, placeholder, uploadImage }: 
       return;
     }
 
+    // Typing an address then Space/Enter turns it into a link.
+    if ((event.key === ' ' || event.key === 'Enter') && !event.ctrlKey && !event.metaKey) {
+      const selection = window.getSelection();
+      const node = selection?.anchorNode;
+      if (selection && selection.isCollapsed && node?.nodeType === Node.TEXT_NODE && !elementOf(node)?.closest('a')) {
+        const before = (node.nodeValue ?? '').slice(0, selection.anchorOffset);
+        const word = /(\S+)$/.exec(before)?.[1];
+        if (word && URL_ONLY.test(word)) {
+          const { url } = trimUrl(word);
+          if (URL_ONLY.test(url)) {
+            const r = document.createRange();
+            r.setStart(node, selection.anchorOffset - word.length);
+            r.setEnd(node, selection.anchorOffset - (word.length - url.length));
+            selection.removeAllRanges();
+            selection.addRange(r);
+            document.execCommand('createLink', false, normalizeUrl(url));
+            // Put the caret back after the link so the typed space/Enter lands outside it.
+            selection.collapseToEnd();
+            const a = elementOf(selection.anchorNode)?.closest('a');
+            if (a) {
+              const after = document.createRange();
+              after.setStartAfter(a);
+              after.collapse(true);
+              selection.removeAllRanges();
+              selection.addRange(after);
+            }
+          }
+        }
+      }
+    }
+
     if (event.key === 'Tab') {
       event.preventDefault();
       if (event.shiftKey) {
@@ -543,8 +599,20 @@ export function RichTextEditor({ initial, onChange, placeholder, uploadImage }: 
               // Keep what the editor can express (from Word, Docs or the web); the rest is dropped.
               event.preventDefault();
               const html = event.clipboardData.getData('text/html');
-              if (html) document.execCommand('insertHTML', false, sanitizeHtml(html));
-              else document.execCommand('insertText', false, event.clipboardData.getData('text/plain'));
+              const plain = event.clipboardData.getData('text/plain').trim();
+              const htmlText = html ? new DOMParser().parseFromString(html, 'text/html').body.textContent?.trim() : '';
+              const selection = window.getSelection();
+              const inLink = !!elementOf(selection?.anchorNode)?.closest('a');
+              if (URL_ONLY.test(plain) && (!html || htmlText === plain) && !inLink) {
+                // A copied address: make it a link, or turn the selected words into one.
+                const url = normalizeUrl(plain);
+                if (selection && !selection.isCollapsed) document.execCommand('createLink', false, url);
+                else document.execCommand('insertHTML', false, `<a href="${escapeHtml(url)}">${escapeHtml(plain)}</a>`);
+              } else if (html) {
+                document.execCommand('insertHTML', false, sanitizeHtml(html));
+              } else {
+                document.execCommand('insertHTML', false, linkifyText(event.clipboardData.getData('text/plain')));
+              }
               emit();
             }}
             onDrop={(event) => {
