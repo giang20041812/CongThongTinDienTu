@@ -360,14 +360,42 @@ function AdminPortal({ me, onLogout }: { me: AdminMe; onLogout: () => void }) {
     window.setTimeout(() => setToast(null), tone === 'error' ? 5000 : 2400);
   }, []);
 
-  const navItems: { id: AdminSection; label: string; icon: typeof LayoutDashboard }[] = isEditor
+  // Admin-only: count of unhandled feedback, polled so new submissions raise a badge and a toast.
+  const [newFeedback, setNewFeedback] = useState(0);
+  const lastNewFeedback = useRef<number | null>(null);
+  useEffect(() => {
+    if (isEditor) return;
+    let cancelled = false;
+    const check = async () => {
+      try {
+        const count = (await adminApi.feedback()).filter(f => f.status === 'NEW').length;
+        if (cancelled) return;
+        const previous = lastNewFeedback.current;
+        lastNewFeedback.current = count;
+        setNewFeedback(count);
+        if (count > 0 && (previous == null || count > previous)) {
+          notify(previous == null ? `Có ${count} góp ý chưa xử lý` : `Có ${count - previous} góp ý mới cần giải quyết`);
+        }
+      } catch { /* the badge is best-effort */ }
+    };
+    void check();
+    const timer = window.setInterval(() => void check(), 60_000);
+    return () => { cancelled = true; window.clearInterval(timer); };
+  }, [isEditor, section, notify]);
+  useEffect(() => {
+    const base = document.title.replace(/^\(\d+\)\s*/, '');
+    document.title = newFeedback > 0 ? `(${newFeedback}) ${base}` : base;
+    return () => { document.title = base; };
+  }, [newFeedback]);
+
+  const navItems: { id: AdminSection; label: string; icon: typeof LayoutDashboard; badge?: number }[] = isEditor
     ? [{ id: 'posts', label: 'Bài viết & văn bản', icon: FileText }]
     : [
         { id: 'dashboard', label: 'Tổng quan', icon: LayoutDashboard },
         { id: 'menu', label: 'Đầu mục & menu', icon: FolderTree },
         { id: 'posts', label: 'Bài viết & văn bản', icon: FileText },
         { id: 'timetable', label: 'Thời khóa biểu', icon: CalendarClock },
-        { id: 'feedback', label: 'Góp ý – Phản hồi', icon: MessageSquare },
+        { id: 'feedback', label: 'Góp ý – Phản hồi', icon: MessageSquare, badge: newFeedback },
         { id: 'settings', label: 'Thông tin trường', icon: Settings },
         { id: 'users', label: 'Tài khoản', icon: UserRound },
       ];
@@ -377,7 +405,7 @@ function AdminPortal({ me, onLogout }: { me: AdminMe; onLogout: () => void }) {
     {sidebarOpen && <button className="fixed inset-0 bg-black/30 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} aria-label="Đóng menu" />}
     <aside className={`fixed lg:sticky lg:top-0 z-30 w-[255px] h-screen shrink-0 bg-[#102b49] text-white flex flex-col transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
       <div className="h-[76px] px-6 flex items-center border-b border-white/10"><div className="w-9 h-9 bg-[#0052cc] grid place-items-center mr-3"><ShieldCheck size={19} /></div><div><p className="text-[9px] tracking-[.2em] text-[#83c9ed] font-bold">CỔNG THÔNG TIN</p><p className="font-extrabold">Quản trị</p></div></div>
-      <div className="px-4 pt-7"><p className="text-[10px] uppercase tracking-[.16em] text-[#7490aa] font-bold px-3 mb-3">Không gian quản trị</p>{navItems.map(item => { const Icon = item.icon; return <button key={item.id} onClick={() => navigate(item.id)} className={`w-full flex items-center gap-3 px-3 py-3 text-sm font-semibold mb-1 transition-colors ${section === item.id ? 'bg-[#0052cc] text-white' : 'text-[#b8c9d8] hover:bg-white/10'}`}><Icon size={17} /> <span className="flex-1 text-left">{item.label}</span></button>; })}</div>
+      <div className="px-4 pt-7"><p className="text-[10px] uppercase tracking-[.16em] text-[#7490aa] font-bold px-3 mb-3">Không gian quản trị</p>{navItems.map(item => { const Icon = item.icon; return <button key={item.id} onClick={() => navigate(item.id)} className={`w-full flex items-center gap-3 px-3 py-3 text-sm font-semibold mb-1 transition-colors ${section === item.id ? 'bg-[#0052cc] text-white' : 'text-[#b8c9d8] hover:bg-white/10'}`}><Icon size={17} /> <span className="flex-1 text-left">{item.label}</span>{!!item.badge && <span className="min-w-[20px] h-5 px-1.5 grid place-items-center rounded-full bg-[#e5484d] text-white text-[11px] font-bold" aria-label={`${item.badge} chưa xử lý`}>{item.badge > 99 ? '99+' : item.badge}</span>}</button>; })}</div>
       <div className="mt-auto p-4 border-t border-white/10 space-y-1">
         <a href="/" target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3 text-sm text-[#b8c9d8] hover:text-white px-3 py-2.5"><Home size={17} /> Xem trang công khai</a>
         <button className="w-full flex items-center gap-3 text-sm text-[#b8c9d8] hover:text-white px-3 py-2.5 transition-colors" onClick={() => setChangePasswordOpen(true)}><KeyRound size={17} /> Đổi mật khẩu</button>

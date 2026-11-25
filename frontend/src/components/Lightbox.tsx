@@ -1,5 +1,6 @@
 import { tr } from '../lib/i18n';
 import React, { useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { optimizeImage } from '../lib/content';
 import { CaretLeft, CaretRight, X } from './icons';
 
@@ -37,7 +38,8 @@ export const Lightbox: React.FC<LightboxProps> = ({ images, index, title, onChan
   }, [open, move, onChange]);
 
   if (index === null) return null;
-  return (
+  // Portal to <body> so a transformed/animated ancestor can't become the containing block of `fixed`.
+  return createPortal(
     <div className="no-print fixed inset-0 z-[70] bg-brand-950/95" role="dialog" aria-modal="true" aria-label={title} onClick={() => onChange(null)}>
       <img
         key={index}
@@ -78,6 +80,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ images, index, title, onChan
           </button>
         </>
       )}
-    </div>
+    </div>,
+    document.body,
   );
 };
